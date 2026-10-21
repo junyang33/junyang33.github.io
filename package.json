@@ -1,0 +1,14 @@
+{
+  "name": "my-blog",
+  "version": "2.0.0",
+  "private": true,
+  "description": "零依赖静态博客：Markdown 进，静态 HTML 出",
+  "scripts": {
+    "build": "node build.js",
+    "serve": "node serve.js",
+    "dev": "node build.js && node serve.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,954 @@
+#!/usr/bin/env node
+'use strict';
+
+/**
+ * 静态博客生成器
+ * ------------------------------------------------------------
+ * content/posts/*.md  →  public/**.html
+ * 零依赖，只用到 Node.js 内置模块。
+ * 用法: node build.js
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = __dirname;
+const OUT = path.join(ROOT, 'public');
+const ASSETS = path.join(ROOT, 'assets');
+const CONTENT = path.join(ROOT, 'content');
+const POSTS_DIR = path.join(CONTENT, 'posts');
+
+const rawConfig = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.json'), 'utf8'));
+
+const SITE = {
+  title: rawConfig.title || '我的博客',
+  tagline: rawConfig.tagline || '',
+  description: rawConfig.description || '',
+  author: rawConfig.author || '',
+  email: rawConfig.email || '',
+  url: String(rawConfig.url || 'https://example.com').replace(/\/+$/, ''),
+  lang: rawConfig.language || 'zh-CN',
+  perPage: Math.max(1, Number(rawConfig.postsPerPage) || 8),
+  startYear: Number(rawConfig.startYear) || new Date().getFullYear(),
+  footerNote: rawConfig.footerNote || '',
+  social: Array.isArray(rawConfig.social) ? rawConfig.social : [],
+  comments: rawConfig.comments || { enabled: false },
+  analytics: rawConfig.analytics || { enabled: false },
+};
+
+const NAV = [
+  { href: '/', label: '首页', key: 'home' },
+  { href: '/archive.html', label: '归档', key: 'archive' },
+  { href: '/tags.html', label: '标签', key: 'tags' },
+  { href: '/search.html', label: '搜索', key: 'search' },
+  { href: '/links.html', label: '友链', key: 'links' },
+  { href: '/about.html', label: '关于', key: 'about' },
+];
+
+let POST_COUNT = 0;
+
+/* ============================ 工具函数 ============================ */
+
+const esc = (s = '') =>
+  String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+function fmtDate(iso) {
+  const s = String(iso || '').slice(0, 10);
+  const parts = s.split('-');
+  if (parts.length < 3) return s;
+  return parts[0] + '年' + Number(parts[1]) + '月' + Number(parts[2]) + '日';
+}
+
+function isoDate(v) {
+  return String(v || '').slice(0, 10);
+}
+
+function readingMinutes(text) {
+  const cjk = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+  const words = (text.replace(/[\u4e00-\u9fa5]/g, ' ').match(/[A-Za-z0-9_]+/g) || []).length;
+  return Math.max(1, Math.round(cjk / 400 + words / 200));
+}
+
+function stripHtml(html) {
+  return String(html)
+    .replace(/<pre[\s\S]*?<\/pre>/g, ' ')
+    .replace(/<table[\s\S]*?<\/table>/g, ' ')
+    .replace(/<a class="anchor"[\s\S]*?<\/a>/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function stripMd(md) {
+  return String(md)
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/[*_`>|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function truncate(s, n) {
+  s = String(s || '');
+  return s.length > n ? s.slice(0, n) + '…' : s;
+}
+
+const tagId = (t) => 'tag-' + encodeURIComponent(t);
+
+function tagSlugText(t) {
+  return '#' + t;
+}
+
+/* ============================ Markdown ============================ */
+
+function renderInline(text) {
+  const codes = [];
+
+  let s = esc(text).replace(/`([^`]+)`/g, function (m, c) {
+    codes.push(c);
+    return '\u0001' + (codes.length - 1) + '\u0001';
+  });
+
+  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (m, alt, src) {
+    return '<img src="' + src + '" alt="' + alt + '" loading="lazy">';
+  });
+
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, label, href) {
+    const ext = /^https?:\/\//.test(href) ? ' target="_blank" rel="noopener"' : '';
+    return '<a href="' + href + '"' + ext + '>' + label + '</a>';
+  });
+
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+
+  return s.replace(/\u0001(\d+)\u0001/g, function (m, i) {
+    return '<code>' + codes[Number(i)] + '</code>';
+  });
+}
+
+const BLOCK_START = /^\s*(#{1,6}\s+|```|>|\|)/;
+const LIST_START = /^\s*([-*+]|\d+\.)\s+/;
+const HR_LINE = /^\s*([-*_])(\s*\1){2,}\s*$/;
+
+function renderBlocks(md, toc) {
+  const lines = md.replace(/\r\n?/g, '\n').split('\n');
+  const out = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (/^\s*$/.test(line)) {
+      i++;
+      continue;
+    }
+
+    /* 代码块 */
+    const fence = line.match(/^\s*```\s*([\w+#.-]*)\s*$/);
+    if (fence) {
+      const lang = fence[1];
+      i++;
+      const buf = [];
+      while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) {
+        buf.push(lines[i]);
+        i++;
+      }
+      i++;
+      out.push(
+        '<pre class="code"><code' +
+          (lang ? ' class="language-' + esc(lang) + '"' : '') +
+          ' data-lang="' + esc(lang || 'text') + '">' +
+          esc(buf.join('\n')) +
+          '</code></pre>'
+      );
+      continue;
+    }
+
+    /* 标题 */
+    const heading = line.match(/^(#{1,6})\s+(.*)$/);
+    if (heading) {
+      const level = heading[1].length;
+      const text = heading[2].replace(/\s+#+\s*$/, '');
+      const id = 'sec-' + (toc.length + 1);
+      toc.push({ id: id, level: level, text: text });
+      out.push(
+        '<h' + level + ' id="' + id + '">' + renderInline(text) +
+        '<a class="anchor" href="#' + id + '" aria-hidden="true">#</a></h' + level + '>'
+      );
+      i++;
+      continue;
+    }
+
+    /* 分隔线 */
+    if (HR_LINE.test(line)) {
+      out.push('<hr>');
+      i++;
+      continue;
+    }
+
+    /* 引用 */
+    if (/^\s*>\s?/.test(line)) {
+      const buf = [];
+      while (i < lines.length && /^\s*>\s?/.test(lines[i])) {
+        buf.push(lines[i].replace(/^\s*>\s?/, ''));
+        i++;
+      }
+      out.push('<blockquote>' + renderBlocks(buf.join('\n'), []) + '</blockquote>');
+      continue;
+    }
+
+    /* 表格 */
+    if (/^\s*\|.*\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1])) {
+      const rows = [];
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        rows.push(
+          lines[i].trim().replace(/^\||\|$/g, '').split('|').map(function (c) {
+            return c.trim();
+          })
+        );
+        i++;
+      }
+      const head = rows[0] || [];
+      const body = rows.slice(2);
+      out.push(
+        '<div class="table-wrap"><table><thead><tr>' +
+          head.map(function (c) { return '<th>' + renderInline(c) + '</th>'; }).join('') +
+          '</tr></thead><tbody>' +
+          body.map(function (r) {
+            return '<tr>' + r.map(function (c) { return '<td>' + renderInline(c) + '</td>'; }).join('') + '</tr>';
+          }).join('') +
+          '</tbody></table></div>'
+      );
+      continue;
+    }
+
+    /* 列表 */
+    if (LIST_START.test(line)) {
+      const ordered = /^\s*\d+\.\s+/.test(line);
+      const tag = ordered ? 'ol' : 'ul';
+      const items = [];
+      while (i < lines.length && LIST_START.test(lines[i])) {
+        let item = lines[i].replace(LIST_START, '');
+        i++;
+        while (
+          i < lines.length &&
+          /^\s{2,}\S/.test(lines[i]) &&
+          !LIST_START.test(lines[i]) &&
+          !/^\s*$/.test(lines[i])
+        ) {
+          item += ' ' + lines[i].trim();
+          i++;
+        }
+        items.push('<li>' + renderInline(item) + '</li>');
+      }
+      out.push('<' + tag + '>' + items.join('') + '</' + tag + '>');
+      continue;
+    }
+
+    /* 段落 */
+    const para = [];
+    while (i < lines.length && !/^\s*$/.test(lines[i])) {
+      const blocked = BLOCK_START.test(lines[i]) || LIST_START.test(lines[i]) || HR_LINE.test(lines[i]);
+      if (blocked && para.length) break;
+      para.push(lines[i].trim());
+      i++;
+      if (blocked) break;
+    }
+    if (para.length) out.push('<p>' + renderInline(para.join(' ')) + '</p>');
+  }
+
+  return out.join('\n');
+}
+
+function renderMarkdown(md) {
+  const toc = [];
+  const html = renderBlocks(md, toc);
+  return { html: html, toc: toc };
+}
+
+/* ============================ 内容加载 ============================ */
+
+function parseFrontMatter(raw) {
+  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  if (!m) return { data: {}, body: raw };
+
+  const data = {};
+  m[1].split(/\r?\n/).forEach(function (line) {
+    const idx = line.indexOf(':');
+    if (idx === -1) return;
+    const key = line.slice(0, idx).trim();
+    let val = line.slice(idx + 1).trim();
+    if (!key) return;
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    if (val.startsWith('[') && val.endsWith(']')) {
+      data[key] = val
+        .slice(1, -1)
+        .split(',')
+        .map(function (s) { return s.trim().replace(/^["']|["']$/g, ''); })
+        .filter(Boolean);
+    } else {
+      data[key] = val;
+    }
+  });
+  return { data: data, body: raw.slice(m[0].length) };
+}
+
+function loadPosts() {
+  if (!fs.existsSync(POSTS_DIR)) return [];
+  return fs.readdirSync(POSTS_DIR)
+    .filter(function (f) { return /\.md$/i.test(f); })
+    .map(function (file) {
+      const slug = file.replace(/\.md$/i, '');
+      const raw = fs.readFileSync(path.join(POSTS_DIR, file), 'utf8');
+      const parsed = parseFrontMatter(raw);
+      const rendered = renderMarkdown(parsed.body);
+
+      return {
+        slug: slug,
+        title: parsed.data.title || slug,
+        date: isoDate(parsed.data.date),
+        updated: isoDate(parsed.data.updated),
+        tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : parsed.data.tags ? [parsed.data.tags] : [],
+        summary: parsed.data.summary || truncate(stripMd(parsed.body), 110),
+        draft: String(parsed.data.draft || '').toLowerCase() === 'true',
+        html: rendered.html,
+        toc: rendered.toc,
+        minutes: readingMinutes(parsed.body),
+        text: truncate(stripHtml(rendered.html), 600),
+      };
+    })
+    .filter(function (p) { return !p.draft; })
+    .sort(function (a, b) {
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+    });
+}
+
+/* ============================ 模板片段 ============================ */
+
+function navHtml(active) {
+  return NAV.map(function (item) {
+    const cls = active === item.key ? ' class="active"' : '';
+    return '<a href="' + item.href + '"' + cls + '>' + item.label + '</a>';
+  }).join('\n        ');
+}
+
+function analyticsHtml() {
+  const a = SITE.analytics;
+  if (!a || !a.enabled) return '';
+  if (a.provider === 'umami' && a.umami && a.umami.src && a.umami.websiteId) {
+    return (
+      '<script defer src="' + esc(a.umami.src) + '" data-website-id="' + esc(a.umami.websiteId) + '"></script>'
+    );
+  }
+  return '';
+}
+
+function layout(opts) {
+  opts = opts || {};
+  const pageTitle = opts.title
+    ? opts.title + ' · ' + SITE.title
+    : SITE.title + (SITE.tagline ? ' · ' + SITE.tagline : '');
+
+  const canonical = SITE.url + (opts.path || '/');
+  const desc = opts.description || SITE.description;
+  const head = [];
+
+  head.push('<meta charset="utf-8">');
+  head.push('<meta name="viewport" content="width=device-width, initial-scale=1">');
+  head.push('<meta name="color-scheme" content="light dark">');
+  head.push('<title>' + esc(pageTitle) + '</title>');
+  head.push('<meta name="description" content="' + esc(desc) + '">');
+  head.push('<meta name="author" content="' + esc(SITE.author) + '">');
+  head.push('<link rel="canonical" href="' + esc(canonical) + '">');
+  head.push('<meta property="og:type" content="' + (opts.ogType || 'website') + '">');
+  head.push('<meta property="og:site_name" content="' + esc(SITE.title) + '">');
+  head.push('<meta property="og:title" content="' + esc(opts.title || SITE.title) + '">');
+  head.push('<meta property="og:description" content="' + esc(desc) + '">');
+  head.push('<meta property="og:url" content="' + esc(canonical) + '">');
+  head.push('<meta property="og:locale" content="' + esc(SITE.lang.replace('-', '_')) + '">');
+  head.push('<meta name="twitter:card" content="summary">');
+  head.push('<meta name="twitter:title" content="' + esc(opts.title || SITE.title) + '">');
+  head.push('<meta name="twitter:description" content="' + esc(desc) + '">');
+
+  if (opts.published) {
+    head.push('<meta property="article:published_time" content="' + esc(opts.published) + '">');
+  }
+  if (opts.modified) {
+    head.push('<meta property="article:modified_time" content="' + esc(opts.modified) + '">');
+  }
+  if (opts.tags && opts.tags.length) {
+    opts.tags.forEach(function (t) {
+      head.push('<meta property="article:tag" content="' + esc(t) + '">');
+    });
+  }
+
+  head.push('<link rel="alternate" type="application/rss+xml" title="' + esc(SITE.title) + '" href="/feed.xml">');
+  head.push('<link rel="stylesheet" href="/assets/style.css">');
+  head.push('<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">');
+  head.push(
+    '<script>(function(){try{var t=localStorage.getItem("theme");if(t){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>'
+  );
+  if (opts.jsonld) {
+    head.push('<script type="application/ld+json">' + JSON.stringify(opts.jsonld) + '</script>');
+  }
+  head.push(analyticsHtml());
+
+  const bodyClass = ['page', opts.bodyClass || ''].filter(Boolean).join(' ');
+
+  return [
+    '<!DOCTYPE html>',
+    '<html lang="' + esc(SITE.lang) + '" data-theme="light">',
+    '<head>',
+    head.filter(Boolean).join('\n'),
+    '</head>',
+    '<body class="' + bodyClass + '">',
+    '<a class="skip" href="#main">跳到正文</a>',
+    opts.progress ? '<div class="progress" id="progress" aria-hidden="true"></div>' : '',
+    '<header class="site-header">',
+    '  <div class="header-inner">',
+    '    <a class="brand" href="/">' + esc(SITE.title) +
+      (SITE.tagline ? '<span class="brand-tag">' + esc(SITE.tagline) + '</span>' : '') + '</a>',
+    '    <nav class="nav" aria-label="主导航">',
+    '        ' + navHtml(opts.active),
+    '    </nav>',
+    '    <button class="icon-btn" id="themeToggle" type="button" title="切换明暗主题" aria-label="切换明暗主题">◐</button>',
+    '  </div>',
+    '</header>',
+    '<main class="container" id="main">',
+    opts.content,
+    '</main>',
+    '<footer class="site-footer">',
+    '  <div class="footer-inner">',
+    SITE.social.length
+      ? '    <p class="social">' +
+        SITE.social
+          .map(function (s) {
+            const ext = /^https?:\/\//.test(s.url) ? ' target="_blank" rel="noopener"' : '';
+            return '<a href="' + esc(s.url) + '"' + ext + '>' + esc(s.label) + '</a>';
+          })
+          .join('') +
+        '</p>'
+      : '',
+    '    <p>© ' + SITE.startYear + '–' + new Date().getFullYear() + ' ' + esc(SITE.author) +
+      ' · <a href="/feed.xml">RSS</a> · <a href="/sitemap.xml">Sitemap</a></p>',
+    SITE.footerNote ? '    <p class="muted">' + esc(SITE.footerNote) + '</p>' : '',
+    '    <p class="muted built">本站共 ' + POST_COUNT + ' 篇文章 · 由 build.js 生成 · 无数据库、无追踪</p>',
+    '  </div>',
+    '</footer>',
+    opts.progress ? '<button class="to-top" id="toTop" type="button" title="回到顶部" hidden>↑</button>' : '',
+    '<script src="/assets/main.js"></script>',
+    '</body>',
+    '</html>',
+  ].join('\n');
+}
+
+/* ============================ 各页面 ============================ */
+
+function pageUrl(n) {
+  return n <= 1 ? '/' : '/page/' + n + '/';
+}
+
+function postCard(p) {
+  const tags = p.tags.length
+    ? '      <ul class="tags">' +
+      p.tags
+        .map(function (t) {
+          return '<li><a href="/tags.html#' + tagId(t) + '">' + esc(t) + '</a></li>';
+        })
+        .join('') +
+      '</ul>'
+    : '';
+
+  return [
+    '    <article class="post-item">',
+    '      <h2><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a></h2>',
+    '      <p class="meta"><time datetime="' + esc(p.date) + '">' + fmtDate(p.date) +
+      '</time><span class="dot">·</span>约 ' + p.minutes + ' 分钟</p>',
+    '      <p class="summary">' + esc(p.summary) + '</p>',
+    tags,
+    '    </article>',
+  ].join('\n');
+}
+
+function buildIndex(posts, page, totalPages) {
+  const start = (page - 1) * SITE.perPage;
+  const slice = posts.slice(start, start + SITE.perPage);
+
+  const hero = page === 1
+    ? [
+        '<section class="hero">',
+        '  <h1>' + esc(SITE.title) + '</h1>',
+        SITE.tagline ? '  <p class="tagline">' + esc(SITE.tagline) + '</p>' : '',
+        SITE.description ? '  <p class="lead">' + esc(SITE.description) + '</p>' : '',
+        '</section>',
+      ].filter(Boolean).join('\n')
+    : '<h1 class="page-title">第 ' + page + ' 页</h1>';
+
+  let pager = '';
+  if (totalPages > 1) {
+    const parts = [];
+    if (page > 1) {
+      parts.push('<a class="page-link" href="' + pageUrl(page - 1) + '" rel="prev">← 前一页</a>');
+    } else {
+      parts.push('<span class="page-link disabled">← 前一页</span>');
+    }
+    parts.push('<span class="page-info">' + page + ' / ' + totalPages + '</span>');
+    if (page < totalPages) {
+      parts.push('<a class="page-link" href="' + pageUrl(page + 1) + '" rel="next">后一页 →</a>');
+    } else {
+      parts.push('<span class="page-link disabled">后一页 →</span>');
+    }
+    pager = '<nav class="pagination" aria-label="分页">\n    ' + parts.join('\n    ') + '\n  </nav>';
+  }
+
+  const list = slice.length
+    ? slice.map(postCard).join('\n')
+    : '<p class="empty">还没有文章。在 <code>content/posts/</code> 里新建一个 <code>.md</code> 文件，' +
+      '运行 <code>node build.js</code> 就有了。</p>';
+
+  const content = [
+    hero,
+    '  <div class="post-list">',
+    list,
+    '  </div>',
+    pager,
+  ].filter(Boolean).join('\n');
+
+  return layout({
+    content: content,
+    active: 'home',
+    path: pageUrl(page),
+    title: page === 1 ? '' : '第 ' + page + ' 页',
+    jsonld: page === 1 ? {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: SITE.title,
+      description: SITE.description,
+      url: SITE.url + '/',
+      author: { '@type': 'Person', name: SITE.author },
+    } : null,
+  });
+}
+
+function renderToc(toc) {
+  const items = toc.filter(function (t) { return t.level === 2 || t.level === 3; });
+  if (items.length < 2) return '';
+  const lis = items
+    .map(function (t) {
+      return '<li class="toc-l' + t.level + '"><a href="#' + t.id + '">' + esc(t.text) + '</a></li>';
+    })
+    .join('\n        ');
+  return [
+    '    <details class="toc" open>',
+    '      <summary>本文目录</summary>',
+    '      <ul>',
+    '        ' + lis,
+    '      </ul>',
+    '    </details>',
+  ].join('\n');
+}
+
+function relatedPosts(post, posts) {
+  const scored = posts
+    .filter(function (p) { return p.slug !== post.slug; })
+    .map(function (p) {
+      const shared = p.tags.filter(function (t) { return post.tags.indexOf(t) !== -1; }).length;
+      return { post: p, score: shared };
+    })
+    .filter(function (x) { return x.score > 0; })
+    .sort(function (a, b) { return b.score - a.score; })
+    .slice(0, 3)
+    .map(function (x) { return x.post; });
+
+  if (scored.length) return scored;
+  return posts.filter(function (p) { return p.slug !== post.slug; }).slice(0, 3);
+}
+
+function commentBlock() {
+  const c = SITE.comments;
+  if (!c || !c.enabled || c.provider !== 'giscus') return '';
+  const g = c.giscus || {};
+  if (!g.repo || !g.repoId) return '';
+
+  return [
+    '<section class="comments">',
+    '  <h2>评论</h2>',
+    '  <div class="giscus"></div>',
+    '  <script src="https://giscus.app/client.js"',
+    '    data-repo="' + esc(g.repo) + '"',
+    '    data-repo-id="' + esc(g.repoId) + '"',
+    '    data-category="' + esc(g.category || '') + '"',
+    '    data-category-id="' + esc(g.categoryId || '') + '"',
+    '    data-mapping="' + esc(g.mapping || 'pathname') + '"',
+    '    data-strict="0" data-reactions-enabled="1" data-emit-metadata="0"',
+    '    data-input-position="bottom" data-theme="preferred_color_scheme"',
+    '    data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous" async>',
+    '  </script>',
+    '</section>',
+  ].join('\n');
+}
+
+function buildPost(post, all) {
+  const idx = all.findIndex(function (p) { return p.slug === post.slug; });
+  const newer = idx > 0 ? all[idx - 1] : null;
+  const older = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : null;
+
+  const meta = [
+    '<time datetime="' + esc(post.date) + '">' + fmtDate(post.date) + '</time>',
+    '<span class="dot">·</span>约 ' + post.minutes + ' 分钟',
+    post.updated && post.updated !== post.date
+      ? '<span class="dot">·</span>更新于 ' + fmtDate(post.updated)
+      : '',
+  ].filter(Boolean).join(' ');
+
+  const tags = post.tags.length
+    ? '<ul class="tags">' +
+      post.tags
+        .map(function (t) {
+          return '<li><a href="/tags.html#' + tagId(t) + '">' + esc(t) + '</a></li>';
+        })
+        .join('') +
+      '</ul>'
+    : '';
+
+  const tocHtml = renderToc(post.toc);
+
+  const related = relatedPosts(post, all).map(function (p) {
+    return '<li><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a>' +
+      '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) + '</time></li>';
+  }).join('\n        ');
+
+  const pager = [];
+  pager.push('<nav class="pager" aria-label="文章导航">');
+  if (older) {
+    pager.push('<a class="pager-link prev" href="/posts/' + older.slug + '.html">' +
+      '<span>← 更早</span>' + esc(older.title) + '</a>');
+  } else {
+    pager.push('<span class="pager-link placeholder"></span>');
+  }
+  if (newer) {
+    pager.push('<a class="pager-link next" href="/posts/' + newer.slug + '.html">' +
+      '<span>更新 →</span>' + esc(newer.title) + '</a>');
+  } else {
+    pager.push('<span class="pager-link placeholder"></span>');
+  }
+  pager.push('</nav>');
+
+  const content = [
+    '<article class="post">',
+    '    <header class="post-header">',
+    '      <h1>' + esc(post.title) + '</h1>',
+    '      <p class="meta">' + meta + '</p>',
+    tags ? '      ' + tags : '',
+    '    </header>',
+    tocHtml,
+    '    <div class="post-content">',
+    post.html,
+    '    </div>',
+    commentBlock(),
+    '</article>',
+    related
+      ? '<section class="related">\n      <h2>相关文章</h2>\n      <ul>\n        ' + related + '\n      </ul>\n    </section>'
+      : '',
+    pager.join('\n'),
+    '<p class="back"><a href="/">← 返回首页</a></p>',
+  ].filter(Boolean).join('\n');
+
+  return layout({
+    title: post.title,
+    description: post.summary,
+    path: '/posts/' + post.slug + '.html',
+    content: content,
+    ogType: 'article',
+    published: post.date,
+    modified: post.updated || post.date,
+    tags: post.tags,
+    progress: true,
+    jsonld: {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: post.title,
+      description: post.summary,
+      datePublished: post.date,
+      dateModified: post.updated || post.date,
+      author: { '@type': 'Person', name: SITE.author },
+      publisher: { '@type': 'Person', name: SITE.author },
+      mainEntityOfPage: SITE.url + '/posts/' + post.slug + '.html',
+      keywords: post.tags.join(', '),
+      wordCount: post.text.length,
+    },
+  });
+}
+
+function buildArchive(posts) {
+  const byYear = {};
+  posts.forEach(function (p) {
+    const y = (p.date || '').slice(0, 4) || '未标注日期';
+    (byYear[y] = byYear[y] || []).push(p);
+  });
+
+  const years = Object.keys(byYear).sort(function (a, b) { return b.localeCompare(a); });
+
+  const html = years.map(function (y) {
+    const rows = byYear[y].map(function (p) {
+      return '<li><time datetime="' + esc(p.date) + '">' + esc(String(p.date).slice(5)) + '</time>' +
+        '<a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a></li>';
+    }).join('\n        ');
+    return [
+      '<section class="year-group">',
+      '  <h2>' + esc(y) + ' <span class="count">' + byYear[y].length + '</span></h2>',
+      '  <ul class="archive-list">',
+      '        ' + rows,
+      '  </ul>',
+      '</section>',
+    ].join('\n');
+  }).join('\n');
+
+  const content = '<h1 class="page-title">归档</h1>\n<p class="page-desc">共 ' + posts.length +
+    ' 篇文章，按年份排列。</p>\n' + (posts.length ? html : '<p class="empty">还没有文章。</p>');
+
+  return layout({ title: '归档', content: content, active: 'archive', path: '/archive.html' });
+}
+
+function buildTags(posts) {
+  const map = {};
+  posts.forEach(function (p) {
+    p.tags.forEach(function (t) { (map[t] = map[t] || []).push(p); });
+  });
+
+  const tags = Object.keys(map).sort(function (a, b) { return map[b].length - map[a].length; });
+
+  const cloud = tags.length
+    ? '<p class="tag-cloud">' + tags.map(function (t) {
+        return '<a href="#' + tagId(t) + '">' + esc(t) + '<span>' + map[t].length + '</span></a>';
+      }).join('') + '</p>'
+    : '';
+
+  const body = tags.map(function (t) {
+    const rows = map[t].map(function (p) {
+      return '<li><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a>' +
+        '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) + '</time></li>';
+    }).join('\n        ');
+    return [
+      '<section class="tag-group" id="' + tagId(t) + '">',
+      '  <h2>' + esc(tagSlugText(t)) + ' <span class="count">' + map[t].length + '</span></h2>',
+      '  <ul class="tag-posts">',
+      '        ' + rows,
+      '  </ul>',
+      '</section>',
+    ].join('\n');
+  }).join('\n');
+
+  const content = '<h1 class="page-title">标签</h1>\n' +
+    '<p class="page-desc">共 ' + tags.length + ' 个标签。</p>\n' +
+    cloud + '\n' + (tags.length ? body : '<p class="empty">还没有标签。</p>');
+
+  return layout({ title: '标签', content: content, active: 'tags', path: '/tags.html' });
+}
+
+function buildSearch() {
+  const content = [
+    '<section class="search-page">',
+    '  <h1 class="page-title">搜索</h1>',
+    '  <p class="page-desc">输入关键词，匹配标题、标签和正文。共 ' + POST_COUNT + ' 篇文章可检索。</p>',
+    '  <input id="searchInput" class="search-input" type="search" placeholder="例如：静态博客" autocomplete="off" autofocus>',
+    '  <p class="search-status" id="searchStatus"></p>',
+    '  <ul class="search-results" id="searchResults"></ul>',
+    '  <noscript><p class="empty">搜索需要启用 JavaScript。也可以直接看<a href="/archive.html">归档</a>。</p></noscript>',
+    '</section>',
+  ].join('\n');
+
+  return layout({ title: '搜索', content: content, active: 'search', path: '/search.html' });
+}
+
+function buildMarkdownPage(fileName, fallbackTitle, active, pathUrl) {
+  const file = path.join(CONTENT, fileName);
+  let title = fallbackTitle;
+  let html = '<p>这个页面还没写。</p>';
+
+  if (fs.existsSync(file)) {
+    const parsed = parseFrontMatter(fs.readFileSync(file, 'utf8'));
+    title = parsed.data.title || fallbackTitle;
+    html = renderMarkdown(parsed.body).html;
+  }
+
+  const content = '<article class="page-content">\n<h1 class="page-title">' + esc(title) +
+    '</h1>\n<div class="post-content">' + html + '</div>\n</article>';
+
+  return layout({ title: title, content: content, active: active, path: pathUrl });
+}
+
+function build404() {
+  const content = [
+    '<section class="notfound">',
+    '  <p class="code">404</p>',
+    '  <p>这一页不存在。可能是链接写错了，也可能是我还没写。</p>',
+    '  <p class="actions"><a href="/">回首页</a><a href="/archive.html">看归档</a><a href="/search.html">搜一下</a></p>',
+    '</section>',
+  ].join('\n');
+
+  return layout({ title: '页面不存在', description: '404 Not Found', content: content, path: '/404.html' });
+}
+
+/* ============================ 订阅与索引 ============================ */
+
+function buildFeed(posts) {
+  const items = posts.map(function (p) {
+    const url = SITE.url + '/posts/' + p.slug + '.html';
+    const date = new Date((p.date || '1970-01-01') + 'T09:00:00+08:00').toUTCString();
+    const cats = p.tags.map(function (t) { return '      <category>' + esc(t) + '</category>'; }).join('\n');
+    return [
+      '    <item>',
+      '      <title>' + esc(p.title) + '</title>',
+      '      <link>' + esc(url) + '</link>',
+      '      <guid isPermaLink="true">' + esc(url) + '</guid>',
+      '      <pubDate>' + date + '</pubDate>',
+      '      <description>' + esc(p.summary) + '</description>',
+      cats,
+      '    </item>',
+    ].filter(Boolean).join('\n');
+  }).join('\n');
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+    '  <channel>',
+    '    <title>' + esc(SITE.title) + '</title>',
+    '    <link>' + esc(SITE.url + '/') + '</link>',
+    '    <description>' + esc(SITE.description) + '</description>',
+    '    <language>' + esc(SITE.lang) + '</language>',
+    '    <lastBuildDate>' + new Date().toUTCString() + '</lastBuildDate>',
+    '    <atom:link href="' + esc(SITE.url + '/feed.xml') + '" rel="self" type="application/rss+xml"/>',
+    items,
+    '  </channel>',
+    '</rss>',
+  ].join('\n');
+}
+
+function buildSitemap(posts) {
+  const pages = ['/', '/archive.html', '/tags.html', '/search.html', '/links.html', '/about.html'];
+  const latest = posts.length ? posts[0].date : '';
+
+  const rows = pages.map(function (u) {
+    return '  <url>\n    <loc>' + esc(SITE.url + u) + '</loc>' +
+      '\n    <changefreq>weekly</changefreq>' +
+      (latest ? '\n    <lastmod>' + latest + '</lastmod>' : '') +
+      '\n  </url>';
+  }).concat(
+    posts.map(function (p) {
+      return '  <url>\n    <loc>' + esc(SITE.url + '/posts/' + p.slug + '.html') + '</loc>' +
+        '\n    <changefreq>monthly</changefreq>' +
+        '\n    <lastmod>' + esc(p.updated || p.date) + '</lastmod>\n  </url>';
+    })
+  );
+
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    rows.join('\n') + '\n</urlset>';
+}
+
+function buildSearchIndex(posts) {
+  return JSON.stringify(posts.map(function (p) {
+    return {
+      url: '/posts/' + p.slug + '.html',
+      title: p.title,
+      date: p.date,
+      tags: p.tags,
+      text: p.text,
+    };
+  }));
+}
+
+/* ============================ 输出 ============================ */
+
+function rmrf(dir) {
+  if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+}
+
+function writeFile(rel, content) {
+  const dest = path.join(OUT, rel);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, content, 'utf8');
+}
+
+function main() {
+  const posts = loadPosts();
+  POST_COUNT = posts.length;
+
+  const totalPages = Math.max(1, Math.ceil(posts.length / SITE.perPage));
+
+  rmrf(OUT);
+  fs.mkdirSync(OUT, { recursive: true });
+
+  if (fs.existsSync(ASSETS)) {
+    fs.cpSync(ASSETS, path.join(OUT, 'assets'), { recursive: true });
+  }
+
+  // 首页与分页
+  for (let page = 1; page <= totalPages; page++) {
+    const rel = page === 1 ? 'index.html' : 'page/' + page + '/index.html';
+    writeFile(rel, buildIndex(posts, page, totalPages));
+  }
+
+  // 文章
+  posts.forEach(function (p) {
+    writeFile('posts/' + p.slug + '.html', buildPost(p, posts));
+  });
+
+  // 独立页面
+  writeFile('archive.html', buildArchive(posts));
+  writeFile('tags.html', buildTags(posts));
+  writeFile('search.html', buildSearch());
+  writeFile('about.html', buildMarkdownPage('about.md', '关于', 'about', '/about.html'));
+  writeFile('links.html', buildMarkdownPage('links.md', '友链', 'links', '/links.html'));
+  writeFile('404.html', build404());
+
+  // 订阅与索引
+  writeFile('feed.xml', buildFeed(posts));
+  writeFile('sitemap.xml', buildSitemap(posts));
+  writeFile('search.json', buildSearchIndex(posts));
+
+  // 托管平台配置
+  writeFile('robots.txt', 'User-agent: *\nAllow: /\n\nSitemap: ' + SITE.url + '/sitemap.xml\n');
+  writeFile('.nojekyll', '');
+  writeFile(
+    '_headers',
+    [
+      '/*',
+      '  X-Content-Type-Options: nosniff',
+      '  Referrer-Policy: strict-origin-when-cross-origin',
+      '  X-Frame-Options: SAMEORIGIN',
+      '',
+      '/assets/*',
+      '  Cache-Control: public, max-age=31536000, immutable',
+      '',
+      '/*.html',
+      '  Cache-Control: public, max-age=0, must-revalidate',
+      '',
+    ].join('\n')
+  );
+
+  console.log('');
+  console.log('  构建完成');
+  console.log('  站点: ' + SITE.title + '  (' + SITE.url + ')');
+  console.log('  输出: ' + OUT);
+  console.log('  文章: ' + posts.length + ' 篇，分 ' + totalPages + ' 页');
+  posts.forEach(function (p) {
+    console.log('    · ' + (p.date || '无日期') + '  ' + p.title);
+  });
+  console.log('');
+  console.log('  下一步: node serve.js  然后打开 http://127.0.0.1:8080');
+  console.log('  部署前记得把 config.json 里的 url 改成真实域名');
+  console.log('');
+}
+
+main();

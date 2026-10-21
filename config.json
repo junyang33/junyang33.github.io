@@ -1,0 +1,33 @@
+{
+  "title": "我的博客",
+  "tagline": "写作是一种思考方式",
+  "description": "记录技术、读书与生活，写给自己，也写给恰好路过的人。",
+  "author": "你的名字",
+  "email": "you@example.com",
+  "url": "https://example.com",
+  "language": "zh-CN",
+  "startYear": 2026,
+  "postsPerPage": 8,
+  "footerNote": "除特别注明外，本站文章采用 CC BY-NC-SA 4.0 协议授权",
+  "social": [
+    { "label": "GitHub", "url": "https://github.com/" },
+    { "label": "邮箱", "url": "mailto:you@example.com" },
+    { "label": "RSS", "url": "/feed.xml" }
+  ],
+  "comments": {
+    "enabled": false,
+    "provider": "giscus",
+    "giscus": {
+      "repo": "your-name/your-repo",
+      "repoId": "",
+      "category": "Announcements",
+      "categoryId": "",
+      "mapping": "pathname"
+    }
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": "umami",
+    "umami": { "src": "https://analytics.example.com/script.js", "websiteId": "" }
+  }
+}

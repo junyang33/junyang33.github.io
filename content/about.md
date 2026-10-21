@@ -2,7 +2,7 @@
 title: 关于
 ---
 
-你好，我是**你的名字**。这里是我的个人博客。
+你好，我是 **Mental**。这里是我的个人博客。
 
 ## 我在做什么
 
@@ -26,7 +26,7 @@ title: 关于
 
 ## 找到我
 
-- 邮箱：[you@example.com](mailto:you@example.com)
+- 邮箱：[hsdfgkjvbsjkafh@163.com](mailto:hsdfgkjvbsjkafh@163.com)
 - GitHub：[github.com](https://github.com/)
 
 ## 版权

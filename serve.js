@@ -3,15 +3,26 @@
 
 /**
  * 本地预览服务器（零依赖）
- * 用法: node serve.js [端口]      默认 8080
+ *
+ * 用法:
+ *   node serve.js            端口 8080，被占用时自动往后找
+ *   node serve.js 9000       指定端口
+ *   node serve.js --open     启动后自动打开浏览器
  */
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
 
 const ROOT = path.join(__dirname, 'public');
-const PORT = Number(process.argv[2]) || 8080;
+
+const args = process.argv.slice(2);
+const openFlag = args.indexOf('--open') !== -1;
+const portArg = args.find(function (a) { return /^\d+$/.test(a); });
+
+let port = Number(portArg) || 8080;
+const MAX_ATTEMPTS = 20;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -38,6 +49,20 @@ function send(res, status, body, type) {
     'Cache-Control': 'no-store',
   });
   res.end(body);
+}
+
+function openBrowser(url) {
+  try {
+    if (process.platform === 'win32') {
+      spawn('cmd', ['/c', 'start', '', url], { detached: true, stdio: 'ignore' }).unref();
+    } else if (process.platform === 'darwin') {
+      spawn('open', [url], { detached: true, stdio: 'ignore' }).unref();
+    } else {
+      spawn('xdg-open', [url], { detached: true, stdio: 'ignore' }).unref();
+    }
+  } catch (e) {
+    /* 打不开就算了，用户自己复制地址 */
+  }
 }
 
 if (!fs.existsSync(ROOT)) {
@@ -77,10 +102,31 @@ const server = http.createServer(function (req, res) {
   send(res, 200, fs.readFileSync(filePath), MIME[ext] || 'application/octet-stream');
 });
 
-server.listen(PORT, '127.0.0.1', function () {
+let attempts = 0;
+
+server.on('listening', function () {
+  const url = 'http://127.0.0.1:' + port;
   console.log('');
-  console.log('  预览地址: http://127.0.0.1:' + PORT);
+  console.log('  预览地址: ' + url);
   console.log('  修改文章后重新执行 node build.js，然后刷新页面');
-  console.log('  按 Ctrl+C 停止');
+  console.log('  停止服务: Ctrl+C');
   console.log('');
+  if (openFlag) openBrowser(url);
 });
+
+server.on('error', function (err) {
+  if (err.code === 'EADDRINUSE' && attempts < MAX_ATTEMPTS) {
+    attempts += 1;
+    port += 1;
+    console.log('  端口被占用，尝试 ' + port + ' ...');
+    setTimeout(function () {
+      server.listen(port, '127.0.0.1');
+    }, 60);
+    return;
+  }
+
+  console.error('启动失败: ' + err.message);
+  process.exit(1);
+});
+
+server.listen(port, '127.0.0.1');

@@ -162,11 +162,9 @@ function renderBlocks(md, toc) {
       }
       i++;
       out.push(
-        '<pre class="code"><code' +
+        '<pre class="code"' + (lang ? ' data-lang="' + esc(lang) + '"' : '') + '><code' +
           (lang ? ' class="language-' + esc(lang) + '"' : '') +
-          ' data-lang="' + esc(lang || 'text') + '">' +
-          esc(buf.join('\n')) +
-          '</code></pre>'
+          '>' + esc(buf.join('\n')) + '</code></pre>'
       );
       continue;
     }
@@ -410,7 +408,7 @@ function layout(opts) {
     '<head>',
     head.filter(Boolean).join('\n'),
     '</head>',
-    '<body class="' + bodyClass + '">',
+    '<body class="' + bodyClass + '" id="top">',
     '<a class="skip" href="#main">跳到正文</a>',
     opts.progress ? '<div class="progress" id="progress" aria-hidden="true"></div>' : '',
     '<header class="site-header">',
@@ -438,8 +436,11 @@ function layout(opts) {
           .join('') +
         '</p>'
       : '',
-    '    <p>© ' + SITE.startYear + '–' + new Date().getFullYear() + ' ' + esc(SITE.author) +
-      ' · <a href="/feed.xml">RSS</a> · <a href="/sitemap.xml">Sitemap</a></p>',
+    '    <p class="footer-nav">',
+    '      <a href="/">首页</a><a href="/archive.html">归档</a><a href="/tags.html">标签</a>',
+    '      <a href="/links.html">友链</a><a href="/about.html">关于</a><a href="#top">回到顶部</a>',
+    '    </p>',
+    '    <p>© ' + SITE.startYear + '–' + new Date().getFullYear() + ' ' + esc(SITE.author) + '</p>',
     SITE.footerNote ? '    <p class="muted">' + esc(SITE.footerNote) + '</p>' : '',
     '    <p class="muted built">本站共 ' + POST_COUNT + ' 篇文章 · 由 build.js 生成 · 无数据库、无追踪</p>',
     '  </div>',
@@ -489,7 +490,13 @@ function buildIndex(posts, page, totalPages) {
         '  <h1>' + esc(SITE.title) + '</h1>',
         SITE.tagline ? '  <p class="tagline">' + esc(SITE.tagline) + '</p>' : '',
         SITE.description ? '  <p class="lead">' + esc(SITE.description) + '</p>' : '',
+        '  <p class="hero-meta">',
+        '    <span>Since ' + SITE.startYear + '</span>',
+        '    <span>' + posts.length + ' 篇文章</span>',
+        '    <a href="/feed.xml">RSS 订阅</a>',
+        '  </p>',
         '</section>',
+        '<hr class="hero-rule">',
       ].filter(Boolean).join('\n')
     : '<h1 class="page-title">第 ' + page + ' 页</h1>';
 
@@ -547,8 +554,9 @@ function renderToc(toc) {
       return '<li class="toc-l' + t.level + '"><a href="#' + t.id + '">' + esc(t.text) + '</a></li>';
     })
     .join('\n        ');
+  const wide = items.length > 6 ? ' toc-wide' : '';
   return [
-    '    <details class="toc" open>',
+    '    <details class="toc' + wide + '" open>',
     '      <summary>本文目录</summary>',
     '      <ul>',
     '        ' + lis,

@@ -2214,3 +2214,23 @@ body.has-carousel .container {
     margin-right: 14px;
   }
 }
+/* ==========================================================================
+   v11：轮播清晰度 —— 关掉会引发重采样的缩放动画
+   ========================================================================== */
+
+.car-slide {
+  transform: none !important;
+  transition: opacity 0.9s ease !important;
+  background-size: cover;
+  background-position: center 42%;
+}
+.car-slide.is-active {
+  transform: none !important;
+}
+
+/* 屏幕上图片本身不做额外放大 */
+.car-track { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .car-slide { transition: opacity 0.2s ease !important; }
+}

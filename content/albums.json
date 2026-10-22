@@ -2,7 +2,7 @@
   {
     "slug": "city-night",
     "title": "城市的夜晚",
-    "description": "下班路上顺手拍的，路灯把影子拉得很长。",
+    "description": "旅游路上顺手拍的，路灯把影子拉得很长。",
     "date": "2026-09-28",
     "cover": "/assets/images/city-night/1.jpg",
     "photos": [
@@ -31,36 +31,28 @@
   {
     "slug": "mountain",
     "title": "山里两天",
-    "description": "没有信号的两天，反而睡了很久以来最好的一觉。",
+    "description": "第一次爬山，但是没到山顶就下了暴雨。",
     "date": "2026-08-16",
-    "cover": "/assets/images/mountain/1.svg",
+    "cover": "/assets/images/mountain/1.jpg",
     "photos": [
       {
-        "src": "/assets/images/mountain/1.svg",
-        "caption": "上山的路，雾还没散"
+        "src": "/assets/images/mountain/1.jpg",
+        "caption": "夜爬好汉坡，前面全是人头"
       },
       {
-        "src": "/assets/images/mountain/2.svg",
-        "caption": "半山腰的茶棚"
+        "src": "/assets/images/mountain/2.jpg",
+        "caption": "半山的石鼓寺，红灯笼亮着"
       },
       {
-        "src": "/assets/images/mountain/3.svg",
-        "caption": "石头缝里长出来的树"
-      },
-      {
-        "src": "/assets/images/mountain/4.svg",
-        "caption": "云是从脚下流过去的"
-      },
-      {
-        "src": "/assets/images/mountain/5.svg",
-        "caption": "下山时遇到的那群羊"
+        "src": "/assets/images/mountain/3.jpg",
+        "caption": "武功山的山门"
       }
     ]
   },
   {
     "slug": "seaside",
-    "title": "海边",
-    "description": "风很大，照片里全是头发。",
+    "title": "第一次去的上海",
+    "description": "外滩的风很大，人也很多。",
     "date": "2026-07-20",
     "cover": "/assets/images/seaside/1.svg",
     "photos": [

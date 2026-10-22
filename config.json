@@ -18,7 +18,7 @@
   },
   "background": {
     "enabled": false,
-    "image": "/assets/images/bg/hero.jpg",
+    "image": "",
     "position": "center 45%"
   },
   "carousel": {
@@ -29,16 +29,7 @@
       {
         "image": "/assets/images/banner/1.jpg",
         "title": "我的博客",
-        "subtitle": "想到什么写什么",
-        "text": ""
-      },
-      {
-        "image": "/assets/images/banner/2.jpg",
-        "subtitle": "踩过的坑记在这里"
-      },
-      {
-        "image": "/assets/images/banner/3.jpg",
-        "subtitle": "偶尔也写点别的"
+        "subtitle": "想到什么写什么"
       }
     ]
   },

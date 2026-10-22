@@ -1,8 +1,8 @@
 @echo off
 setlocal
+chcp 65001 >nul
 cd /d "%~dp0"
 
-set "PATH=%~dp0..\..\..\Git\cmd;%PATH%"
 where git >nul 2>nul
 if errorlevel 1 set "PATH=D:\Git\cmd;%PATH%"
 

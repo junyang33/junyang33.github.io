@@ -18,10 +18,12 @@ const DELAY = 2500; /* 停止编辑 2.5 秒后才发布 */
 
 let timer = null;
 let publishing = false;
+let cooldownUntil = 0; /* 发布后短暂忽略事件，避免构建产物触发循环 */
 
 function publish() {
   if (publishing) return;
   publishing = true;
+  cooldownUntil = Date.now() + 8000;
 
   const d = new Date();
   const p = (n) => (n < 10 ? '0' : '') + n;
@@ -45,6 +47,7 @@ function publish() {
 
 function schedule(label) {
   if (IGNORE.test(label)) return;
+  if (publishing || Date.now() < cooldownUntil) return;
   clearTimeout(timer);
   timer = setTimeout(publish, DELAY);
 }

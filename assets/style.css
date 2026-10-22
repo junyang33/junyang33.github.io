@@ -3119,3 +3119,6 @@ body.has-hero.hero-scrolled .site-header {
 .hb-inner {
   padding-bottom: clamp(64px, 11vh, 120px) !important;
 }
+/* 新横幅图：人物在左侧偏上，纵向位置单独调 */
+.hb-slide { background-position: center 30% !important; }
+@media (max-width: 900px) { .hb-slide { background-position: center 26% !important; } }

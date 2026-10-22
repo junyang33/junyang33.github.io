@@ -12,6 +12,8 @@
 | --- | --- |
 | `preview.cmd` | 构建 + 启动预览（http://127.0.0.1:8080），自动开浏览器 |
 | `admin.cmd` | 启动管理后台（http://127.0.0.1:8090），自动开浏览器 |
+| `publish.cmd` | **一键发布**：构建 → 提交 → 推送，约 1 分钟后线上更新 |
+| `watch.cmd` | **保存即上线**：监视文件改动，停止编辑 2.5 秒后自动发布 |
 
 命令行等价写法：
 
@@ -19,7 +21,35 @@
 node build.js              # 构建到 public/
 node serve.js --open       # 预览（端口被占用会自动 +1）
 node admin.js 8090 --open  # 管理后台
+node tools/publish.js      # 一键发布（可跟一句提交说明）
+node tools/watch.js        # 监视并自动发布
 ```
+
+## 发布流程
+
+改完文件后，任选一种：
+
+**手动一键发布**
+
+双击 `publish.cmd`，或者：
+
+```powershell
+node tools/publish.js "改了什么"
+```
+
+它依次做三件事：`node build.js` → `git add -A && git commit` → `git push`，没有改动时会自动跳过。
+
+**全自动**
+
+双击 `watch.cmd` 挂在那儿，之后每次保存 `content/`、`assets/`、`config.json`、`build.js` 里的文件，停止编辑 2.5 秒就会自动发布。
+
+> 自动发布会在每次保存时产生一个提交（提交信息形如 `auto: 10-22 15:04:33`）。如果不想让提交记录太碎，就用 `publish.cmd` 手动控制时机。
+
+**上线耗时**
+
+推送后 GitHub Actions 会跑 `node build.js` 并把 `public/` 发布出去，实测 **50–70 秒**。进度看：
+
+https://github.com/junyang33/junyang33.github.io/actions
 
 ## 目录结构
 

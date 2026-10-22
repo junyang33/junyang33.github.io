@@ -1422,11 +1422,12 @@ body.has-bg .hero::before {
   --panel-line: rgba(255, 255, 255, 0.65);
   --veil: linear-gradient(
     180deg,
-    rgba(6, 8, 16, 0.46) 0%,
-    rgba(6, 8, 16, 0.16) 15%,
-    rgba(6, 8, 16, 0.04) 34%,
-    rgba(6, 8, 16, 0) 55%,
-    rgba(6, 8, 16, 0.12) 100%
+    rgba(6, 8, 16, 0.62) 0%,
+    rgba(6, 8, 16, 0.5) 14%,
+    rgba(6, 8, 16, 0.3) 32%,
+    rgba(6, 8, 16, 0.12) 52%,
+    rgba(6, 8, 16, 0.02) 70%,
+    rgba(6, 8, 16, 0.1) 100%
   );
 }
 
@@ -1582,3 +1583,17 @@ body.has-bg .icon-btn {
   .post-hero { min-height: 42vh; padding: 84px 18px 74px; }
   .post-shell { margin: -36px 12px 0; padding: 24px 16px 36px; border-radius: 18px; }
 }
+/* 背景：宽屏下竖图会被放大，柔化处理避免像素化；焦点下移到人物 */
+.bg {
+  background-position: center 38%;
+  filter: blur(2px) saturate(1.06);
+  transform: scale(1.03);
+  transform-origin: center 35%;
+}
+
+/* 窄屏（手机/竖屏）保持原样，清晰为主 */
+@media (max-aspect-ratio: 4/5) {
+  .bg { filter: none; transform: none; background-position: center 30%; }
+}
+/* 宽屏/浅色背景时，标题区域补一层局部暗角 */
+body.has-bg .hero::before { content: none; }

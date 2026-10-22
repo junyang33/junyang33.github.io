@@ -591,6 +591,23 @@
       });
     }
 
+    /* ---------- 站点数据：天数按当天时间重算 ---------- */
+    $$('[data-stat]').forEach(function (el) {
+      var since = el.getAttribute('data-since');
+      if (!since) return;
+      var t = Date.parse(since + 'T00:00:00');
+      if (isNaN(t)) return;
+
+      var days = Math.round((Date.now() - t) / 86400000);
+      if (days < 0) days = 0;
+
+      if (el.getAttribute('data-stat') === 'idle') {
+        el.textContent = days === 0 ? '今天' : days + ' 天前';
+      } else {
+        el.textContent = Math.max(1, days) + ' 天';
+      }
+    });
+
     /* ---------- 首页横幅轮换 ---------- */
     var hero = document.getElementById('heroBanner');
     if (hero) {

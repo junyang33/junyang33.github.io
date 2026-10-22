@@ -1364,6 +1364,8 @@ function siteStats(posts) {
     chars: chars,
     running: running,
     idle: idle,
+    firstDate: first,
+    lastDate: last,
     catList: Object.keys(cats).map(function (c) { return { name: c, count: cats[c] }; }).sort(function (a, b) { return b.count - a.count; }),
     tagList: Object.keys(tags).map(function (t) { return { name: t, count: tags[t] }; }).sort(function (a, b) { return b.count - a.count; }),
   };
@@ -1461,12 +1463,15 @@ function widgetTags(stats) {
 
 function widgetStats(stats) {
   const rows = [
-    ['post', '文章', stats.posts],
-    ['cat', '分类', stats.categories],
-    ['tag', '标签', stats.tags],
-    ['words', '总字数', stats.chars.toLocaleString('en-US')],
-    ['days', '运行时长', stats.running + ' 天'],
-    ['pulse', '近期活动', stats.idle + ' 天前'],
+    ['post', '文章', stats.posts, ''],
+    ['cat', '分类', stats.categories, ''],
+    ['tag', '标签', stats.tags, ''],
+    ['words', '总字数', stats.chars.toLocaleString('en-US'), ''],
+    /* 下面两项带 data-since，打开页面时由 JS 按当天时间重算 */
+    ['days', '运行时长', stats.running + ' 天',
+      stats.firstDate ? ' data-stat="running" data-since="' + stats.firstDate + '"' : ''],
+    ['pulse', '近期活动', stats.idle === 0 ? '今天' : stats.idle + ' 天前',
+      stats.lastDate ? ' data-stat="idle" data-since="' + stats.lastDate + '"' : ''],
   ];
 
   return [
@@ -1475,7 +1480,7 @@ function widgetStats(stats) {
     '  <ul class="stat-list">',
     rows
       .map(function (r) {
-        return '    <li>' + icon(r[0]) + '<span>' + r[1] + '</span><b>' + r[2] + '</b></li>';
+        return '    <li>' + icon(r[0]) + '<span>' + r[1] + '</span><b' + r[3] + '>' + r[2] + '</b></li>';
       })
       .join('\n'),
     '  </ul>',

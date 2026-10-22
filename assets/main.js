@@ -442,6 +442,24 @@
     });
   }
 
+  /* --------------------------- 友链洗牌 --------------------------- */
+
+  var friendsEl = document.getElementById('friends');
+  var shuffleBtn = document.getElementById('friendsShuffle');
+
+  if (friendsEl && shuffleBtn) {
+    shuffleBtn.addEventListener('click', function () {
+      var items = Array.prototype.slice.call(friendsEl.children);
+      for (var i = items.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = items[i];
+        items[i] = items[j];
+        items[j] = tmp;
+      }
+      items.forEach(function (el) { friendsEl.appendChild(el); });
+    });
+  }
+
   /* --------------------------- 日历 --------------------------- */
 
   var calEl = $('#calendar');

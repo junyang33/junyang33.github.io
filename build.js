@@ -1023,6 +1023,62 @@ function buildSearch() {
   return layout({ title: '搜索', content: content, active: 'search', path: '/search.html' });
 }
 
+function loadFriends() {
+  const raw = loadJson('friends.json', []);
+  return (Array.isArray(raw) ? raw : []).filter(function (f) {
+    return f && f.name && f.url;
+  });
+}
+
+function buildLinks(friends) {
+  const file = path.join(CONTENT, 'links.md');
+  let title = '友链';
+  let introHtml = '';
+
+  if (fs.existsSync(file)) {
+    const parsed = parseFrontMatter(fs.readFileSync(file, 'utf8'));
+    title = parsed.data.title || title;
+    introHtml = renderMarkdown(parsed.body).html;
+  }
+
+  const cards = friends
+    .map(function (f) {
+      const initial = String(f.name).trim().charAt(0);
+      const avatar = f.avatar
+        ? '<img src="' + esc(f.avatar) + '" alt="' + esc(f.name) + '" loading="lazy">'
+        : '<span class="friend-initial">' + esc(initial) + '</span>';
+
+      return [
+        '<a class="friend friend--' + esc(f.color || 'violet') + '" href="' + esc(f.url) +
+          '" target="_blank" rel="noopener">',
+        '  <span class="friend-avatar">' + avatar + '</span>',
+        '  <span class="friend-body">',
+        '    <strong>' + esc(f.name) + '</strong>',
+        '    <em>' + esc(f.desc || f.url) + '</em>',
+        '  </span>',
+        '</a>',
+      ].join('\n');
+    })
+    .join('\n');
+
+  const content = [
+    '<article class="page-content">',
+    '<h1 class="page-title">' + esc(title) + '</h1>',
+    friends.length
+      ? '  <div class="friends-wrap">\n' +
+        '    <div class="friends" id="friends">\n' + cards + '\n    </div>\n' +
+        '    <button class="friends-shuffle" type="button" id="friendsShuffle">换个顺序 →</button>\n' +
+        '  </div>'
+      : '',
+    '<div class="post-content">' + introHtml + '</div>',
+    '</article>',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  return layout({ title: title, content: content, active: 'links', path: '/links.html' });
+}
+
 function buildMarkdownPage(fileName, fallbackTitle, active, pathUrl) {
   const file = path.join(CONTENT, fileName);
   let title = fallbackTitle;
@@ -1510,7 +1566,7 @@ function main() {
   writeFile('photos.html', buildPhotos(albums));
   writeFile('search.html', buildSearch());
   writeFile('about.html', buildMarkdownPage('about.md', '关于', 'about', '/about.html'));
-  writeFile('links.html', buildMarkdownPage('links.md', '友链', 'links', '/links.html'));
+  writeFile('links.html', buildLinks(loadFriends()));
   writeFile('404.html', build404());
 
   // 订阅与索引

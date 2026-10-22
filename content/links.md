@@ -24,10 +24,5 @@ title: 友链
 介绍：记录技术、读书与生活
 ```
 
-## 已经在这里的朋友
-
-- [示例站点一](https://example.com) —— 一句介绍
-- [示例站点二](https://example.com) —— 一句介绍
-- [示例站点三](https://example.com) —— 一句介绍
-
-把上面的示例换成真实友链，或者整段删掉，别空着。
+> 上面的卡片来自 `content/friends.json`。增加友链就是往数组里加一条：`{"name": "站点名", "url": "网址", "desc": "一句话介绍", "color": "violet"}`。
+> `color` 可选 `violet` / `amber` / `mint` / `sky` / `rose` / `slate`，不填默认紫色。

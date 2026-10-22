@@ -230,6 +230,21 @@ node admin.js 8090
 
 整页背景图仍然保留，把 `background.enabled` 设为 `true` 即可恢复（与轮播可共存，但视觉上会互相抢）。
 
+## 友链
+
+`/links.html` 是一面卡片墙，数据来自 `content/friends.json`：
+
+```json
+[
+  { "name": "站点名", "url": "https://example.com", "desc": "一句话介绍", "color": "violet" }
+]
+```
+
+- `color` 可选 `violet` / `amber` / `mint` / `sky` / `rose` / `slate`，不填默认紫色
+- 有 `avatar` 字段就显示图片，没有就用站点名首字做彩色方块
+- 页面上的「换个顺序」按钮会把卡片随机打乱（前端 Fisher-Yates，不刷新页面）
+- 说明文字仍然写在 `content/links.md` 里
+
 ## 首页侧栏
 
 首页宽屏时是三栏：左栏「公告 + 站点数据」，中间文章列表，右栏「音乐 + 分类 + 标签」。

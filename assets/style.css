@@ -2049,3 +2049,133 @@ body { font-size: calc(17px * var(--fs)); }
     );
 }
 .car-caption { text-shadow: 0 2px 26px rgba(0, 0, 0, 0.65), 0 1px 3px rgba(0, 0, 0, 0.5); }
+/* ==========================================================================
+   v8：轮播按原图比例显示（1079×608 ≈ 16:9），不再压扁裁切
+   ========================================================================== */
+
+.carousel {
+  height: auto !important;
+  width: min(var(--wrap), 1320px);
+  aspect-ratio: 1079 / 608;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 文章头图：比原图更宽一点，但控制在 21:9，避免过高 */
+.post-hero.has-photo {
+  height: auto !important;
+  width: min(var(--wrap-wide), 1400px);
+  aspect-ratio: 21 / 9;
+  max-height: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 1080px) {
+  .carousel { width: auto; margin-left: 12px; margin-right: 12px; }
+  .post-hero.has-photo { width: auto; aspect-ratio: 16 / 9; max-height: none; }
+}
+
+@media (max-width: 760px) {
+  .carousel { aspect-ratio: 16 / 10; }
+  .post-hero.has-photo { aspect-ratio: 4 / 3; }
+}
+
+/* 覆盖之前写死的高度 */
+@media (min-width: 1920px) {
+  .carousel { height: auto !important; }
+  .post-hero.has-photo { height: auto !important; }
+}
+/* 视口较矮时按高度反推宽度，保持比例又不至于占满整屏 */
+.carousel {
+  width: min(var(--wrap), 1320px, calc(62vh * 16 / 9));
+}
+
+@media (max-width: 1080px) {
+  .carousel { width: auto; }
+}
+/* 宽度跟内容区一致；只有屏幕太矮时才按高度收缩，避免占满整屏 */
+.carousel {
+  width: min(var(--wrap), calc(62vh * 16 / 9));
+}
+
+@media (max-width: 760px) {
+  .carousel { aspect-ratio: 16 / 9; }
+}
+/* ==========================================================================
+   v9：轮播用"完整图 + 两侧模糊填充"，任何宽度都不裁切、不变形
+   ========================================================================== */
+
+.carousel {
+  width: var(--wrap);
+  max-width: var(--wrap);
+  height: clamp(320px, 54vh, 680px);
+  aspect-ratio: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 背景层：同一张图放大模糊，填满两侧 */
+.car-slide {
+  background-size: cover;
+  background-position: center;
+  filter: none;
+}
+.car-slide::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  z-index: 0;
+  background-image: inherit;
+  background-size: cover;
+  background-position: center;
+  filter: blur(30px) brightness(0.72) saturate(1.1);
+  transform: scale(1.06);
+}
+
+/* 主图：完整显示，不裁切 */
+.car-media {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* 压暗层在图片之上、文字之下 */
+.car-slide::after {
+  z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(6, 8, 16, 0.28) 0%, rgba(6, 8, 16, 0.04) 38%, rgba(6, 8, 16, 0.66) 100%),
+    linear-gradient(90deg, rgba(6, 8, 16, 0.55) 0%, rgba(6, 8, 16, 0.3) 28%, rgba(6, 8, 16, 0.06) 52%, rgba(6, 8, 16, 0) 70%);
+}
+.car-caption { z-index: 3; }
+
+@media (max-width: 1080px) {
+  .carousel { width: auto; max-width: none; margin-left: 12px; margin-right: 12px; }
+}
+
+@media (max-width: 760px) {
+  .carousel { height: clamp(200px, 30vh, 320px); }
+}
+/* 覆盖前面 v8 的 height:auto!important */
+.carousel { height: clamp(320px, 54vh, 680px) !important; }
+@media (max-width: 760px) { .carousel { height: clamp(200px, 30vh, 320px) !important; } }
+/* 最终方案：整图按原始比例铺满，宽度不够时按高度反推 */
+.carousel {
+  width: min(var(--wrap), calc(62vh * 16 / 9)) !important;
+  max-width: none !important;
+  height: auto !important;
+  aspect-ratio: 1079 / 608 !important;
+}
+.car-slide::before { display: none !important; }
+.car-media { display: none !important; }
+.car-slide { background-size: cover !important; background-position: center !important; }
+
+@media (max-width: 1080px) {
+  .carousel { width: auto !important; margin-left: 12px; margin-right: 12px; }
+}
+@media (max-width: 760px) {
+  .carousel { aspect-ratio: 16 / 9 !important; }
+}

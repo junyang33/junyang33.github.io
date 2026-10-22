@@ -4,13 +4,28 @@
     "title": "城市的夜晚",
     "description": "下班路上顺手拍的，路灯把影子拉得很长。",
     "date": "2026-09-28",
-    "cover": "/assets/images/city-night/1.svg",
+    "cover": "/assets/images/city-night/1.jpg",
     "photos": [
-      { "src": "/assets/images/city-night/1.svg", "caption": "十点半的地铁口" },
-      { "src": "/assets/images/city-night/2.svg", "caption": "便利店是夜里唯一亮着的窗" },
-      { "src": "/assets/images/city-night/3.svg", "caption": "天桥上看车流" },
-      { "src": "/assets/images/city-night/4.svg", "caption": "巷子口那盏总在闪的灯" },
-      { "src": "/assets/images/city-night/5.svg", "caption": "回家路上，抬头有星星" }
+      {
+        "src": "/assets/images/city-night/1.jpg",
+        "caption": "江上的游船，一圈灯"
+      },
+      {
+        "src": "/assets/images/city-night/2.jpg",
+        "caption": "红色的桥，横在江面上"
+      },
+      {
+        "src": "/assets/images/city-night/3.jpg",
+        "caption": "滕王阁，一层层亮着"
+      },
+      {
+        "src": "/assets/images/city-night/4.jpg",
+        "caption": "街边的小店，扇子挂了一面墙"
+      },
+      {
+        "src": "/assets/images/city-night/5.jpg",
+        "caption": "城门下全是人"
+      }
     ]
   },
   {
@@ -20,11 +35,26 @@
     "date": "2026-08-16",
     "cover": "/assets/images/mountain/1.svg",
     "photos": [
-      { "src": "/assets/images/mountain/1.svg", "caption": "上山的路，雾还没散" },
-      { "src": "/assets/images/mountain/2.svg", "caption": "半山腰的茶棚" },
-      { "src": "/assets/images/mountain/3.svg", "caption": "石头缝里长出来的树" },
-      { "src": "/assets/images/mountain/4.svg", "caption": "云是从脚下流过去的" },
-      { "src": "/assets/images/mountain/5.svg", "caption": "下山时遇到的那群羊" }
+      {
+        "src": "/assets/images/mountain/1.svg",
+        "caption": "上山的路，雾还没散"
+      },
+      {
+        "src": "/assets/images/mountain/2.svg",
+        "caption": "半山腰的茶棚"
+      },
+      {
+        "src": "/assets/images/mountain/3.svg",
+        "caption": "石头缝里长出来的树"
+      },
+      {
+        "src": "/assets/images/mountain/4.svg",
+        "caption": "云是从脚下流过去的"
+      },
+      {
+        "src": "/assets/images/mountain/5.svg",
+        "caption": "下山时遇到的那群羊"
+      }
     ]
   },
   {
@@ -34,11 +64,26 @@
     "date": "2026-07-20",
     "cover": "/assets/images/seaside/1.svg",
     "photos": [
-      { "src": "/assets/images/seaside/1.svg", "caption": "早上六点的海" },
-      { "src": "/assets/images/seaside/2.svg", "caption": "浪打上来的声音" },
-      { "src": "/assets/images/seaside/3.svg", "caption": "礁石上的小水洼" },
-      { "src": "/assets/images/seaside/4.svg", "caption": "有人在那儿钓鱼" },
-      { "src": "/assets/images/seaside/5.svg", "caption": "走之前最后一张" }
+      {
+        "src": "/assets/images/seaside/1.svg",
+        "caption": "早上六点的海"
+      },
+      {
+        "src": "/assets/images/seaside/2.svg",
+        "caption": "浪打上来的声音"
+      },
+      {
+        "src": "/assets/images/seaside/3.svg",
+        "caption": "礁石上的小水洼"
+      },
+      {
+        "src": "/assets/images/seaside/4.svg",
+        "caption": "有人在那儿钓鱼"
+      },
+      {
+        "src": "/assets/images/seaside/5.svg",
+        "caption": "走之前最后一张"
+      }
     ]
   }
 ]

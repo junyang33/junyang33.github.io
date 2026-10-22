@@ -3130,3 +3130,39 @@ body.has-hero.hero-scrolled .site-header {
 @media (max-width: 900px) {
   .hero-banner { height: clamp(300px, 46vh, 420px) !important; }
 }
+/* 首页内容区与横幅同宽（左右各留一点边距） */
+body.has-hero .container {
+  max-width: none !important;
+  width: 100%;
+  padding-left: clamp(16px, 2.4vw, 52px);
+  padding-right: clamp(16px, 2.4vw, 52px);
+}
+/* 统一左右边距：横幅与内容区用同一个 gutter，左右边缘严格对齐 */
+:root { --gutter: clamp(16px, 2.4vw, 52px); }
+
+body.has-hero .container {
+  padding-left: var(--gutter) !important;
+  padding-right: var(--gutter) !important;
+}
+
+body.has-hero .hero-banner {
+  width: calc(100% - var(--gutter) * 2) !important;
+  max-width: none !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@media (max-width: 900px) {
+  body.has-hero .hero-banner { width: 100% !important; }
+  body.has-hero .container { padding-left: 16px !important; padding-right: 16px !important; }
+}
+/* 页头也跟同一套边距对齐 */
+body.has-hero .site-header {
+  max-width: calc(100% - var(--gutter) * 2) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@media (max-width: 900px) {
+  body.has-hero .site-header { max-width: calc(100% - 24px) !important; }
+}

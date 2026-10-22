@@ -2036,3 +2036,16 @@ body { font-size: calc(17px * var(--fs)); }
 @media print {
   .read-meter, .font-btn { display: none !important; }
 }
+/* 轮播左侧压暗加强，保证亮图上的标题也清楚 */
+.car-slide::after {
+  background:
+    linear-gradient(180deg, rgba(6, 8, 16, 0.3) 0%, rgba(6, 8, 16, 0.04) 36%, rgba(6, 8, 16, 0.7) 100%),
+    linear-gradient(
+      90deg,
+      rgba(6, 8, 16, 0.62) 0%,
+      rgba(6, 8, 16, 0.42) 30%,
+      rgba(6, 8, 16, 0.14) 52%,
+      rgba(6, 8, 16, 0) 68%
+    );
+}
+.car-caption { text-shadow: 0 2px 26px rgba(0, 0, 0, 0.65), 0 1px 3px rgba(0, 0, 0, 0.5); }

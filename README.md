@@ -214,7 +214,8 @@ node admin.js 8090
   "height": "clamp(320px, 46vh, 520px)",
   "slides": [
     { "image": "/assets/images/banner/1.jpg", "title": "我的博客", "subtitle": "写作是一种思考方式", "text": "记录技术、读书与生活" },
-    { "image": "/assets/images/banner/2.jpg", "title": "留一块自己的地方", "subtitle": "没有数据库，没有追踪脚本" }
+    { "image": "/assets/images/banner/2.jpg", "title": "留一块自己的地方", "subtitle": "没有数据库，没有追踪脚本" },
+    { "image": "/assets/images/banner/3.jpg", "title": "慢一点也没关系", "subtitle": "一年几篇，写清楚就好" }
   ]
 }
 ```

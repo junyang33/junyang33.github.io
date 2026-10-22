@@ -408,4 +408,62 @@
       }
     });
   }
+
+  /* --------------------------- 轮播 --------------------------- */
+
+  var carousel = document.getElementById('carousel');
+  if (carousel) {
+    var slides = $$('.car-slide', carousel);
+    var dots = $$('.car-dot', carousel);
+    var delay = Number(carousel.getAttribute('data-autoplay')) || 5000;
+    var index = 0;
+    var timer = null;
+
+    var showSlide = function (i) {
+      if (!slides.length) return;
+      index = (i + slides.length) % slides.length;
+      slides.forEach(function (s, k) {
+        s.classList.toggle('is-active', k === index);
+        s.setAttribute('aria-hidden', k === index ? 'false' : 'true');
+      });
+      dots.forEach(function (d, k) { d.classList.toggle('is-active', k === index); });
+    };
+
+    var stopAuto = function () {
+      if (timer) { clearInterval(timer); timer = null; }
+    };
+
+    var startAuto = function () {
+      if (slides.length < 2) return;
+      stopAuto();
+      timer = setInterval(function () { showSlide(index + 1); }, delay);
+    };
+
+    carousel.addEventListener('mouseenter', stopAuto);
+    carousel.addEventListener('mouseleave', startAuto);
+    carousel.addEventListener('focusin', stopAuto);
+    carousel.addEventListener('focusout', startAuto);
+
+    $$('.car-arrow', carousel).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showSlide(index + (btn.classList.contains('prev') ? -1 : 1));
+        startAuto();
+      });
+    });
+
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        showSlide(Number(dot.getAttribute('data-i')));
+        startAuto();
+      });
+    });
+
+    carousel.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') { showSlide(index - 1); startAuto(); }
+      if (e.key === 'ArrowRight') { showSlide(index + 1); startAuto(); }
+    });
+
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) startAuto();
+  }
 })();

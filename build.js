@@ -36,6 +36,7 @@ const SITE = {
   analytics: rawConfig.analytics || { enabled: false },
   music: rawConfig.music || { enabled: false },
   background: rawConfig.background || { enabled: false },
+  carousel: rawConfig.carousel || { enabled: false },
 };
 
 const NAV = [
@@ -400,6 +401,66 @@ function hasBg() {
   return !!(SITE.background && SITE.background.enabled && SITE.background.image);
 }
 
+function hasCarousel() {
+  const c = SITE.carousel;
+  return !!(c && c.enabled && Array.isArray(c.slides) && c.slides.length);
+}
+
+function firstSlideImage() {
+  const c = SITE.carousel;
+  return hasCarousel() && c.slides[0].image ? c.slides[0].image : '';
+}
+
+function carouselHtml() {
+  const c = SITE.carousel;
+  if (!hasCarousel()) return '';
+
+  const total = c.slides.length;
+
+  const slides = c.slides
+    .map(function (s, i) {
+      return [
+        '<div class="car-slide' + (i === 0 ? ' is-active' : '') + '" data-i="' + i + '"' +
+          ' style="background-image:url(' + esc(s.image) + ')"' +
+          ' aria-hidden="' + (i === 0 ? 'false' : 'true') + '">',
+        '  <div class="car-caption">',
+        s.title ? '    <h1 class="car-title">' + esc(s.title) + '</h1>' : '',
+        s.subtitle ? '    <p class="car-sub">' + esc(s.subtitle) + '</p>' : '',
+        s.text ? '    <p class="car-text">' + esc(s.text) + '</p>' : '',
+        '  </div>',
+        '</div>',
+      ]
+        .filter(Boolean)
+        .join('\n');
+    })
+    .join('\n');
+
+  const dots = c.slides
+    .map(function (s, i) {
+      return (
+        '<button class="car-dot' + (i === 0 ? ' is-active' : '') + '" type="button" data-i="' + i +
+        '" aria-label="第 ' + (i + 1) + ' 张"></button>'
+      );
+    })
+    .join('');
+
+  return [
+    '<section class="carousel" id="carousel" data-autoplay="' + (Number(c.autoplay) || 5000) + '"' +
+      ' style="--car-height:' + esc(c.height || 'clamp(320px, 46vh, 520px)') + '" aria-label="站点轮播">',
+    '  <div class="car-track">',
+    slides,
+    '  </div>',
+    total > 1
+      ? '  <button class="car-arrow prev" type="button" aria-label="上一张">‹</button>\n' +
+        '  <button class="car-arrow next" type="button" aria-label="下一张">›</button>\n' +
+        '  <div class="car-dots">' + dots + '</div>'
+      : '',
+    '</section>',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
 function musicPlayerHtml() {
   const m = SITE.music;
   if (!m || !m.enabled || !m.id) return '';
@@ -489,7 +550,9 @@ function layout(opts) {
   }
   head.push(analyticsHtml());
 
-  const bodyClass = ['page', opts.bodyClass || '', hasBg() ? 'has-bg' : ''].filter(Boolean).join(' ');
+  const bodyClass = ['page', opts.bodyClass || '', hasBg() ? 'has-bg' : '', opts.carousel ? 'has-carousel' : '']
+    .filter(Boolean)
+    .join(' ');
 
   return [
     '<!DOCTYPE html>',
@@ -517,6 +580,7 @@ function layout(opts) {
     '    <button class="icon-btn" id="themeToggle" type="button" title="切换明暗主题" aria-label="切换明暗主题">◐</button>',
     '  </div>',
     '</header>',
+    opts.carousel ? carouselHtml() : '',
     '<main class="container' + (opts.wide ? ' wide' : '') + '" id="main">',
     opts.content,
     '</main>',
@@ -583,21 +647,29 @@ function buildIndex(posts, page, totalPages) {
   const start = (page - 1) * SITE.perPage;
   const slice = posts.slice(start, start + SITE.perPage);
 
-  const hero = page === 1
-    ? [
-        '<section class="hero">',
-        '  <h1>' + esc(SITE.title) + '</h1>',
-        SITE.tagline ? '  <p class="tagline">' + esc(SITE.tagline) + '</p>' : '',
-        SITE.description ? '  <p class="lead">' + esc(SITE.description) + '</p>' : '',
-        '  <p class="hero-meta">',
-        '    <span>Since ' + SITE.startYear + '</span>',
-        '    <span>' + posts.length + ' 篇文章</span>',
-        '    <a href="/feed.xml">RSS 订阅</a>',
-        '  </p>',
-        '</section>',
-        '<hr class="hero-rule">',
-      ].filter(Boolean).join('\n')
-    : '<h1 class="page-title">第 ' + page + ' 页</h1>';
+  const useCarousel = page === 1 && hasCarousel();
+
+  const hero = page !== 1
+    ? '<h1 class="page-title">第 ' + page + ' 页</h1>'
+    : useCarousel
+      ? '<div class="home-bar">' +
+        '<span>' + posts.length + ' 篇文章</span>' +
+        '<span>Since ' + SITE.startYear + '</span>' +
+        '<a href="/feed.xml">RSS 订阅</a>' +
+        '</div>'
+      : [
+          '<section class="hero">',
+          '  <h1>' + esc(SITE.title) + '</h1>',
+          SITE.tagline ? '  <p class="tagline">' + esc(SITE.tagline) + '</p>' : '',
+          SITE.description ? '  <p class="lead">' + esc(SITE.description) + '</p>' : '',
+          '  <p class="hero-meta">',
+          '    <span>Since ' + SITE.startYear + '</span>',
+          '    <span>' + posts.length + ' 篇文章</span>',
+          '    <a href="/feed.xml">RSS 订阅</a>',
+          '  </p>',
+          '</section>',
+          '<hr class="hero-rule">',
+        ].filter(Boolean).join('\n');
 
   let pager = '';
   if (totalPages > 1) {
@@ -633,6 +705,7 @@ function buildIndex(posts, page, totalPages) {
     content: content,
     active: 'home',
     path: pageUrl(page),
+    carousel: useCarousel,
     title: page === 1 ? '' : '第 ' + page + ' 页',
     jsonld: page === 1 ? {
       '@context': 'https://schema.org',
@@ -753,7 +826,10 @@ function buildPost(post, all) {
   pager.push('</nav>');
 
   const content = [
-    '<header class="post-hero">',
+    '<header class="post-hero' + (hasCarousel() ? ' has-photo' : '') + '">',
+    hasCarousel() && firstSlideImage()
+      ? '  <div class="post-hero-photo" style="background-image:url(' + esc(firstSlideImage()) + ')"></div>'
+      : '',
     '  <div class="post-hero-inner">',
     '    <h1>' + esc(post.title) + '</h1>',
     '    <p class="meta">' + meta + '</p>',

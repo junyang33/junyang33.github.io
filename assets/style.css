@@ -2597,3 +2597,38 @@ body.has-carousel .home-layout .post-list {
     margin-right: 12px !important;
   }
 }
+/* ==========================================================================
+   v18：首页文章列表两列并排（按主区宽度自适应）
+   ========================================================================== */
+
+.home-main { container-type: inline-size; }
+
+@container (min-width: 620px) {
+  .home-main .post-list {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px;
+    align-items: start;
+  }
+  .home-main .post-item {
+    padding: 20px 20px 18px;
+  }
+  .home-main .post-item h2 {
+    font-size: 1.12rem;
+    line-height: 1.42;
+  }
+  .home-main .post-item .summary {
+    font-size: 0.92rem;
+  }
+  .home-main .post-item .tags {
+    margin-top: 12px;
+  }
+  .home-main .pagination {
+    grid-column: 1 / -1;
+  }
+}
+
+/* 分页控件在两列网格里需要独占一行 */
+@container (min-width: 620px) {
+  .home-main .pagination { margin-top: 26px; }
+}

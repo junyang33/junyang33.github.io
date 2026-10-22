@@ -3166,3 +3166,31 @@ body.has-hero .site-header {
 @media (max-width: 900px) {
   body.has-hero .site-header { max-width: calc(100% - 24px) !important; }
 }
+/* 内容区收成居中一栏，左右留白（与横幅、页头同一宽度） */
+:root {
+  --site-w: min(calc(100% - var(--gutter) * 2), 1320px);
+}
+
+body.has-hero .hero-banner {
+  width: var(--site-w) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+body.has-hero .site-header {
+  max-width: var(--site-w) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+body.has-hero .container {
+  max-width: var(--site-w) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+@media (max-width: 900px) {
+  :root { --site-w: calc(100% - 24px); }
+}

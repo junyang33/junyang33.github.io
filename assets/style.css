@@ -3122,3 +3122,11 @@ body.has-hero.hero-scrolled .site-header {
 /* 新横幅图：人物在左侧偏上，纵向位置单独调 */
 .hb-slide { background-position: center 30% !important; }
 @media (max-width: 900px) { .hb-slide { background-position: center 26% !important; } }
+/* 横幅高度跟随宽度，比例稳定在 ~2.5，宽屏不再压扁裁掉肩膀 */
+.hero-banner {
+  height: clamp(380px, min(70vh, calc(100vw / 2.5)), 780px) !important;
+}
+
+@media (max-width: 900px) {
+  .hero-banner { height: clamp(300px, 46vh, 420px) !important; }
+}

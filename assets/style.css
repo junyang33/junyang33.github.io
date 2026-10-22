@@ -2833,3 +2833,112 @@ body.has-carousel .home-layout .post-list {
 @media (max-width: 560px) {
   .friends { grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); }
 }
+/* ==========================================================================
+   v22：去 AI 感 —— 收掉紫粉渐变，换成单一墨绿；背景压得更安静
+   ========================================================================== */
+
+:root {
+  --accent: #2f5d50;
+  --accent-2: #2f5d50;          /* 与主色相同，所有渐变自然变成纯色 */
+  --accent-soft: rgba(47, 93, 80, 0.1);
+
+  --bg: #f4f5f3;
+  --bg-2: #fafbf9;
+
+  --blob-1: rgba(120, 150, 140, 0.28);
+  --blob-2: rgba(160, 150, 130, 0.22);
+  --blob-3: rgba(130, 155, 170, 0.24);
+
+  --grad-1: #f7f8f6;
+  --grad-2: #f3f5f2;
+  --grad-3: #f6f7f5;
+
+  --ink: #1b1f1e;
+  --ink-2: #4a514e;
+  --ink-3: #7c8481;
+}
+
+[data-theme="dark"] {
+  --accent: #7fb3a2;
+  --accent-2: #7fb3a2;
+  --accent-soft: rgba(127, 179, 162, 0.14);
+
+  --bg: #12140f;
+  --bg-2: #171a14;
+
+  --blob-1: rgba(70, 110, 95, 0.3);
+  --blob-2: rgba(110, 95, 70, 0.24);
+  --blob-3: rgba(60, 90, 105, 0.26);
+
+  --grad-1: #14170f;
+  --grad-2: #191c15;
+  --grad-3: #131711;
+
+  --ink: #e7e9e4;
+  --ink-2: #a6aca6;
+  --ink-3: #767c77;
+}
+
+/* 标题不再用渐变文字 */
+.hero h1 {
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+/* 光斑再淡一档，背景几乎是一张纸 */
+body::before { opacity: 0.5; }
+
+/* 各类胶囊/按钮统一为实色，不用渐变 */
+.notice-link,
+.chip.is-active,
+.pin,
+.cal-d.has-post,
+.music-disc,
+.friend-avatar,
+.friend--amber .friend-avatar,
+.friend--mint .friend-avatar,
+.friend--sky .friend-avatar,
+.friend--rose .friend-avatar,
+.friend--slate .friend-avatar {
+  background: var(--accent) !important;
+  box-shadow: none !important;
+}
+
+/* 强调色块不再发光 */
+.cal-d.has-post { box-shadow: none !important; }
+.music-disc { box-shadow: none !important; }
+
+/* 卡片边框更细、阴影更轻，减少"组件感" */
+.post-item,
+.widget,
+.album,
+.related,
+.comments,
+.friend {
+  box-shadow: 0 1px 2px rgba(20, 30, 25, 0.04) !important;
+  border-color: color-mix(in srgb, var(--ink) 8%, transparent) !important;
+}
+
+[data-theme="dark"] .post-item,
+[data-theme="dark"] .widget,
+[data-theme="dark"] .album,
+[data-theme="dark"] .related,
+[data-theme="dark"] .comments,
+[data-theme="dark"] .friend {
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* 悬停抬升幅度收敛 */
+.post-item:hover,
+.friend:hover { transform: translateY(-1px) !important; }
+
+/* 标题字重收一点 */
+.post-item h2,
+.post-content h2,
+.post-header h1,
+.hero h1 { font-weight: 650 !important; }

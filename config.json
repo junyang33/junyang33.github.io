@@ -1,7 +1,7 @@
 {
   "title": "我的博客",
-  "tagline": "写作是一种思考方式",
-  "description": "记录技术、读书与生活，写给自己，也写给恰好路过的人。",
+  "tagline": "一个写东西的地方",
+  "description": "写点技术笔记，也记些别的。",
   "author": "Mental",
   "email": "hsdfgkjvbsjkafh@163.com",
   "url": "https://example.com",
@@ -12,9 +12,9 @@
   "notice": {
     "enabled": true,
     "title": "公告",
-    "text": "欢迎来到我的数字花园，这里记录技术、读书与生活。慢慢写，认真写。",
+    "text": "站子还在搭，更新不快，想起来才写。有问题直接邮件。",
     "link": "/about.html",
-    "linkText": "了解更多"
+    "linkText": "看看关于"
   },
   "background": {
     "enabled": false,
@@ -29,27 +29,32 @@
       {
         "image": "/assets/images/banner/1.jpg",
         "title": "我的博客",
-        "subtitle": "写作是一种思考方式",
-        "text": "记录技术、读书与生活"
+        "subtitle": "想到什么写什么",
+        "text": ""
       },
       {
         "image": "/assets/images/banner/2.jpg",
-        "title": "留一块自己的地方",
-        "subtitle": "没有数据库，没有追踪脚本",
-        "text": "Markdown 写作 · 静态生成 · 自己掌控"
+        "subtitle": "踩过的坑记在这里"
       },
       {
         "image": "/assets/images/banner/3.jpg",
-        "title": "慢一点也没关系",
-        "subtitle": "一年几篇，写清楚就好",
-        "text": "不追热点，只写自己真正懂的"
+        "subtitle": "偶尔也写点别的"
       }
     ]
   },
   "social": [
-    { "label": "GitHub", "url": "https://github.com/" },
-    { "label": "邮箱", "url": "mailto:hsdfgkjvbsjkafh@163.com" },
-    { "label": "RSS", "url": "/feed.xml" }
+    {
+      "label": "GitHub",
+      "url": "https://github.com/"
+    },
+    {
+      "label": "邮箱",
+      "url": "mailto:hsdfgkjvbsjkafh@163.com"
+    },
+    {
+      "label": "RSS",
+      "url": "/feed.xml"
+    }
   ],
   "music": {
     "enabled": true,
@@ -71,6 +76,9 @@
   "analytics": {
     "enabled": false,
     "provider": "umami",
-    "umami": { "src": "https://analytics.example.com/script.js", "websiteId": "" }
+    "umami": {
+      "src": "https://analytics.example.com/script.js",
+      "websiteId": ""
+    }
   }
 }

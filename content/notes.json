@@ -3,42 +3,51 @@
     "id": "n-20261021",
     "date": "2026-10-21",
     "color": "amber",
-    "text": "把博客的毛玻璃风格做完了。调了三个小时的模糊半径，最后发现好看的其实不是模糊，是背后那层渐变光。",
-    "images": ["/assets/images/notes/n1.svg"]
+    "text": "毛玻璃调了一下午。最后发现好看的其实是背后那层渐变，不是模糊本身。",
+    "images": [
+      "/assets/images/notes/n1.svg"
+    ]
   },
   {
     "id": "n-20261019",
     "date": "2026-10-19",
     "color": "sky",
-    "text": "今日份的快乐：一个跑了两天的 bug，最后发现是少写了一个分号旁边的空格。\n\n不，是少了一个 await。",
+    "text": "跑了两天的 bug，是少写了一个 await。改完盯着屏幕看了半分钟，然后把水喝完。",
     "images": []
   },
   {
     "id": "n-20261017",
     "date": "2026-10-17",
     "color": "mint",
-    "text": "傍晚下楼扔垃圾，抬头看见天是粉蓝色的，站那儿看了两分钟。手机没带，所以没有照片，但记得挺清楚。",
-    "images": ["/assets/images/notes/n2.svg", "/assets/images/notes/n3.svg"]
+    "text": "下楼扔垃圾，天是粉蓝的，站那儿看了两分钟。手机没带，没拍。",
+    "images": [
+      "/assets/images/notes/n2.svg"
+    ]
   },
   {
     "id": "n-20261014",
     "date": "2026-10-14",
     "color": "rose",
-    "text": "买了本《代码整洁之道》，翻了三十页，感觉自己在被温和地批评。\n\n先放着，等心态好了再看。",
+    "text": "《代码整洁之道》翻了三十页，感觉在被温和地批评。先放着，等心态好了再看。",
     "images": []
   },
   {
     "id": "n-20261011",
     "date": "2026-10-11",
     "color": "lilac",
-    "text": "给自己的网站加了个音乐播放器，结果自己听了一下午，一行代码没写。\n\n这大概就是自建站的副作用。",
-    "images": ["/assets/images/notes/n4.svg"]
+    "text": "给站里加了个播放器，结果自己听了一下午，一行代码没写。",
+    "images": [
+      "/assets/images/notes/n3.svg",
+      "/assets/images/notes/n4.svg"
+    ]
   },
   {
     "id": "n-20261008",
     "date": "2026-10-08",
     "color": "slate",
-    "text": "决定以后每周至少写一篇，不管写得好不好。\n\n先把「写」这个动作变成习惯，质量的事交给时间。",
-    "images": ["/assets/images/notes/n5.svg"]
+    "text": "决定每周写一篇，写不好也写。先让\"写\"变成习惯。",
+    "images": [
+      "/assets/images/notes/n5.svg"
+    ]
   }
 ]

@@ -2234,3 +2234,11 @@ body.has-carousel .container {
 @media (prefers-reduced-motion: reduce) {
   .car-slide { transition: opacity 0.2s ease !important; }
 }
+/* ==========================================================================
+   v12：轮播宽度收到 1200，保证 1920 图源始终是"缩小显示"
+   —— 页头 / 轮播 / 列表三者仍用同一个 --hero-w
+   ========================================================================== */
+
+:root {
+  --hero-w: min(var(--wrap), 1200px, calc(62vh * 16 / 9));
+}

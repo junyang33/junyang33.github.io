@@ -3111,3 +3111,11 @@ body.has-hero.hero-scrolled .site-header {
 body.has-hero.hero-scrolled .site-header {
   background: color-mix(in srgb, var(--bg) 96%, transparent) !important;
 }
+/* 首页横幅：人物靠上，标题落在空白处 */
+.hb-slide { background-position: center 18% !important; }
+@media (max-width: 900px) { .hb-slide { background-position: center 22% !important; } }
+/* 标题下移到底部深色区域，避免压住人物脸部 */
+.hero-banner { place-items: end center !important; }
+.hb-inner {
+  padding-bottom: clamp(64px, 11vh, 120px) !important;
+}

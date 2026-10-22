@@ -718,7 +718,7 @@ function buildIndex(posts, page, totalPages) {
   ].filter(Boolean).join('\n');
 
   if (page === 1) {
-    const side = buildSidebar(siteStats(ordered));
+    const side = buildSidebar(siteStats(ordered), ordered);
 
     bodyHtml = [
       '<div class="home-layout">',
@@ -1335,6 +1335,28 @@ function widgetNotice() {
   ].filter(Boolean).join('\n');
 }
 
+function widgetCalendar(posts) {
+  if (!posts.length) return '';
+
+  const data = posts
+    .filter(function (p) { return p.date; })
+    .map(function (p) {
+      return { d: p.date, t: p.title, u: '/posts/' + p.slug + '.html' };
+    });
+
+  if (!data.length) return '';
+
+  return [
+    '<section class="widget widget-calendar">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>日历</h2></header>',
+    '  <div class="cal" id="calendar"></div>',
+    '  <script type="application/json" id="calendarData">' +
+      JSON.stringify(data).replace(/</g, '\\u003c') +
+      '</script>',
+    '</section>',
+  ].join('\n');
+}
+
 function widgetMusic() {
   const m = SITE.music;
   if (!m || !m.enabled || !m.id) return '';
@@ -1410,9 +1432,9 @@ function widgetStats(stats) {
   ].join('\n');
 }
 
-function buildSidebar(postStats) {
+function buildSidebar(postStats, posts) {
   return {
-    left: [widgetNotice(), widgetStats(postStats)].filter(Boolean).join('\n'),
+    left: [widgetNotice(), widgetCalendar(posts || []), widgetStats(postStats)].filter(Boolean).join('\n'),
     right: [widgetMusic(), widgetCategories(postStats), widgetTags(postStats)].filter(Boolean).join('\n'),
   };
 }

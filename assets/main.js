@@ -442,6 +442,72 @@
     });
   }
 
+  /* --------------------------- 日历 --------------------------- */
+
+  var calEl = $('#calendar');
+  var calData = $('#calendarData');
+
+  if (calEl && calData) {
+    var entries = [];
+    try { entries = JSON.parse(calData.textContent || '[]'); } catch (e) {}
+
+    var byDate = {};
+    entries.forEach(function (item) {
+      if (!item || !item.d) return;
+      (byDate[item.d] = byDate[item.d] || []).push(item);
+    });
+
+    var today = new Date();
+    var view = new Date(today.getFullYear(), today.getMonth(), 1);
+    var WEEK = ['一', '二', '三', '四', '五', '六', '日'];
+
+    var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+    var keyOf = function (y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); };
+
+    var renderCalendar = function () {
+      var y = view.getFullYear();
+      var m = view.getMonth();
+      var startIdx = (new Date(y, m, 1).getDay() + 6) % 7;
+      var total = new Date(y, m + 1, 0).getDate();
+      var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
+      var cells = [];
+
+      for (var i = 0; i < startIdx; i++) cells.push('<span class="cal-d is-out"></span>');
+
+      for (var d = 1; d <= total; d++) {
+        var key = keyOf(y, m, d);
+        var hits = byDate[key];
+        var cls = 'cal-d' + (hits ? ' has-post' : '') + (key === todayKey ? ' is-today' : '');
+
+        if (hits) {
+          var tip = hits.map(function (h) { return h.t; }).join(' / ').replace(/"/g, '&quot;');
+          cells.push('<a class="' + cls + '" href="' + hits[0].u + '" title="' + tip + '">' + d + '</a>');
+        } else {
+          cells.push('<span class="' + cls + '">' + d + '</span>');
+        }
+      }
+
+      calEl.innerHTML =
+        '<div class="cal-head">' +
+          '<button class="cal-nav" type="button" data-step="-1" aria-label="上个月">‹</button>' +
+          '<span class="cal-title">' + y + ' 年 ' + (m + 1) + ' 月</span>' +
+          '<button class="cal-nav" type="button" data-step="1" aria-label="下个月">›</button>' +
+        '</div>' +
+        '<div class="cal-week">' + WEEK.map(function (w) { return '<span>' + w + '</span>'; }).join('') + '</div>' +
+        '<div class="cal-grid">' + cells.join('') + '</div>';
+    };
+
+    renderCalendar();
+
+    calEl.addEventListener('click', function (e) {
+      var nav = e.target.closest('.cal-nav');
+      if (!nav) return;
+      var step = Number(nav.getAttribute('data-step'));
+      view.setMonth(view.getMonth() + step);
+      renderCalendar();
+    });
+  }
+
   /* ------------------- 侧栏挂件交互 ------------------- */
 
   var notice = $('#noticeWidget');

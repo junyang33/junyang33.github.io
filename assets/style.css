@@ -2484,3 +2484,71 @@ body.has-carousel .home-layout .post-list {
   }
   .rail-right .widget, .rail-left .widget { flex: 1 1 260px; }
 }
+/* ==========================================================================
+   v15：侧栏日历
+   ========================================================================== */
+
+.cal-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.cal-title {
+  flex: 1;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.cal-nav {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--ink-2);
+  background: var(--glass-soft);
+  border: 1px solid var(--stroke-soft);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.cal-nav:hover { color: var(--accent); border-color: var(--accent); }
+
+.cal-week,
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.cal-week { margin-bottom: 4px; }
+.cal-week span {
+  text-align: center;
+  font-size: 0.64rem;
+  color: var(--ink-3);
+}
+
+.cal-d {
+  display: grid;
+  place-items: center;
+  height: 24px;
+  font-size: 0.72rem;
+  color: var(--ink-2);
+  border-radius: 7px;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.cal-d.is-out { visibility: hidden; }
+.cal-d.has-post {
+  color: #fff;
+  font-weight: 650;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.cal-d.has-post:hover { color: #fff; transform: translateY(-1px); }
+.cal-d.is-today { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.cal-d.has-post.is-today {
+  box-shadow: 0 0 0 2px var(--accent-soft), inset 0 0 0 1.5px rgba(255, 255, 255, 0.85);
+}

@@ -2665,3 +2665,57 @@ body.has-carousel .home-layout .post-list {
     gap: 16px;
   }
 }
+/* ==========================================================================
+   v20：两列卡片等高对齐，宽度一致
+   ========================================================================== */
+
+@media (min-width: 900px) {
+  .home-main .post-list,
+  .post-list {
+    align-items: stretch;
+  }
+
+  .post-item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* 摘要区可伸缩，标签被推到底部 */
+  .post-item .summary {
+    margin-bottom: 10px;
+  }
+
+  .post-item .tags {
+    margin-top: auto;
+    padding-top: 12px;
+  }
+
+  /* 摘要固定两行，避免内容长短造成高度差 */
+  .post-item .summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.9em;
+  }
+
+  .post-item h2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.84em;
+  }
+}
+/* 修正：不要强制标题/摘要占两行，只保留等高与标签贴底 */
+@media (min-width: 900px) {
+  .post-item h2 {
+    display: block;
+    -webkit-line-clamp: unset;
+    min-height: 0;
+  }
+  .post-item .summary {
+    min-height: 0;
+  }
+}

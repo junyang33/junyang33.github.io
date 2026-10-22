@@ -153,16 +153,46 @@
     var mToggle = $('#musicToggle', music);
     var mPanel = $('#musicPanel', music);
     var mFrame = mPanel ? $('iframe', mPanel) : null;
+    var mClose = $('#musicClose', music);
+    var MUSIC_KEY = 'musicOpen';
 
-    mToggle.addEventListener('click', function () {
-      var willOpen = mPanel.hidden;
-      mPanel.hidden = !willOpen;
-      mToggle.setAttribute('aria-expanded', String(willOpen));
-      music.classList.toggle('is-playing', willOpen);
+    function setMusicOpen(open) {
+      mPanel.hidden = !open;
+      mToggle.setAttribute('aria-expanded', String(open));
+      music.classList.toggle('is-playing', open);
 
-      if (willOpen && mFrame && !mFrame.getAttribute('src')) {
+      if (open && mFrame && !mFrame.getAttribute('src')) {
         mFrame.src = mFrame.getAttribute('data-src');
       }
+      try { localStorage.setItem(MUSIC_KEY, open ? '1' : '0'); } catch (e) {}
+    }
+
+    mToggle.addEventListener('click', function () {
+      setMusicOpen(mPanel.hidden);
+    });
+
+    if (mClose) {
+      mClose.addEventListener('click', function () { setMusicOpen(false); });
+    }
+
+    /* 上次开着就自动恢复（不自动播放，只是把面板摆好） */
+    try {
+      if (localStorage.getItem(MUSIC_KEY) === '1') setMusicOpen(true);
+    } catch (e) {}
+
+    /* 快捷键 M 开关 */
+    document.addEventListener('keydown', function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var el = e.target;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      if (e.key !== 'm' && e.key !== 'M') return;
+      e.preventDefault();
+      setMusicOpen(mPanel.hidden);
+    });
+
+    /* Esc 收起 */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !mPanel.hidden) setMusicOpen(false);
     });
   }
 

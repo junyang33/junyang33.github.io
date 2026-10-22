@@ -475,17 +475,33 @@ function musicPlayerHtml() {
     'https://music.163.com/outchain/player?type=' + type +
     '&id=' + encodeURIComponent(m.id) + '&auto=0&height=' + height;
 
+  const webUrl =
+    type === '2'
+      ? 'https://music.163.com/#/song?id=' + encodeURIComponent(m.id)
+      : 'https://music.163.com/#/playlist?id=' + encodeURIComponent(m.id);
+
   return [
     '<div class="music" id="musicPlayer">',
+    '  <div class="music-panel" id="musicPanel" hidden>',
+    '    <header class="mp-head">',
+    '      <span class="mp-cover" aria-hidden="true">♪</span>',
+    '      <div class="mp-meta">',
+    '        <strong>' + esc(m.name || '听点什么') + '</strong>',
+    '        <span>网易云' + (type === '2' ? '单曲' : '歌单') + '</span>',
+    '      </div>',
+    '      <a class="mp-link" href="' + esc(webUrl) + '" target="_blank" rel="noopener">在网易云打开</a>',
+    '      <button class="mp-close" id="musicClose" type="button" aria-label="收起播放器">×</button>',
+    '    </header>',
+    '    <div class="mp-frame">',
+    '      <iframe title="网易云音乐播放器" loading="lazy" allow="autoplay"',
+    '              data-src="' + esc(src) + '"></iframe>',
+    '    </div>',
+    '  </div>',
     '  <button class="music-toggle" id="musicToggle" type="button" aria-expanded="false">',
     '    <span class="music-disc" aria-hidden="true">♪</span>',
     '    <span class="music-name">' + esc(m.name || '听点什么') + '</span>',
+    '    <span class="music-eq" aria-hidden="true"><i></i><i></i><i></i></span>',
     '  </button>',
-    '  <div class="music-panel" id="musicPanel" hidden>',
-    '    <iframe title="网易云音乐播放器" loading="lazy" allow="autoplay"',
-    '            data-src="' + esc(src) + '"></iframe>',
-    '    <p class="music-hint">播放器来自网易云音乐</p>',
-    '  </div>',
     '</div>',
   ].join('\n');
 }

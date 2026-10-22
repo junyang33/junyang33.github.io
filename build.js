@@ -423,46 +423,28 @@ function carouselHtml() {
   const c = SITE.carousel;
   if (!hasCarousel()) return '';
 
-  const total = c.slides.length;
-
   const slides = c.slides
     .map(function (s, i) {
-      return [
-        '<div class="car-slide' + (i === 0 ? ' is-active' : '') + '" data-i="' + i + '"' +
-          ' style="background-image:url(' + esc(s.image) + ')"' +
-          ' aria-hidden="' + (i === 0 ? 'false' : 'true') + '">',
-        '  <div class="car-caption">',
-        s.title ? '    <h1 class="car-title">' + esc(s.title) + '</h1>' : '',
-        s.subtitle ? '    <p class="car-sub">' + esc(s.subtitle) + '</p>' : '',
-        s.text ? '    <p class="car-text">' + esc(s.text) + '</p>' : '',
-        '  </div>',
-        '</div>',
-      ]
-        .filter(Boolean)
-        .join('\n');
+      return '<div class="hb-slide' + (i === 0 ? ' is-active' : '') +
+        '" style="background-image:url(' + esc(s.image) + ')"></div>';
     })
-    .join('\n');
+    .join('\n    ');
 
-  const dots = c.slides
-    .map(function (s, i) {
-      return (
-        '<button class="car-dot' + (i === 0 ? ' is-active' : '') + '" type="button" data-i="' + i +
-        '" aria-label="第 ' + (i + 1) + ' 张"></button>'
-      );
-    })
-    .join('');
+  const pill = SITE.tagline || SITE.description || '';
 
   return [
-    '<section class="carousel" id="carousel" data-autoplay="' + (Number(c.autoplay) || 5000) + '"' +
-      ' style="--car-height:' + esc(c.height || 'clamp(320px, 46vh, 520px)') + '" aria-label="站点轮播">',
-    '  <div class="car-track">',
-    slides,
+    '<section class="hero-banner" id="heroBanner" data-autoplay="' + (Number(c.autoplay) || 5200) + '">',
+    '  <div class="hb-slides">',
+    '    ' + slides,
     '  </div>',
-    total > 1
-      ? '  <button class="car-arrow prev" type="button" aria-label="上一张">‹</button>\n' +
-        '  <button class="car-arrow next" type="button" aria-label="下一张">›</button>\n' +
-        '  <div class="car-dots">' + dots + '</div>'
-      : '',
+    '  <div class="hb-scrim"></div>',
+    '  <div class="hb-inner">',
+    '    <h1 class="hb-title">' + esc(SITE.title) + '</h1>',
+    pill ? '    <p class="hb-pill">' + esc(pill) + '</p>' : '',
+    '  </div>',
+    '  <svg class="hb-wave" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true">',
+    '    <path d="M0,64 C210,104 420,26 720,52 C1000,76 1230,22 1440,58 L1440,110 L0,110 Z" fill="var(--bg)"></path>',
+    '  </svg>',
     '</section>',
   ]
     .filter(Boolean)
@@ -559,7 +541,7 @@ function layout(opts) {
   }
   head.push(analyticsHtml());
 
-  const bodyClass = ['page', opts.bodyClass || '', hasBg() ? 'has-bg' : '', opts.carousel ? 'has-carousel' : '']
+  const bodyClass = ['page', opts.bodyClass || '', hasBg() ? 'has-bg' : '', opts.carousel ? 'has-carousel has-hero' : '']
     .filter(Boolean)
     .join(' ');
 

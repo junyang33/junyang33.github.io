@@ -2942,3 +2942,172 @@ body::before { opacity: 0.5; }
 .post-content h2,
 .post-header h1,
 .hero h1 { font-weight: 650 !important; }
+/* ==========================================================================
+   v23：首页顶部整幅横幅（参考站样式）——大图 + 居中站名 + 胶囊 + 波浪
+   ========================================================================== */
+
+.hero-banner {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: -74px;
+  height: clamp(360px, 56vh, 620px);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.hb-slides { position: absolute; inset: 0; z-index: 0; }
+
+.hb-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 38%;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.hb-slide.is-active { opacity: 1; }
+
+.hb-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(8, 12, 10, 0.38) 0%, rgba(8, 12, 10, 0.1) 42%, rgba(8, 12, 10, 0.46) 100%);
+  pointer-events: none;
+}
+
+.hb-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 0 24px;
+  text-align: center;
+  animation: hb-in 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes hb-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+.hb-title {
+  margin: 0;
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.45);
+}
+
+.hb-pill {
+  margin: 0;
+  padding: 10px 20px;
+  max-width: min(90vw, 46ch);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.94);
+  background: rgba(12, 16, 14, 0.46);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.hb-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  z-index: 3;
+  width: 100%;
+  height: 88px;
+  display: block;
+}
+
+/* 页头压在图上，文字转白 */
+body.has-hero .site-header {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+body.has-hero .brand,
+body.has-hero .nav a,
+body.has-hero .icon-btn { color: #fff !important; text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5); }
+body.has-hero .brand-tag { color: rgba(255, 255, 255, 0.75) !important; }
+body.has-hero .nav a.active {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+body.has-hero .icon-btn {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* 首页内容从波浪下面开始 */
+body.has-hero .container { padding-top: 26px; }
+
+@media (max-width: 760px) {
+  .hero-banner { margin-top: -66px; height: clamp(300px, 46vh, 420px); }
+  .hb-title { font-size: 1.7rem; }
+  .hb-pill { font-size: 0.85rem; padding: 8px 14px; }
+  .hb-wave { height: 56px; }
+}
+/* 窄屏：页头不再压在图上，恢复实底，避免文字糊在图片上 */
+@media (max-width: 900px) {
+  .hero-banner { margin-top: 0; }
+
+  body.has-hero .site-header {
+    background: var(--glass) !important;
+    border-color: var(--stroke) !important;
+    box-shadow: var(--shadow) !important;
+    backdrop-filter: blur(18px) saturate(170%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(170%) !important;
+  }
+  body.has-hero .brand,
+  body.has-hero .nav a,
+  body.has-hero .icon-btn { color: var(--ink) !important; text-shadow: none !important; }
+  body.has-hero .brand-tag { color: var(--ink-3) !important; }
+  body.has-hero .nav a.active {
+    background: var(--accent-soft) !important;
+    color: var(--accent) !important;
+  }
+  body.has-hero .icon-btn {
+    background: var(--glass-soft) !important;
+    border-color: var(--stroke-soft) !important;
+  }
+  body.has-hero .container { padding-top: 18px; }
+}
+/* 让横幅精确顶到页面最上沿 */
+.hero-banner { margin-top: -76px; }
+@media (max-width: 900px) { .hero-banner { margin-top: 0; } }
+/* 滚动出横幅后，页头恢复实底，避免白字压在卡片上 */
+body.has-hero.hero-scrolled .site-header {
+  background: var(--glass) !important;
+  border-color: var(--stroke) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: blur(18px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(170%) !important;
+}
+body.has-hero.hero-scrolled .brand,
+body.has-hero.hero-scrolled .nav a,
+body.has-hero.hero-scrolled .icon-btn { color: var(--ink) !important; text-shadow: none !important; }
+body.has-hero.hero-scrolled .brand-tag { color: var(--ink-3) !important; }
+body.has-hero.hero-scrolled .nav a.active { background: var(--accent-soft) !important; color: var(--accent) !important; }
+body.has-hero.hero-scrolled .icon-btn { background: var(--glass-soft) !important; border-color: var(--stroke-soft) !important; }
+
+body.has-hero .site-header { transition: background 0.35s ease, color 0.35s ease, box-shadow 0.35s ease; }
+/* 滚动后页头用更实的底色，避免卡片透上来 */
+body.has-hero.hero-scrolled .site-header {
+  background: color-mix(in srgb, var(--bg) 88%, transparent) !important;
+}
+body.has-hero.hero-scrolled .site-header {
+  background: color-mix(in srgb, var(--bg) 96%, transparent) !important;
+}

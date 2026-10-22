@@ -2719,3 +2719,19 @@ body.has-carousel .home-layout .post-list {
     min-height: 0;
   }
 }
+/* 轮播宽度必须跟内容区同源，避免窄屏时两者不一致 */
+.carousel {
+  width: var(--hero-w) !important;
+  max-width: var(--hero-w) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@media (max-width: 1080px) {
+  .carousel {
+    width: auto !important;
+    max-width: none !important;
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+  }
+}

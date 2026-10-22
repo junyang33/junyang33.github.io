@@ -195,6 +195,144 @@
     }
   });
 
+  /* ====================== 天气（Open-Meteo） ====================== */
+
+  var WEATHER_TEXT = {
+    0: '晴', 1: '晴间多云', 2: '多云', 3: '阴',
+    45: '有雾', 48: '雾凇',
+    51: '毛毛雨', 53: '毛毛雨', 55: '细密雨',
+    56: '冻毛雨', 57: '冻毛雨',
+    61: '小雨', 63: '中雨', 65: '大雨',
+    66: '冻雨', 67: '冻雨',
+    71: '小雪', 73: '中雪', 75: '大雪', 77: '雪粒',
+    80: '阵雨', 81: '强阵雨', 82: '暴雨',
+    85: '阵雪', 86: '强阵雪',
+    95: '雷阵雨', 96: '雷阵雨伴冰雹', 99: '强雷暴',
+  };
+
+  var WEATHER_ICON = {
+    0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+    45: '🌫️', 48: '🌫️',
+    51: '🌦️', 53: '🌦️', 55: '🌧️', 56: '🌧️', 57: '🌧️',
+    61: '🌧️', 63: '🌧️', 65: '🌧️', 66: '🌧️', 67: '🌧️',
+    71: '🌨️', 73: '🌨️', 75: '❄️', 77: '❄️',
+    80: '🌦️', 81: '🌧️', 82: '⛈️',
+    85: '🌨️', 86: '❄️',
+    95: '⛈️', 96: '⛈️', 99: '⛈️',
+  };
+
+  var WEEK_CN = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+  function weatherText(code) {
+    return WEATHER_TEXT[code] || '未知';
+  }
+
+  function weatherIcon(code) {
+    return WEATHER_ICON[code] || '🌡️';
+  }
+
+  function initWeather(el) {
+    var body = el.querySelector('#weatherBody') || el.querySelector('.weather-body');
+    if (!body) return;
+
+    var city = el.getAttribute('data-city') || '';
+    var lat = el.getAttribute('data-lat');
+    var lon = el.getAttribute('data-lon');
+    var days = Math.max(1, Math.min(7, Number(el.getAttribute('data-days')) || 3));
+    var cacheKey = 'weather:' + city + ':' + lat + ',' + lon + ':' + days;
+
+    function paint(data) {
+      var cur = data.current || {};
+      var daily = data.daily || {};
+      var temps = daily.temperature_2m_max || [];
+      var mins = daily.temperature_2m_min || [];
+      var codes = daily.weather_code || [];
+      var dates = daily.time || [];
+
+      var html = '' +
+        '<div class="weather-now">' +
+          '<span class="weather-ico">' + weatherIcon(cur.weather_code) + '</span>' +
+          '<div>' +
+            '<div class="weather-temp">' + Math.round(cur.temperature_2m) + '<sup>°C</sup></div>' +
+            '<div class="weather-desc">' + weatherText(cur.weather_code) +
+              (cur.relative_humidity_2m != null ? ' · 湿度 ' + cur.relative_humidity_2m + '%' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      if (dates.length > 1) {
+        html += '<div class="weather-days">';
+        for (var i = 0; i < dates.length; i++) {
+          var label;
+          if (i === 0) label = '今天';
+          else if (i === 1) label = '明天';
+          else if (i === 2) label = '后天';
+          else label = WEEK_CN[new Date(dates[i] + 'T00:00:00').getDay()];
+
+          html += '<div class="weather-day">' +
+            '<span class="wd">' + label + '</span>' +
+            '<span class="wi">' + weatherIcon(codes[i]) + '</span>' +
+            '<span class="wr">' + Math.round(mins[i]) + '° / <b>' + Math.round(temps[i]) + '°</b></span>' +
+            '</div>';
+        }
+        html += '</div>';
+      }
+
+      body.innerHTML = html;
+    }
+
+    function fail() {
+      body.innerHTML = '<p class="weather-status">天气暂时获取不到，稍后再试。</p>';
+    }
+
+    /* 10 分钟内复用缓存，避免每次切页都请求 */
+    try {
+      var cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+      if (cached && Date.now() - cached.t < 600000) {
+        paint(cached.d);
+        return;
+      }
+    } catch (e) {}
+
+    var url;
+    if (lat && lon) {
+      url = 'https://api.open-meteo.com/v1/forecast?latitude=' + encodeURIComponent(lat) +
+        '&longitude=' + encodeURIComponent(lon) +
+        '&current=temperature_2m,relative_humidity_2m,weather_code' +
+        '&daily=weather_code,temperature_2m_max,temperature_2m_min' +
+        '&timezone=auto&forecast_days=' + days;
+    } else {
+      url = 'https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(city) +
+        '&count=1&language=zh&format=json';
+    }
+
+    function forecastFor(la, lo) {
+      return 'https://api.open-meteo.com/v1/forecast?latitude=' + la + '&longitude=' + lo +
+        '&current=temperature_2m,relative_humidity_2m,weather_code' +
+        '&daily=weather_code,temperature_2m_max,temperature_2m_min' +
+        '&timezone=auto&forecast_days=' + days;
+    }
+
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        /* 没写经纬度时，先用城市名查坐标 */
+        if (!lat || !lon) {
+          var hit = json && json.results && json.results[0];
+          if (!hit) throw new Error('no city');
+          var nameEl = el.querySelector('#weatherCity');
+          if (nameEl) nameEl.textContent = hit.name;
+          return fetch(forecastFor(hit.latitude, hit.longitude)).then(function (r) { return r.json(); });
+        }
+        return json;
+      })
+      .then(function (data) {
+        paint(data);
+        try { sessionStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), d: data })); } catch (e) {}
+      })
+      .catch(fail);
+  }
+
   /* ====================== 页面级初始化 ====================== */
 
   var cleanups = [];
@@ -590,6 +728,10 @@
         if (btn) btn.click();
       });
     }
+
+    /* ---------- 天气 ---------- */
+    var weatherEl = document.getElementById('weatherWidget');
+    if (weatherEl) initWeather(weatherEl);
 
     /* ---------- 站点数据：天数按当天时间重算 ---------- */
     $$('[data-stat]').forEach(function (el) {

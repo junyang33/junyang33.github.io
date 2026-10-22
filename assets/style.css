@@ -3235,3 +3235,72 @@ body.has-hero .container {
 @media (max-width: 900px) {
   .hb-waves { height: 64px; }
 }
+/* ==========================================================================
+   v25：首页天气挂件
+   ========================================================================== */
+
+.w-city {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--ink-3);
+}
+
+.weather-body { min-height: 54px; }
+
+.weather-status {
+  margin: 0;
+  padding: 6px 0;
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}
+
+.weather-now {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.weather-ico {
+  font-size: 1.8rem;
+  line-height: 1;
+  flex: none;
+}
+.weather-temp {
+  font-size: 1.5rem;
+  font-weight: 650;
+  color: var(--ink);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.weather-temp sup { font-size: 0.6em; font-weight: 500; }
+.weather-desc {
+  font-size: 0.76rem;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+.weather-days {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 9px;
+  border-top: 1px solid var(--stroke-soft);
+}
+.weather-day {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+.weather-day .wd {
+  width: 2.8em;
+  color: var(--ink-3);
+}
+.weather-day .wi { font-size: 0.95rem; line-height: 1; }
+.weather-day .wr {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.weather-day .wr b { color: var(--ink); font-weight: 600; }

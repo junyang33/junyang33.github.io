@@ -71,5 +71,12 @@
       "src": "https://analytics.example.com/script.js",
       "websiteId": ""
     }
+  },
+  "weather": {
+    "enabled": true,
+    "city": "南昌",
+    "latitude": 28.68,
+    "longitude": 115.858,
+    "days": 3
   }
 }

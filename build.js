@@ -38,6 +38,7 @@ const SITE = {
   background: rawConfig.background || { enabled: false },
   carousel: rawConfig.carousel || { enabled: false },
   notice: rawConfig.notice || { enabled: false },
+  weather: rawConfig.weather || { enabled: false },
 };
 
 const NAV = [
@@ -1388,6 +1389,29 @@ function widgetNotice() {
   ].filter(Boolean).join('\n');
 }
 
+function widgetWeather() {
+  const w = SITE.weather;
+  if (!w || !w.enabled || !w.city) return '';
+
+  const days = Math.max(1, Math.min(7, Number(w.days) || 3));
+
+  return [
+    '<section class="widget widget-weather" id="weatherWidget"',
+    '  data-city="' + esc(w.city) + '"',
+    w.latitude && w.longitude
+      ? '  data-lat="' + esc(String(w.latitude)) + '" data-lon="' + esc(String(w.longitude)) + '"'
+      : '',
+    '  data-days="' + days + '">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>天气</h2>',
+    '    <span class="w-city" id="weatherCity">' + esc(w.city) + '</span>',
+    '  </header>',
+    '  <div class="weather-body" id="weatherBody">',
+    '    <p class="weather-status">正在获取天气…</p>',
+    '  </div>',
+    '</section>',
+  ].filter(Boolean).join('\n');
+}
+
 function widgetCalendar(posts) {
   if (!posts.length) return '';
 
@@ -1491,7 +1515,7 @@ function widgetStats(stats) {
 function buildSidebar(postStats, posts) {
   return {
     left: [widgetNotice(), widgetCalendar(posts || []), widgetStats(postStats)].filter(Boolean).join('\n'),
-    right: [widgetMusic(), widgetCategories(postStats), widgetTags(postStats)].filter(Boolean).join('\n'),
+    right: [widgetWeather(), widgetMusic(), widgetCategories(postStats), widgetTags(postStats)].filter(Boolean).join('\n'),
   };
 }
 

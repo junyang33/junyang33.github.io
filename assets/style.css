@@ -2558,3 +2558,42 @@ body.has-carousel .home-layout .post-list {
   max-height: none !important;
   height: auto !important;
 }
+/* ==========================================================================
+   v16：横幅比例改为 2.8:1（宽扁长条），首页轮播与文章头图一致
+   ========================================================================== */
+
+:root { --banner-ratio: 14 / 5; }
+
+.carousel {
+  width: min(var(--wrap), 1200px) !important;
+  height: auto !important;
+  aspect-ratio: 14 / 5 !important;
+  max-height: none !important;
+}
+
+.post-hero.has-photo {
+  aspect-ratio: 14 / 5 !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+/* 手机端矮一点会太薄，单独给个 2.2:1 */
+@media (max-width: 760px) {
+  .carousel,
+  .post-hero.has-photo {
+    aspect-ratio: 11 / 5 !important;
+  }
+}
+/* 恢复窄屏下的自适应宽度 */
+@media (max-width: 1080px) {
+  .carousel {
+    width: auto !important;
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+  }
+  .post-hero.has-photo {
+    width: auto !important;
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+  }
+}

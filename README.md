@@ -203,23 +203,31 @@ node admin.js 8090
 **图片太大加载慢？**
 相册建议长边压到 1600px 以内、转 WebP；占位图是 SVG，几十 KB。
 
-## 背景图与文章布局
+## 顶部轮播
 
-背景图在 `config.json` 里配置：
+首页顶部是一个轮播横幅，配置在 `config.json`：
 
 ```json
-"background": {
+"carousel": {
   "enabled": true,
-  "image": "/assets/images/bg/hero.jpg",
-  "position": "center 15%"
+  "autoplay": 5200,
+  "height": "clamp(320px, 46vh, 520px)",
+  "slides": [
+    { "image": "/assets/images/banner/1.jpg", "title": "我的博客", "subtitle": "写作是一种思考方式", "text": "记录技术、读书与生活" },
+    { "image": "/assets/images/banner/2.jpg", "title": "留一块自己的地方", "subtitle": "没有数据库，没有追踪脚本" }
+  ]
 }
 ```
 
-- `enabled: false` 就回到纯渐变玻璃背景
-- 图片放 `assets/images/bg/`：**横图（1920×1080 左右）在宽屏下最清晰**；竖图也能用，但宽屏会被放大 3 倍左右，靠 `blur(1px)` 柔化掩饰像素化
-- `position` 决定裁切焦点，人物偏右就写 `center 15%`
+- 图片放 `assets/images/banner/`，横图效果最好（16:9 左右）
+- 每张可配 `title` / `subtitle` / `text`，显示在图左下角
+- 悬停或键盘聚焦时暂停自动播放；支持左右箭头、底部圆点、方向键
+- `enabled: false` 就退回纯文字大标题的首页
+- 系统开启「减少动态效果」时不自动轮播
 
-文章页是「整页背景图 + 单块半透明面板」结构：标题压在图上，正文整体放进一块磨砂面板，目录以细胶囊形式挂在右侧；窗口窄于 1080px 时目录变成正文上方的一行标签。代码块是深色终端窗口（三色圆点 + 居中语言名 + 复制按钮）。
+文章页顶部用轮播第一张图做头图，标题压在图上，正文面板上浮咬住图片。
+
+整页背景图仍然保留，把 `background.enabled` 设为 `true` 即可恢复（与轮播可共存，但视觉上会互相抢）。
 
 ## 备份
 

@@ -419,6 +419,21 @@ function firstSlideImage() {
   return hasCarousel() && c.slides[0].image ? c.slides[0].image : '';
 }
 
+/* 动态波浪：三层不同速度、不同方向的周期曲线，各自两个周期以便无缝循环 */
+const WAVE_LAYERS = [
+  '<div class="hb-waves" aria-hidden="true">',
+  '  <svg class="hb-wave w1" viewBox="0 0 2880 120" preserveAspectRatio="none">',
+  '    <path d="M0,52 C320,86 400,26 720,52 C1040,78 1120,24 1440,52 C1760,86 1840,26 2160,52 C2480,78 2560,24 2880,52 L2880,120 L0,120 Z"/>',
+  '  </svg>',
+  '  <svg class="hb-wave w2" viewBox="0 0 2880 120" preserveAspectRatio="none">',
+  '    <path d="M0,70 C180,40 360,96 720,66 C1080,36 1260,96 1440,70 C1620,40 1800,96 2160,66 C2520,36 2700,96 2880,70 L2880,120 L0,120 Z"/>',
+  '  </svg>',
+  '  <svg class="hb-wave w3" viewBox="0 0 2880 120" preserveAspectRatio="none">',
+  '    <path d="M0,58 C240,96 480,22 720,58 C960,94 1200,20 1440,58 C1680,96 1920,22 2160,58 C2400,94 2640,20 2880,58 L2880,120 L0,120 Z"/>',
+  '  </svg>',
+  '</div>',
+].join('\n');
+
 function carouselHtml() {
   const c = SITE.carousel;
   if (!hasCarousel()) return '';
@@ -442,9 +457,7 @@ function carouselHtml() {
     '    <h1 class="hb-title">' + esc(SITE.title) + '</h1>',
     pill ? '    <p class="hb-pill">' + esc(pill) + '</p>' : '',
     '  </div>',
-    '  <svg class="hb-wave" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true">',
-    '    <path d="M0,64 C210,104 420,26 720,52 C1000,76 1230,22 1440,58 L1440,110 L0,110 Z" fill="var(--bg)"></path>',
-    '  </svg>',
+    WAVE_LAYERS,
     '</section>',
   ]
     .filter(Boolean)

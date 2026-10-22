@@ -3194,3 +3194,44 @@ body.has-hero .container {
 @media (max-width: 900px) {
   :root { --site-w: calc(100% - 24px); }
 }
+/* ==========================================================================
+   v24：动态波浪（三层横向流动）
+   ========================================================================== */
+
+.hb-waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 120px;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hb-wave {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 100%;
+  will-change: transform;
+}
+.hb-wave path { fill: var(--bg); }
+
+.hb-wave.w1 { opacity: 0.38; animation: hbWaveSlide 22s linear infinite; }
+.hb-wave.w2 { opacity: 0.62; animation: hbWaveSlide 15s linear infinite reverse; }
+.hb-wave.w3 { animation: hbWaveSlide 30s linear infinite; }
+
+@keyframes hbWaveSlide {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hb-wave { animation: none !important; }
+}
+
+@media (max-width: 900px) {
+  .hb-waves { height: 64px; }
+}

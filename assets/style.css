@@ -2179,3 +2179,38 @@ body { font-size: calc(17px * var(--fs)); }
 @media (max-width: 760px) {
   .carousel { aspect-ratio: 16 / 9 !important; }
 }
+/* ==========================================================================
+   v10：首页三者同宽 —— 页头 / 轮播 / 文章列表用同一个宽度
+   ========================================================================== */
+
+:root {
+  --hero-w: min(var(--wrap), calc(62vh * 16 / 9));
+}
+
+.carousel {
+  width: var(--hero-w) !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body.has-carousel .site-header {
+  max-width: var(--hero-w);
+}
+
+body.has-carousel .container {
+  max-width: calc(var(--hero-w) + 40px) !important;
+}
+
+@media (max-width: 1080px) {
+  .carousel { width: auto !important; }
+  body.has-carousel .site-header { max-width: var(--wrap); }
+  body.has-carousel .container { max-width: none !important; }
+}
+/* 移动端：轮播左右留白与列表一致 */
+@media (max-width: 1080px) {
+  .carousel {
+    width: auto !important;
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+}

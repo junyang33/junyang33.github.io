@@ -2242,3 +2242,44 @@ body.has-carousel .container {
 :root {
   --hero-w: min(var(--wrap), 1200px, calc(62vh * 16 / 9));
 }
+/* ==========================================================================
+   v13：文章页头图与正文面板统一到 1200 宽、16:9 原比例
+   ========================================================================== */
+
+:root {
+  --article-w: min(var(--wrap-wide), 1200px);
+}
+
+.post-hero.has-photo {
+  width: var(--article-w) !important;
+  max-width: var(--article-w) !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+  max-height: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.post-hero.has-photo .post-hero-photo {
+  background-position: center 40%;
+  background-size: cover;
+}
+
+.post-shell {
+  max-width: var(--article-w) !important;
+}
+
+.container.wide {
+  max-width: calc(var(--article-w) + 40px) !important;
+}
+
+@media (max-width: 1080px) {
+  .post-hero.has-photo {
+    width: auto !important;
+    max-width: none !important;
+    aspect-ratio: 16 / 9 !important;
+    max-height: none;
+  }
+  .post-shell { max-width: none !important; }
+  .container.wide { max-width: none !important; }
+}

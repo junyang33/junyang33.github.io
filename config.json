@@ -12,7 +12,7 @@
   "background": {
     "enabled": true,
     "image": "/assets/images/bg/hero.jpg",
-    "position": "center 38%"
+    "position": "center 45%"
   },
   "social": [
     { "label": "GitHub", "url": "https://github.com/" },

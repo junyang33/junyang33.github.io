@@ -1597,3 +1597,52 @@ body.has-bg .icon-btn {
 }
 /* 宽屏/浅色背景时，标题区域补一层局部暗角 */
 body.has-bg .hero::before { content: none; }
+/* 横图背景：放大倍数小很多，柔化减轻，焦点居中偏上 */
+.bg {
+  background-position: center 45%;
+  filter: blur(1px) saturate(1.04);
+  transform: scale(1.02);
+  transform-origin: center 45%;
+}
+
+/* 横图在竖屏上会裁掉两边，手机上直接不模糊 */
+@media (max-aspect-ratio: 4/5) {
+  .bg { filter: none; transform: none; background-position: center 42%; }
+}
+
+/* 横图上方的蒙版可以更轻，让水光透出来 */
+:root {
+  --veil: linear-gradient(
+    180deg,
+    rgba(6, 8, 16, 0.58) 0%,
+    rgba(6, 8, 16, 0.44) 16%,
+    rgba(6, 8, 16, 0.24) 34%,
+    rgba(6, 8, 16, 0.08) 54%,
+    rgba(6, 8, 16, 0.02) 72%,
+    rgba(6, 8, 16, 0.08) 100%
+  );
+}
+/* 左侧标题区加一层横向投影，右侧保持通透 */
+.bg::after {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(6, 8, 16, 0.52) 0%,
+      rgba(6, 8, 16, 0.34) 26%,
+      rgba(6, 8, 16, 0.12) 46%,
+      rgba(6, 8, 16, 0) 62%
+    ),
+    var(--veil);
+}
+
+[data-theme="dark"] .bg::after {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 5, 10, 0.58) 0%,
+      rgba(3, 5, 10, 0.4) 26%,
+      rgba(3, 5, 10, 0.18) 48%,
+      rgba(3, 5, 10, 0) 64%
+    ),
+    var(--veil);
+}

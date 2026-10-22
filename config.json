@@ -54,13 +54,13 @@
     "name": "写代码的时候听"
   },
   "comments": {
-    "enabled": false,
+    "enabled": true,
     "provider": "giscus",
     "giscus": {
-      "repo": "your-name/your-repo",
-      "repoId": "",
+      "repo": "junyang33/junyang33.github.io",
+      "repoId": "R_kgDOVTJKTw",
       "category": "Announcements",
-      "categoryId": "",
+      "categoryId": "DIC_kwDOVTJKT84DJUTG",
       "mapping": "pathname"
     }
   },

@@ -333,6 +333,45 @@
       .catch(fail);
   }
 
+  /* ====================== 评论（giscus） ====================== */
+
+  /* 软导航插入的 <script> 不会自动执行，需要重新创建一次 */
+  function activateScripts(container) {
+    $$('script', container).forEach(function (old) {
+      var type = (old.getAttribute('type') || '').toLowerCase();
+      if (type && type.indexOf('javascript') === -1 && type !== 'module') return; /* 跳过 JSON 数据块 */
+
+      var src = old.getAttribute('src');
+      if (!src && !old.textContent.trim()) return;
+
+      var s = document.createElement('script');
+      Array.prototype.forEach.call(old.attributes, function (attr) {
+        s.setAttribute(attr.name, attr.value);
+      });
+      s.textContent = old.textContent;
+      old.parentNode.replaceChild(s, old);
+    });
+  }
+
+  /* giscus 加载后同步一次主题（它默认只跟随系统） */
+  function syncGiscusTheme() {
+    var wrap = document.querySelector('.giscus');
+    if (!wrap) return;
+
+    var tries = 0;
+    var timer = setInterval(function () {
+      var frame = document.querySelector('iframe.giscus-frame');
+      if (frame) {
+        syncComments(root.dataset.theme);
+        clearInterval(timer);
+        return;
+      }
+      if (++tries > 40) clearInterval(timer);
+    }, 250);
+
+    addCleanup(function () { clearInterval(timer); });
+  }
+
   /* ====================== 页面级初始化 ====================== */
 
   var cleanups = [];
@@ -733,6 +772,9 @@
     var weatherEl = document.getElementById('weatherWidget');
     if (weatherEl) initWeather(weatherEl);
 
+    /* ---------- 评论 ---------- */
+    syncGiscusTheme();
+
     /* ---------- 站点数据：天数按当天时间重算 ---------- */
     $$('[data-stat]').forEach(function (el) {
       var since = el.getAttribute('data-since');
@@ -867,6 +909,9 @@
         }
 
         oldMain.replaceWith(document.importNode(newMain, true));
+
+        var freshMain = document.getElementById('main');
+        if (freshMain) activateScripts(freshMain);
 
         document.title = doc.title;
         document.body.className = doc.body.className;

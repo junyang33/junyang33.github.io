@@ -1,10 +1,13 @@
 /* ==========================================================================
    站点交互
-   - 明暗主题
+   - 明暗主题（含评论框联动）
    - 阅读进度 / 回到顶部
-   - 代码块复制
+   - 代码复制
    - 目录滚动高亮
    - 站内搜索
+   - 图片灯箱
+   - 照片扇子展开 / 相册筛选
+   - 网易云音乐播放器
    ========================================================================== */
 
 (function () {
@@ -20,6 +23,17 @@
 
   var toggle = $('#themeToggle');
 
+  function syncComments(theme) {
+    var frame = document.querySelector('iframe.giscus-frame');
+    if (!frame || !frame.contentWindow) return;
+    try {
+      frame.contentWindow.postMessage(
+        { giscus: { setConfig: { theme: theme === 'dark' ? 'dark' : 'light' } } },
+        'https://giscus.app'
+      );
+    } catch (e) {}
+  }
+
   function applyTheme(theme) {
     root.dataset.theme = theme;
     if (toggle) {
@@ -27,6 +41,7 @@
       toggle.setAttribute('title', theme === 'dark' ? '切换到浅色' : '切换到深色');
     }
     try { localStorage.setItem('theme', theme); } catch (e) {}
+    syncComments(theme);
   }
 
   var saved = null;
@@ -110,13 +125,12 @@
   var toc = $('.toc');
 
   if (toc) {
-    if (window.innerWidth < 700) toc.removeAttribute('open');
+    if (window.innerWidth < 760) toc.removeAttribute('open');
 
     var links = $$('a', toc);
     var targets = links
       .map(function (a) {
-        var id = a.getAttribute('href').slice(1);
-        var el = document.getElementById(id);
+        var el = document.getElementById(a.getAttribute('href').slice(1));
         return el ? { link: a, el: el } : null;
       })
       .filter(Boolean);
@@ -124,11 +138,9 @@
     if (targets.length) {
       var activeLink = null;
       var spy = function () {
-        var offset = 120;
         var current = targets[0];
-
         targets.forEach(function (t) {
-          if (t.el.getBoundingClientRect().top - offset <= 0) current = t;
+          if (t.el.getBoundingClientRect().top - 120 <= 0) current = t;
         });
 
         if (current.link !== activeLink) {
@@ -141,6 +153,111 @@
       window.addEventListener('scroll', spy, { passive: true });
       spy();
     }
+  }
+
+  /* --------------------------- 灯箱 --------------------------- */
+
+  var lb = $('#lightbox');
+  var lbImg = lb ? $('.lb-img', lb) : null;
+  var lbCap = lb ? $('.lb-caption', lb) : null;
+  var lbItems = [];
+  var lbIndex = 0;
+
+  function renderLightbox() {
+    var item = lbItems[lbIndex];
+    if (!item) return;
+    lbImg.src = item.src;
+    lbImg.alt = item.caption || '';
+    lbCap.textContent = item.caption || '';
+    var multi = lbItems.length > 1;
+    $$('.lb-prev, .lb-next', lb).forEach(function (b) { b.hidden = !multi; });
+  }
+
+  function openLightbox(items, index) {
+    if (!lb || !items.length) return;
+    lbItems = items;
+    lbIndex = index || 0;
+    lb.hidden = false;
+    document.body.style.overflow = 'hidden';
+    renderLightbox();
+    var close = $('.lb-close', lb);
+    if (close) close.focus();
+  }
+
+  function closeLightbox() {
+    if (!lb) return;
+    lb.hidden = true;
+    document.body.style.overflow = '';
+    if (lbImg) lbImg.removeAttribute('src');
+  }
+
+  function stepLightbox(delta) {
+    if (!lbItems.length) return;
+    lbIndex = (lbIndex + delta + lbItems.length) % lbItems.length;
+    renderLightbox();
+  }
+
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('[data-src]');
+    if (!trigger || !lb) return;
+
+    var group = trigger.closest('.fan, .album, .note, .note-grid') || document;
+    var nodes = $$('[data-src]', group);
+    var items = nodes.map(function (n) {
+      return { src: n.getAttribute('data-src'), caption: n.getAttribute('data-caption') || '' };
+    });
+
+    openLightbox(items, nodes.indexOf(trigger));
+  });
+
+  if (lb) {
+    $('.lb-close', lb).addEventListener('click', closeLightbox);
+    $('.lb-prev', lb).addEventListener('click', function () { stepLightbox(-1); });
+    $('.lb-next', lb).addEventListener('click', function () { stepLightbox(1); });
+    lb.addEventListener('click', function (e) {
+      if (e.target === lb) closeLightbox();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') stepLightbox(-1);
+      if (e.key === 'ArrowRight') stepLightbox(1);
+    });
+  }
+
+  /* ----------------------- 照片扇子 / 筛选 ----------------------- */
+
+  $$('.fan').forEach(function (fan) {
+    var cards = $$('.fan-card', fan);
+    var n = cards.length;
+    cards.forEach(function (card, i) {
+      card.style.setProperty('--o', (i - (n - 1) / 2).toFixed(2));
+    });
+
+    var noHover = window.matchMedia && window.matchMedia('(hover: none)').matches;
+    if (noHover) {
+      fan.addEventListener('click', function (e) {
+        if (!fan.classList.contains('is-open')) {
+          e.preventDefault();
+          fan.classList.add('is-open');
+        }
+      });
+    }
+  });
+
+  var chips = $$('.album-tabs .chip');
+  if (chips.length) {
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var filter = chip.getAttribute('data-filter');
+        chips.forEach(function (c) { c.classList.toggle('is-active', c === chip); });
+        $$('.album').forEach(function (album) {
+          var hit = filter === 'all' || album.getAttribute('data-slug') === filter;
+          album.classList.toggle('is-hidden', !hit);
+        });
+      });
+    });
   }
 
   /* --------------------------- 搜索 --------------------------- */
@@ -193,11 +310,7 @@
       loading = true;
       fetch('/search.json', { cache: 'no-cache' })
         .then(function (r) { return r.json(); })
-        .then(function (data) {
-          posts = data;
-          loading = false;
-          run();
-        })
+        .then(function (data) { posts = data; loading = false; run(); })
         .catch(function () {
           loading = false;
           if (statusEl) statusEl.textContent = '搜索索引加载失败，请刷新页面重试。';
@@ -251,13 +364,11 @@
         .map(function (h) {
           var p = h.p;
           return (
-            '<li>' +
-            '<h3><a href="' + p.url + '">' + highlight(p.title, tokens) + '</a></h3>' +
+            '<li><h3><a href="' + p.url + '">' + highlight(p.title, tokens) + '</a></h3>' +
             '<p class="snip">' + highlight(snippet(p.text, tokens), tokens) + '</p>' +
             '<p class="meta">' + escapeHtml(p.date) +
             (p.tags && p.tags.length ? ' · ' + escapeHtml(p.tags.join(' / ')) : '') +
-            '</p>' +
-            '</li>'
+            '</p></li>'
           );
         })
         .join('');
@@ -266,10 +377,7 @@
     var timer = null;
     input.addEventListener('input', function () {
       clearTimeout(timer);
-      timer = setTimeout(function () {
-        loadIndex();
-        run();
-      }, 120);
+      timer = setTimeout(function () { loadIndex(); run(); }, 120);
     });
 
     var params = new URLSearchParams(window.location.search);
@@ -279,5 +387,25 @@
     } else {
       loadIndex();
     }
+  }
+
+  /* --------------------------- 音乐 --------------------------- */
+
+  var music = $('#musicPlayer');
+  if (music) {
+    var mToggle = $('#musicToggle', music);
+    var mPanel = $('#musicPanel', music);
+    var mFrame = mPanel ? $('iframe', mPanel) : null;
+
+    mToggle.addEventListener('click', function () {
+      var willOpen = mPanel.hidden;
+      mPanel.hidden = !willOpen;
+      mToggle.setAttribute('aria-expanded', String(willOpen));
+      music.classList.toggle('is-playing', willOpen);
+
+      if (willOpen && mFrame && !mFrame.getAttribute('src')) {
+        mFrame.src = mFrame.getAttribute('data-src');
+      }
+    });
   }
 })();

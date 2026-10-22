@@ -14,6 +14,13 @@
     { "label": "邮箱", "url": "mailto:hsdfgkjvbsjkafh@163.com" },
     { "label": "RSS", "url": "/feed.xml" }
   ],
+  "music": {
+    "enabled": true,
+    "type": "playlist",
+    "id": "3778678",
+    "name": "写代码的时候听",
+    "note": "网易云歌单 ID，换成自己的即可"
+  },
   "comments": {
     "enabled": false,
     "provider": "giscus",

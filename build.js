@@ -34,14 +34,15 @@ const SITE = {
   social: Array.isArray(rawConfig.social) ? rawConfig.social : [],
   comments: rawConfig.comments || { enabled: false },
   analytics: rawConfig.analytics || { enabled: false },
+  music: rawConfig.music || { enabled: false },
 };
 
 const NAV = [
   { href: '/', label: '首页', key: 'home' },
-  { href: '/archive.html', label: '归档', key: 'archive' },
+  { href: '/archive.html', label: '文章', key: 'archive' },
+  { href: '/notes.html', label: '说说', key: 'notes' },
+  { href: '/photos.html', label: '照片', key: 'photos' },
   { href: '/tags.html', label: '标签', key: 'tags' },
-  { href: '/search.html', label: '搜索', key: 'search' },
-  { href: '/links.html', label: '友链', key: 'links' },
   { href: '/about.html', label: '关于', key: 'about' },
 ];
 
@@ -330,6 +331,50 @@ function loadPosts() {
     });
 }
 
+function loadJson(fileName, fallback) {
+  const file = path.join(CONTENT, fileName);
+  if (!fs.existsSync(file)) return fallback;
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (e) {
+    console.warn('  ! ' + fileName + ' 解析失败: ' + e.message);
+    return fallback;
+  }
+}
+
+function loadNotes() {
+  const raw = loadJson('notes.json', []);
+  return (Array.isArray(raw) ? raw : [])
+    .filter(function (n) { return n && n.text; })
+    .map(function (n, i) {
+      return {
+        id: n.id || 'note-' + (i + 1),
+        date: isoDate(n.date),
+        color: n.color || 'amber',
+        text: String(n.text),
+        images: Array.isArray(n.images) ? n.images : [],
+      };
+    })
+    .sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+}
+
+function loadAlbums() {
+  const raw = loadJson('albums.json', []);
+  return (Array.isArray(raw) ? raw : [])
+    .filter(function (a) { return a && a.slug; })
+    .map(function (a) {
+      const photos = (Array.isArray(a.photos) ? a.photos : []).filter(function (p) { return p && p.src; });
+      return {
+        slug: a.slug,
+        title: a.title || a.slug,
+        description: a.description || '',
+        date: isoDate(a.date),
+        cover: a.cover || (photos[0] && photos[0].src) || '',
+        photos: photos,
+      };
+    });
+}
+
 /* ============================ 模板片段 ============================ */
 
 function navHtml(active) {
@@ -348,6 +393,45 @@ function analyticsHtml() {
     );
   }
   return '';
+}
+
+function musicPlayerHtml() {
+  const m = SITE.music;
+  if (!m || !m.enabled || !m.id) return '';
+
+  const type = m.type === 'song' ? '2' : '0';
+  const height = type === '2' ? 86 : 430;
+  const src =
+    'https://music.163.com/outchain/player?type=' + type +
+    '&id=' + encodeURIComponent(m.id) + '&auto=0&height=' + height;
+
+  return [
+    '<div class="music" id="musicPlayer">',
+    '  <button class="music-toggle" id="musicToggle" type="button" aria-expanded="false">',
+    '    <span class="music-disc" aria-hidden="true">♪</span>',
+    '    <span class="music-name">' + esc(m.name || '听点什么') + '</span>',
+    '  </button>',
+    '  <div class="music-panel" id="musicPanel" hidden>',
+    '    <iframe title="网易云音乐播放器" loading="lazy" allow="autoplay"',
+    '            data-src="' + esc(src) + '"></iframe>',
+    '    <p class="music-hint">播放器来自网易云音乐</p>',
+    '  </div>',
+    '</div>',
+  ].join('\n');
+}
+
+function lightboxHtml() {
+  return [
+    '<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="图片查看">',
+    '  <button class="lb-btn lb-close" type="button" aria-label="关闭">×</button>',
+    '  <button class="lb-btn lb-prev" type="button" aria-label="上一张">‹</button>',
+    '  <button class="lb-btn lb-next" type="button" aria-label="下一张">›</button>',
+    '  <figure class="lb-stage">',
+    '    <img class="lb-img" alt="">',
+    '    <figcaption class="lb-caption"></figcaption>',
+    '  </figure>',
+    '</div>',
+  ].join('\n');
 }
 
 function layout(opts) {
@@ -408,7 +492,7 @@ function layout(opts) {
     '<head>',
     head.filter(Boolean).join('\n'),
     '</head>',
-    '<body class="' + bodyClass + '" id="top">',
+    '<body class="' + bodyClass + '" id="top" data-page="' + (opts.active || '') + '">',
     '<a class="skip" href="#main">跳到正文</a>',
     opts.progress ? '<div class="progress" id="progress" aria-hidden="true"></div>' : '',
     '<header class="site-header">',
@@ -418,6 +502,9 @@ function layout(opts) {
     '    <nav class="nav" aria-label="主导航">',
     '        ' + navHtml(opts.active),
     '    </nav>',
+    '    <a class="icon-btn" href="/search.html" title="搜索" aria-label="搜索">' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>' +
+      '</a>',
     '    <button class="icon-btn" id="themeToggle" type="button" title="切换明暗主题" aria-label="切换明暗主题">◐</button>',
     '  </div>',
     '</header>',
@@ -437,8 +524,9 @@ function layout(opts) {
         '</p>'
       : '',
     '    <p class="footer-nav">',
-    '      <a href="/">首页</a><a href="/archive.html">归档</a><a href="/tags.html">标签</a>',
-    '      <a href="/links.html">友链</a><a href="/about.html">关于</a><a href="#top">回到顶部</a>',
+    '      <a href="/">首页</a><a href="/archive.html">文章</a><a href="/notes.html">说说</a>',
+    '      <a href="/photos.html">照片</a><a href="/tags.html">标签</a><a href="/links.html">友链</a>',
+    '      <a href="/about.html">关于</a><a href="/search.html">搜索</a><a href="#top">回到顶部</a>',
     '    </p>',
     '    <p>© ' + SITE.startYear + '–' + new Date().getFullYear() + ' ' + esc(SITE.author) + '</p>',
     SITE.footerNote ? '    <p class="muted">' + esc(SITE.footerNote) + '</p>' : '',
@@ -446,6 +534,8 @@ function layout(opts) {
     '  </div>',
     '</footer>',
     opts.progress ? '<button class="to-top" id="toTop" type="button" title="回到顶部" hidden>↑</button>' : '',
+    musicPlayerHtml(),
+    lightboxHtml(),
     '<script src="/assets/main.js"></script>',
     '</body>',
     '</html>',
@@ -843,7 +933,7 @@ function buildFeed(posts) {
 }
 
 function buildSitemap(posts) {
-  const pages = ['/', '/archive.html', '/tags.html', '/search.html', '/links.html', '/about.html'];
+  const pages = ['/', '/archive.html', '/tags.html', '/notes.html', '/photos.html', '/search.html', '/links.html', '/about.html'];
   const latest = posts.length ? posts[0].date : '';
 
   const rows = pages.map(function (u) {
@@ -876,6 +966,118 @@ function buildSearchIndex(posts) {
   }));
 }
 
+/* ============================ 说说 / 照片 ============================ */
+
+function buildNotes(notes) {
+  const cards = notes.map(function (n, i) {
+    const images = n.images.length
+      ? '<div class="note-images">' +
+        n.images
+          .map(function (src) {
+            return (
+              '<button class="thumb" type="button" data-src="' + esc(src) +
+              '" data-caption="' + esc(fmtDate(n.date)) + '" aria-label="查看图片">' +
+              '<img src="' + esc(src) + '" alt="" loading="lazy"></button>'
+            );
+          })
+          .join('') +
+        '</div>'
+      : '';
+
+    const paragraphs = n.text
+      .split(/\n{2,}/)
+      .map(function (p) { return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>'; })
+      .join('');
+
+    return [
+      '<article class="note note--' + esc(n.color) + '" style="--i:' + (i % 6) + '">',
+      '  <time class="note-date" datetime="' + esc(n.date) + '">' + fmtDate(n.date) + '</time>',
+      '  <div class="note-body">' + paragraphs + '</div>',
+      images ? '  ' + images : '',
+      '</article>',
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }).join('\n');
+
+  const content = [
+    '<section class="notes-page">',
+    '  <header class="page-head">',
+    '    <h1 class="page-title">说说</h1>',
+    '    <p class="page-desc">零碎的记录，比文章短，比朋友圈长。共 ' + notes.length + ' 条。</p>',
+    '  </header>',
+    notes.length
+      ? '  <div class="note-grid">\n' + cards + '\n  </div>'
+      : '  <p class="empty">还没有说说。在 <code>content/notes.json</code> 里加一条，或打开管理后台。</p>',
+    '</section>',
+  ].join('\n');
+
+  return layout({ title: '说说', content: content, active: 'notes', path: '/notes.html', description: '零碎的日常记录' });
+}
+
+function buildPhotos(albums) {
+  const tabs = albums.length
+    ? [
+        '<div class="album-tabs" role="tablist">',
+        '  <button class="chip is-active" type="button" data-filter="all">全部</button>',
+        albums
+          .map(function (a) {
+            return '  <button class="chip" type="button" data-filter="' + esc(a.slug) + '">' + esc(a.title) + '</button>';
+          })
+          .join('\n'),
+        '</div>',
+      ].join('\n')
+    : '';
+
+  const sections = albums.map(function (a) {
+    const fanCards = a.photos
+      .slice(0, 7)
+      .map(function (p, i) {
+        return (
+          '<button class="fan-card" type="button" style="--i:' + i + '"' +
+          ' data-src="' + esc(p.src) + '" data-caption="' + esc(p.caption || '') + '"' +
+          ' aria-label="查看照片：' + esc(p.caption || a.title) + '">' +
+          '<img src="' + esc(p.src) + '" alt="' + esc(p.caption || a.title) + '" loading="lazy">' +
+          '</button>'
+        );
+      })
+      .join('\n      ');
+
+    const more = a.photos.length > 7 ? '<span class="fan-more">+' + (a.photos.length - 7) + '</span>' : '';
+
+    return [
+      '<article class="album" data-slug="' + esc(a.slug) + '">',
+      '  <header class="album-head">',
+      '    <h2>' + esc(a.title) + '</h2>',
+      a.date ? '    <time datetime="' + esc(a.date) + '">' + fmtDate(a.date) + '</time>' : '',
+      '  </header>',
+      a.description ? '  <p class="album-desc">' + esc(a.description) + '</p>' : '',
+      '  <div class="fan" role="group" aria-label="' + esc(a.title) + ' 的照片">',
+      '      ' + fanCards,
+      more ? '    ' + more : '',
+      '  </div>',
+      '  <p class="album-count">' + a.photos.length + ' 张照片 · 悬停展开，点击查看大图</p>',
+      '</article>',
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }).join('\n');
+
+  const content = [
+    '<section class="photos-page">',
+    '  <header class="page-head">',
+    '    <h1 class="page-title">照片</h1>',
+    '    <p class="page-desc">' + albums.length + ' 个相册，共 ' +
+      albums.reduce(function (sum, a) { return sum + a.photos.length; }, 0) + ' 张。</p>',
+    '  </header>',
+    tabs,
+    albums.length ? '  <div class="albums">\n' + sections + '\n  </div>' : '  <p class="empty">还没有照片。在 <code>content/albums.json</code> 里添加相册。</p>',
+    '</section>',
+  ].join('\n');
+
+  return layout({ title: '照片', content: content, active: 'photos', path: '/photos.html', description: '相册与照片' });
+}
+
 /* ============================ 输出 ============================ */
 
 function rmrf(dir) {
@@ -890,6 +1092,8 @@ function writeFile(rel, content) {
 
 function main() {
   const posts = loadPosts();
+  const notes = loadNotes();
+  const albums = loadAlbums();
   POST_COUNT = posts.length;
 
   const totalPages = Math.max(1, Math.ceil(posts.length / SITE.perPage));
@@ -915,6 +1119,8 @@ function main() {
   // 独立页面
   writeFile('archive.html', buildArchive(posts));
   writeFile('tags.html', buildTags(posts));
+  writeFile('notes.html', buildNotes(notes));
+  writeFile('photos.html', buildPhotos(albums));
   writeFile('search.html', buildSearch());
   writeFile('about.html', buildMarkdownPage('about.md', '关于', 'about', '/about.html'));
   writeFile('links.html', buildMarkdownPage('links.md', '友链', 'links', '/links.html'));

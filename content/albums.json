@@ -50,31 +50,31 @@
     ]
   },
   {
-    "slug": "seaside",
+    "slug": "shanghai",
     "title": "第一次去的上海",
     "description": "外滩的风很大，人也很多。",
-    "date": "2026-07-20",
-    "cover": "/assets/images/seaside/1.svg",
+    "date": "2026-08-23",
+    "cover": "/assets/images/shanghai/1.jpg",
     "photos": [
       {
-        "src": "/assets/images/seaside/1.svg",
-        "caption": "早上六点的海"
+        "src": "/assets/images/shanghai/1.jpg",
+        "caption": "南京东路的 Apple Store，大屏写着\"这个 Mac，好赞好超值\""
       },
       {
-        "src": "/assets/images/seaside/2.svg",
-        "caption": "浪打上来的声音"
+        "src": "/assets/images/shanghai/2.jpg",
+        "caption": "外滩的夜，东方明珠和上海中心都亮着"
       },
       {
-        "src": "/assets/images/seaside/3.svg",
-        "caption": "礁石上的小水洼"
+        "src": "/assets/images/shanghai/3.jpg",
+        "caption": "和平饭店门口，人挤人"
       },
       {
-        "src": "/assets/images/seaside/4.svg",
-        "caption": "有人在那儿钓鱼"
+        "src": "/assets/images/shanghai/4.jpg",
+        "caption": "商场外墙的大屏，全是二次元"
       },
       {
-        "src": "/assets/images/seaside/5.svg",
-        "caption": "走之前最后一张"
+        "src": "/assets/images/shanghai/5.jpg",
+        "caption": "海关大楼的钟，整栋楼亮成金色"
       }
     ]
   }

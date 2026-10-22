@@ -2552,3 +2552,9 @@ body.has-carousel .home-layout .post-list {
 .cal-d.has-post.is-today {
   box-shadow: 0 0 0 2px var(--accent-soft), inset 0 0 0 1.5px rgba(255, 255, 255, 0.85);
 }
+/* 文章头图严格按原图比例，不再被 max-height 压扁 */
+.post-hero.has-photo {
+  aspect-ratio: 1079 / 608 !important;
+  max-height: none !important;
+  height: auto !important;
+}

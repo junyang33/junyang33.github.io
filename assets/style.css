@@ -1934,3 +1934,105 @@ body.has-carousel .container { padding-top: 20px; }
   .carousel { height: clamp(420px, 40vh, 600px); }
   .post-hero.has-photo { height: clamp(360px, 34vh, 520px); }
 }
+/* ==========================================================================
+   v7：功能增强 —— 代码行号、置顶标记、阅读百分比、字号调节
+   ========================================================================== */
+
+/* ---------- 代码行号 ---------- */
+.post-content pre.code code {
+  display: block;
+  white-space: normal;
+  counter-reset: ln;
+}
+.post-content pre.code .cl {
+  display: block;
+  position: relative;
+  min-height: 1.65em;
+  padding-left: 3.2em;
+  counter-increment: ln;
+  white-space: pre;
+}
+.post-content pre.code .cl::before {
+  content: counter(ln);
+  position: absolute;
+  left: 0;
+  width: 2.2em;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.22);
+  font-variant-numeric: tabular-nums;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ---------- 置顶标记 ---------- */
+.post-item .pin {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  border-radius: 999px;
+  vertical-align: 2px;
+}
+
+/* ---------- 阅读百分比 ---------- */
+.read-meter {
+  position: fixed;
+  top: 88px;
+  right: 20px;
+  z-index: 140;
+  padding: 5px 12px;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+  background: var(--glass-strong);
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px) saturate(180%);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+.read-meter.is-visible { opacity: 1; transform: none; }
+
+/* ---------- 字号调节 ---------- */
+html { --fs: 1; }
+body { font-size: calc(17px * var(--fs)); }
+
+.font-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 76px;
+  z-index: 140;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  font-family: Georgia, serif;
+  font-size: 0.95rem;
+  color: var(--ink-2);
+  background: var(--glass-strong);
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px) saturate(180%);
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34, 1.5, 0.64, 1), color 0.2s ease;
+}
+.font-btn:hover { color: var(--accent); transform: translateY(-2px); }
+
+@media (max-width: 760px) {
+  body { font-size: calc(16px * var(--fs)); }
+  .read-meter { top: 74px; right: 12px; }
+  .font-btn { right: 12px; bottom: 64px; width: 40px; height: 40px; }
+}
+
+/* 打印时隐藏 */
+@media print {
+  .read-meter, .font-btn { display: none !important; }
+}

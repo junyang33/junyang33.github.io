@@ -57,12 +57,38 @@
     });
   }
 
+  /* --------------------------- 字号 --------------------------- */
+
+  var fontBtn = $('#fontBtn');
+  var SCALES = [1, 1.08, 1.16];
+  var LABELS = ['A', 'A+', 'A++'];
+  var scaleIdx = 0;
+
+  try {
+    var savedScale = Number(localStorage.getItem('fontScale'));
+    if (savedScale >= 0 && savedScale < SCALES.length) scaleIdx = savedScale;
+  } catch (e) {}
+
+  function applyFont(i) {
+    scaleIdx = ((i % SCALES.length) + SCALES.length) % SCALES.length;
+    root.style.setProperty('--fs', SCALES[scaleIdx]);
+    if (fontBtn) fontBtn.textContent = LABELS[scaleIdx];
+    try { localStorage.setItem('fontScale', String(scaleIdx)); } catch (e) {}
+  }
+
+  applyFont(scaleIdx);
+
+  if (fontBtn) {
+    fontBtn.addEventListener('click', function () { applyFont(scaleIdx + 1); });
+  }
+
   /* ------------------- 阅读进度 + 回到顶部 ------------------- */
 
   var progress = $('#progress');
   var toTop = $('#toTop');
+  var meter = $('#readMeter');
 
-  if (progress || toTop) {
+  if (progress || toTop || meter) {
     var onScroll = function () {
       var doc = document.documentElement;
       var max = doc.scrollHeight - doc.clientHeight;
@@ -71,6 +97,10 @@
 
       if (progress) progress.style.width = (ratio * 100).toFixed(2) + '%';
       if (toTop) toTop.hidden = y < 600;
+      if (meter) {
+        meter.textContent = Math.round(ratio * 100) + '%';
+        meter.classList.toggle('is-visible', y > 260);
+      }
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -94,7 +124,10 @@
 
     btn.addEventListener('click', function () {
       var code = pre.querySelector('code');
-      var text = code ? code.textContent : pre.textContent;
+      var lineEls = code ? code.querySelectorAll('.cl') : [];
+      var text = lineEls.length
+        ? Array.prototype.map.call(lineEls, function (l) { return l.textContent; }).join('\n')
+        : (code ? code.textContent : pre.textContent);
 
       var done = function () {
         btn.textContent = '已复制';
@@ -466,4 +499,41 @@
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!reduce) startAuto();
   }
+
+  /* ------------------- 正文图片：点击放大 ------------------- */
+
+  $$('.post-content img').forEach(function (img) {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', function () {
+      openLightbox([{ src: img.currentSrc || img.src, caption: img.alt || '' }], 0);
+    });
+  });
+
+  /* --------------------------- 快捷键 --------------------------- */
+
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+    var el = e.target;
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+
+    if (e.key === '/') {
+      e.preventDefault();
+      if (input) input.focus();
+      else window.location.href = '/search.html';
+      return;
+    }
+
+    if (e.key === 't' || e.key === 'T') {
+      applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+      return;
+    }
+
+    if (e.key === 'f' || e.key === 'F') {
+      if (fontBtn) {
+        e.preventDefault();
+        applyFont(scaleIdx + 1);
+      }
+    }
+  });
 })();

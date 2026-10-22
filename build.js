@@ -164,10 +164,14 @@ function renderBlocks(md, toc) {
         i++;
       }
       i++;
+      const codeLines = buf
+        .map(function (line) { return '<span class="cl">' + esc(line) + '</span>'; })
+        .join('');
+
       out.push(
         '<pre class="code"' + (lang ? ' data-lang="' + esc(lang) + '"' : '') + '><code' +
           (lang ? ' class="language-' + esc(lang) + '"' : '') +
-          '>' + esc(buf.join('\n')) + '</code></pre>'
+          '>' + codeLines + '</code></pre>'
       );
       continue;
     }
@@ -321,6 +325,7 @@ function loadPosts() {
         tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : parsed.data.tags ? [parsed.data.tags] : [],
         summary: parsed.data.summary || truncate(stripMd(parsed.body), 110),
         draft: String(parsed.data.draft || '').toLowerCase() === 'true',
+        pinned: String(parsed.data.pinned || '').toLowerCase() === 'true',
         html: rendered.html,
         toc: rendered.toc,
         minutes: readingMinutes(parsed.body),
@@ -540,6 +545,7 @@ function layout(opts) {
   }
 
   head.push('<link rel="alternate" type="application/rss+xml" title="' + esc(SITE.title) + '" href="/feed.xml">');
+  head.push('<link rel="alternate" type="application/feed+json" title="' + esc(SITE.title) + ' (JSON Feed)" href="/feed.json">');
   head.push('<link rel="stylesheet" href="/assets/style.css">');
   head.push('<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">');
   head.push(
@@ -606,6 +612,8 @@ function layout(opts) {
     '    <p class="muted built">本站共 ' + POST_COUNT + ' 篇文章 · 由 build.js 生成 · 无数据库、无追踪</p>',
     '  </div>',
     '</footer>',
+    opts.progress ? '<div class="read-meter" id="readMeter" aria-hidden="true">0%</div>' : '',
+    opts.progress ? '<button class="font-btn" id="fontBtn" type="button" title="调整正文字号（快捷键 F）">A</button>' : '',
     opts.progress ? '<button class="to-top" id="toTop" type="button" title="回到顶部" hidden>↑</button>' : '',
     musicPlayerHtml(),
     lightboxHtml(),
@@ -635,7 +643,8 @@ function postCard(p) {
   return [
     '    <article class="post-item">',
     '      <h2><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a></h2>',
-    '      <p class="meta"><time datetime="' + esc(p.date) + '">' + fmtDate(p.date) +
+    '      <p class="meta">' + (p.pinned ? '<span class="pin">置顶</span>' : '') +
+      '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) +
       '</time><span class="dot">·</span>约 ' + p.minutes + ' 分钟</p>',
     '      <p class="summary">' + esc(p.summary) + '</p>',
     tags,
@@ -644,8 +653,13 @@ function postCard(p) {
 }
 
 function buildIndex(posts, page, totalPages) {
+  const ordered = posts.slice().sort(function (a, b) {
+    if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    return 0;
+  });
+
   const start = (page - 1) * SITE.perPage;
-  const slice = posts.slice(start, start + SITE.perPage);
+  const slice = ordered.slice(start, start + SITE.perPage);
 
   const useCarousel = page === 1 && hasCarousel();
 
@@ -1005,6 +1019,7 @@ function buildFeed(posts) {
       '      <guid isPermaLink="true">' + esc(url) + '</guid>',
       '      <pubDate>' + date + '</pubDate>',
       '      <description>' + esc(p.summary) + '</description>',
+      '      <content:encoded><![CDATA[' + p.html + ']]></content:encoded>',
       cats,
       '    </item>',
     ].filter(Boolean).join('\n');
@@ -1012,7 +1027,7 @@ function buildFeed(posts) {
 
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+    '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">',
     '  <channel>',
     '    <title>' + esc(SITE.title) + '</title>',
     '    <link>' + esc(SITE.url + '/') + '</link>',
@@ -1046,6 +1061,37 @@ function buildSitemap(posts) {
   return '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
     rows.join('\n') + '\n</urlset>';
+}
+
+function buildJsonFeed(posts) {
+  const items = posts.map(function (p) {
+    const url = SITE.url + '/posts/' + p.slug + '.html';
+    return {
+      id: url,
+      url: url,
+      title: p.title,
+      summary: p.summary,
+      content_html: p.html,
+      date_published: (p.date || '') + 'T09:00:00+08:00',
+      date_modified: (p.updated || p.date || '') + 'T09:00:00+08:00',
+      tags: p.tags,
+    };
+  });
+
+  return JSON.stringify(
+    {
+      version: 'https://jsonfeed.org/version/1.1',
+      title: SITE.title,
+      home_page_url: SITE.url + '/',
+      feed_url: SITE.url + '/feed.json',
+      description: SITE.description,
+      language: SITE.lang,
+      authors: [{ name: SITE.author }],
+      items: items,
+    },
+    null,
+    2
+  );
 }
 
 function buildSearchIndex(posts) {
@@ -1247,6 +1293,7 @@ function main() {
 
   // 订阅与索引
   writeFile('feed.xml', buildFeed(posts));
+  writeFile('feed.json', buildJsonFeed(posts));
   writeFile('sitemap.xml', buildSitemap(posts));
   writeFile('search.json', buildSearchIndex(posts));
 

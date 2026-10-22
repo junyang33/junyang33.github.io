@@ -22,3 +22,6 @@ desktop.ini
 # 日志
 *.log
 npm-debug.log*
+
+# 构建时被占用产生的临时目录
+public.trash-*

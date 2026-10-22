@@ -203,6 +203,24 @@ node admin.js 8090
 **图片太大加载慢？**
 相册建议长边压到 1600px 以内、转 WebP；占位图是 SVG，几十 KB。
 
+## 背景图与文章布局
+
+背景图在 `config.json` 里配置：
+
+```json
+"background": {
+  "enabled": true,
+  "image": "/assets/images/bg/hero.jpg",
+  "position": "center 15%"
+}
+```
+
+- `enabled: false` 就回到纯渐变玻璃背景
+- 图片放 `assets/images/bg/`，竖构图更合适（桌面端 cover 裁切，手机端刚好）
+- `position` 决定裁切焦点，人物偏右就写 `center 15%`
+
+文章页现在是「头图 + 浮动卡片」结构：标题压在背景图上，正文放进微微上浮的玻璃卡片，目录固定在右侧；窗口窄于 1080px 时目录自动移到正文上方。
+
 ## 备份
 
 `content/`、`assets/`、`config.json` 是全部资产，推到 Git 就够了。`public/` 丢了随时能重建。

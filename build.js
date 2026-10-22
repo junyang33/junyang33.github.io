@@ -35,6 +35,7 @@ const SITE = {
   comments: rawConfig.comments || { enabled: false },
   analytics: rawConfig.analytics || { enabled: false },
   music: rawConfig.music || { enabled: false },
+  background: rawConfig.background || { enabled: false },
 };
 
 const NAV = [
@@ -395,6 +396,10 @@ function analyticsHtml() {
   return '';
 }
 
+function hasBg() {
+  return !!(SITE.background && SITE.background.enabled && SITE.background.image);
+}
+
 function musicPlayerHtml() {
   const m = SITE.music;
   if (!m || !m.enabled || !m.id) return '';
@@ -484,7 +489,7 @@ function layout(opts) {
   }
   head.push(analyticsHtml());
 
-  const bodyClass = ['page', opts.bodyClass || ''].filter(Boolean).join(' ');
+  const bodyClass = ['page', opts.bodyClass || '', hasBg() ? 'has-bg' : ''].filter(Boolean).join(' ');
 
   return [
     '<!DOCTYPE html>',
@@ -493,6 +498,10 @@ function layout(opts) {
     head.filter(Boolean).join('\n'),
     '</head>',
     '<body class="' + bodyClass + '" id="top" data-page="' + (opts.active || '') + '">',
+    hasBg()
+      ? '<div class="bg" aria-hidden="true" style="background-image:url(' + esc(SITE.background.image) +
+        ');background-position:' + esc(SITE.background.position || 'center 15%') + '"></div>'
+      : '',
     '<a class="skip" href="#main">跳到正文</a>',
     opts.progress ? '<div class="progress" id="progress" aria-hidden="true"></div>' : '',
     '<header class="site-header">',
@@ -508,7 +517,7 @@ function layout(opts) {
     '    <button class="icon-btn" id="themeToggle" type="button" title="切换明暗主题" aria-label="切换明暗主题">◐</button>',
     '  </div>',
     '</header>',
-    '<main class="container" id="main">',
+    '<main class="container' + (opts.wide ? ' wide' : '') + '" id="main">',
     opts.content,
     '</main>',
     '<footer class="site-footer">',
@@ -646,12 +655,14 @@ function renderToc(toc) {
     .join('\n        ');
   const wide = items.length > 6 ? ' toc-wide' : '';
   return [
-    '    <details class="toc' + wide + '" open>',
-    '      <summary>本文目录</summary>',
-    '      <ul>',
-    '        ' + lis,
-    '      </ul>',
-    '    </details>',
+    '<aside class="toc-rail">',
+    '  <details class="toc' + wide + '" open>',
+    '    <summary>本文目录</summary>',
+    '    <ul>',
+    '      ' + lis,
+    '    </ul>',
+    '  </details>',
+    '</aside>',
   ].join('\n');
 }
 
@@ -742,23 +753,29 @@ function buildPost(post, all) {
   pager.push('</nav>');
 
   const content = [
-    '<article class="post">',
-    '    <header class="post-header">',
-    '      <h1>' + esc(post.title) + '</h1>',
-    '      <p class="meta">' + meta + '</p>',
-    tags ? '      ' + tags : '',
-    '    </header>',
-    tocHtml,
-    '    <div class="post-content">',
+    '<header class="post-hero">',
+    '  <div class="post-hero-inner">',
+    '    <h1>' + esc(post.title) + '</h1>',
+    '    <p class="meta">' + meta + '</p>',
+    tags ? tags : '',
+    '  </div>',
+    '</header>',
+    '<div class="post-shell">',
+    '  <div class="post-layout">',
+    '    <article class="post">',
+    '      <div class="post-content">',
     post.html,
-    '    </div>',
+    '      </div>',
     commentBlock(),
-    '</article>',
+    '    </article>',
+    tocHtml,
+    '  </div>',
     related
       ? '<section class="related">\n      <h2>相关文章</h2>\n      <ul>\n        ' + related + '\n      </ul>\n    </section>'
       : '',
     pager.join('\n'),
     '<p class="back"><a href="/">← 返回首页</a></p>',
+    '</div>',
   ].filter(Boolean).join('\n');
 
   return layout({
@@ -766,6 +783,7 @@ function buildPost(post, all) {
     description: post.summary,
     path: '/posts/' + post.slug + '.html',
     content: content,
+    wide: true,
     ogType: 'article',
     published: post.date,
     modified: post.updated || post.date,
@@ -1081,7 +1099,32 @@ function buildPhotos(albums) {
 /* ============================ 输出 ============================ */
 
 function rmrf(dir) {
-  if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+  if (!fs.existsSync(dir)) return;
+
+  for (var attempt = 0; attempt < 4; attempt++) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+      return;
+    } catch (e) {
+      if (attempt === 3) {
+        // 被占用时退而求其次：改名让路，稍后清理
+        var trash = dir + '.trash-' + Date.now();
+        try {
+          fs.renameSync(dir, trash);
+          console.warn('  ! public 目录被占用，已改名为 ' + path.basename(trash));
+          setTimeout(function () {
+            try { fs.rmSync(trash, { recursive: true, force: true }); } catch (x) {}
+          }, 3000).unref();
+          return;
+        } catch (e2) {
+          throw e;
+        }
+      }
+      // 短暂等待后重试
+      var until = Date.now() + 200 * (attempt + 1);
+      while (Date.now() < until) { /* 同步等待，构建脚本无所谓 */ }
+    }
+  }
 }
 
 function writeFile(rel, content) {

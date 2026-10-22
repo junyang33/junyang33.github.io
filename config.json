@@ -9,6 +9,11 @@
   "startYear": 2026,
   "postsPerPage": 8,
   "footerNote": "除特别注明外，本站文章采用 CC BY-NC-SA 4.0 协议授权",
+  "background": {
+    "enabled": true,
+    "image": "/assets/images/bg/hero.jpg",
+    "position": "center 15%"
+  },
   "social": [
     { "label": "GitHub", "url": "https://github.com/" },
     { "label": "邮箱", "url": "mailto:hsdfgkjvbsjkafh@163.com" },
@@ -18,8 +23,7 @@
     "enabled": true,
     "type": "playlist",
     "id": "3778678",
-    "name": "写代码的时候听",
-    "note": "网易云歌单 ID，换成自己的即可"
+    "name": "写代码的时候听"
   },
   "comments": {
     "enabled": false,

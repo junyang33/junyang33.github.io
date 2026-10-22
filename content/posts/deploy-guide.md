@@ -1,6 +1,7 @@
 ---
 title: 把它发布到公网：三种部署方案
 date: 2026-10-15
+category: 建站
 tags: [部署, 静态博客, 教程]
 summary: 从本地 public 目录到能访问的域名，比较 Cloudflare Pages、GitHub Pages 和对象存储三条路，以及域名和备案要注意什么。
 ---

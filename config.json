@@ -9,6 +9,13 @@
   "startYear": 2026,
   "postsPerPage": 8,
   "footerNote": "除特别注明外，本站文章采用 CC BY-NC-SA 4.0 协议授权",
+  "notice": {
+    "enabled": true,
+    "title": "公告",
+    "text": "欢迎来到我的数字花园，这里记录技术、读书与生活。慢慢写，认真写。",
+    "link": "/about.html",
+    "linkText": "了解更多"
+  },
   "background": {
     "enabled": false,
     "image": "/assets/images/bg/hero.jpg",

@@ -442,8 +442,31 @@
     });
   }
 
-  /* --------------------------- 轮播 --------------------------- */
+  /* ------------------- 侧栏挂件交互 ------------------- */
 
+  var notice = $('#noticeWidget');
+  var noticeClose = $('#noticeClose');
+
+  if (notice && noticeClose) {
+    try {
+      if (localStorage.getItem('noticeClosed') === '1') notice.hidden = true;
+    } catch (e) {}
+
+    noticeClose.addEventListener('click', function () {
+      notice.hidden = true;
+      try { localStorage.setItem('noticeClosed', '1'); } catch (e) {}
+    });
+  }
+
+  var musicWidgetBtn = $('#musicFromWidget');
+  if (musicWidgetBtn) {
+    musicWidgetBtn.addEventListener('click', function () {
+      var btn = document.getElementById('musicToggle');
+      if (btn) btn.click();
+    });
+  }
+
+  /* --------------------------- 轮播 --------------------------- */
   var carousel = document.getElementById('carousel');
   if (carousel) {
     var slides = $$('.car-slide', carousel);

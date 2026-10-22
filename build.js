@@ -37,6 +37,7 @@ const SITE = {
   music: rawConfig.music || { enabled: false },
   background: rawConfig.background || { enabled: false },
   carousel: rawConfig.carousel || { enabled: false },
+  notice: rawConfig.notice || { enabled: false },
 };
 
 const NAV = [
@@ -323,12 +324,14 @@ function loadPosts() {
         date: isoDate(parsed.data.date),
         updated: isoDate(parsed.data.updated),
         tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : parsed.data.tags ? [parsed.data.tags] : [],
+        category: parsed.data.category || '未分类',
         summary: parsed.data.summary || truncate(stripMd(parsed.body), 110),
         draft: String(parsed.data.draft || '').toLowerCase() === 'true',
         pinned: String(parsed.data.pinned || '').toLowerCase() === 'true',
         html: rendered.html,
         toc: rendered.toc,
         minutes: readingMinutes(parsed.body),
+        chars: stripMd(parsed.body).replace(/\s+/g, '').length,
         text: truncate(stripHtml(rendered.html), 600),
       };
     })
@@ -707,13 +710,26 @@ function buildIndex(posts, page, totalPages) {
     : '<p class="empty">还没有文章。在 <code>content/posts/</code> 里新建一个 <code>.md</code> 文件，' +
       '运行 <code>node build.js</code> 就有了。</p>';
 
-  const content = [
-    hero,
+  let bodyHtml = [
     '  <div class="post-list">',
     list,
     '  </div>',
     pager,
   ].filter(Boolean).join('\n');
+
+  if (page === 1) {
+    const side = buildSidebar(siteStats(ordered));
+
+    bodyHtml = [
+      '<div class="home-layout">',
+      side.left ? '  <aside class="rail rail-left">\n' + side.left + '\n  </aside>' : '',
+      '  <div class="home-main">\n' + bodyHtml + '\n  </div>',
+      side.right ? '  <aside class="rail rail-right">\n' + side.right + '\n  </aside>' : '',
+      '</div>',
+    ].filter(Boolean).join('\n');
+  }
+
+  const content = [hero, bodyHtml].filter(Boolean).join('\n');
 
   return layout({
     content: content,
@@ -961,6 +977,37 @@ function buildTags(posts) {
   return layout({ title: '标签', content: content, active: 'tags', path: '/tags.html' });
 }
 
+function buildCategories(posts) {
+  const map = {};
+  posts.forEach(function (p) {
+    (map[p.category] = map[p.category] || []).push(p);
+  });
+
+  const names = Object.keys(map).sort(function (a, b) { return map[b].length - map[a].length; });
+
+  const body = names.map(function (name) {
+    const rows = map[name].map(function (p) {
+      return '<li><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a>' +
+        '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) + '</time></li>';
+    }).join('\n        ');
+
+    return [
+      '<section class="tag-group" id="' + encodeURIComponent(name) + '">',
+      '  <h2>' + esc(name) + ' <span class="count">' + map[name].length + '</span></h2>',
+      '  <ul class="tag-posts">',
+      '        ' + rows,
+      '  </ul>',
+      '</section>',
+    ].join('\n');
+  }).join('\n');
+
+  const content = '<h1 class="page-title">分类</h1>\n' +
+    '<p class="page-desc">共 ' + names.length + ' 个分类，' + posts.length + ' 篇文章。</p>\n' +
+    (names.length ? body : '<p class="empty">还没有分类。在文章的 front matter 里写 <code>category: 分类名</code>。</p>');
+
+  return layout({ title: '分类', content: content, active: 'archive', path: '/categories.html' });
+}
+
 function buildSearch() {
   const content = [
     '<section class="search-page">',
@@ -1042,7 +1089,7 @@ function buildFeed(posts) {
 }
 
 function buildSitemap(posts) {
-  const pages = ['/', '/archive.html', '/tags.html', '/notes.html', '/photos.html', '/search.html', '/links.html', '/about.html'];
+  const pages = ['/', '/archive.html', '/tags.html', '/categories.html', '/notes.html', '/photos.html', '/search.html', '/links.html', '/about.html'];
   const latest = posts.length ? posts[0].date : '';
 
   const rows = pages.map(function (u) {
@@ -1218,6 +1265,158 @@ function buildPhotos(albums) {
   return layout({ title: '照片', content: content, active: 'photos', path: '/photos.html', description: '相册与照片' });
 }
 
+/* ============================ 首页侧栏挂件 ============================ */
+
+const ICON = {
+  post: '<path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+  cat: '<path d="M4 6a2 2 0 0 1 2-2h4l2 3h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>',
+  tag: '<path d="M4 11V5a1 1 0 0 1 1-1h6l9 9-7 7z"/><circle cx="8.5" cy="8.5" r="1.3"/>',
+  words: '<path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  days: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>',
+  views: '<path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/>',
+  global: '<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.4 2.5 13.6 0 16M12 4c-2.5 2.4-2.5 13.6 0 16"/>',
+  pulse: '<path d="M3 12h4l2.5-6 4 12 2.5-6H21"/>',
+};
+
+function icon(name) {
+  return (
+    '<svg class="w-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"' +
+    ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    ICON[name] + '</svg>'
+  );
+}
+
+function siteStats(posts) {
+  const cats = {};
+  const tags = {};
+  let chars = 0;
+
+  posts.forEach(function (p) {
+    cats[p.category] = (cats[p.category] || 0) + 1;
+    p.tags.forEach(function (t) { tags[t] = (tags[t] || 0) + 1; });
+    chars += p.chars || 0;
+  });
+
+  const dates = posts.map(function (p) { return p.date; }).filter(Boolean).sort();
+  const first = dates[0] || '';
+  const last = dates[dates.length - 1] || '';
+  const now = new Date();
+  const day = 86400000;
+
+  const running = first ? Math.max(1, Math.round((now - new Date(first + 'T00:00:00')) / day)) : 0;
+  const idle = last ? Math.max(0, Math.round((now - new Date(last + 'T00:00:00')) / day)) : 0;
+
+  return {
+    posts: posts.length,
+    categories: Object.keys(cats).length,
+    tags: Object.keys(tags).length,
+    chars: chars,
+    running: running,
+    idle: idle,
+    catList: Object.keys(cats).map(function (c) { return { name: c, count: cats[c] }; }).sort(function (a, b) { return b.count - a.count; }),
+    tagList: Object.keys(tags).map(function (t) { return { name: t, count: tags[t] }; }).sort(function (a, b) { return b.count - a.count; }),
+  };
+}
+
+function widgetNotice() {
+  const n = SITE.notice;
+  if (!n || !n.enabled) return '';
+
+  return [
+    '<section class="widget widget-notice" id="noticeWidget">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>' + esc(n.title || '公告') + '</h2>',
+    '    <button class="w-close" type="button" id="noticeClose" aria-label="关闭公告">×</button>',
+    '  </header>',
+    '  <p class="notice-text">' + esc(n.text || '') + '</p>',
+    n.link
+      ? '  <a class="notice-link" href="' + esc(n.link) + '">' + esc(n.linkText || '了解更多') + ' →</a>'
+      : '',
+    '</section>',
+  ].filter(Boolean).join('\n');
+}
+
+function widgetMusic() {
+  const m = SITE.music;
+  if (!m || !m.enabled || !m.id) return '';
+
+  return [
+    '<section class="widget widget-music">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>音乐</h2></header>',
+    '  <div class="music-card">',
+    '    <span class="music-disc lg" aria-hidden="true">♪</span>',
+    '    <div class="music-meta">',
+    '      <strong>' + esc(m.name || '写代码的时候听') + '</strong>',
+    '      <span>网易云歌单 · ' + (m.type === 'song' ? '单曲' : '播放列表') + '</span>',
+    '    </div>',
+    '  </div>',
+    '  <button class="music-open" type="button" id="musicFromWidget">打开播放器</button>',
+    '</section>',
+  ].join('\n');
+}
+
+function widgetCategories(stats) {
+  if (!stats.catList.length) return '';
+  const rows = stats.catList.slice(0, 6).map(function (c) {
+    return '<li><a href="/categories.html#' + encodeURIComponent(c.name) + '"><span>' + esc(c.name) + '</span><b>' + c.count + '</b></a></li>';
+  }).join('\n      ');
+
+  return [
+    '<section class="widget widget-cats">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>分类</h2></header>',
+    '  <ul class="w-list">',
+    '      ' + rows,
+    '  </ul>',
+    stats.catList.length > 6 ? '  <a class="w-more" href="/categories.html">更多 →</a>' : '',
+    '</section>',
+  ].filter(Boolean).join('\n');
+}
+
+function widgetTags(stats) {
+  if (!stats.tagList.length) return '';
+  const pills = stats.tagList.slice(0, 12).map(function (t) {
+    return '<a href="/tags.html#' + encodeURIComponent(t.name) + '">' + esc(t.name) + '<i>' + t.count + '</i></a>';
+  }).join('');
+
+  return [
+    '<section class="widget widget-tags">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>标签</h2></header>',
+    '  <div class="w-pills">' + pills + '</div>',
+    stats.tagList.length > 12 ? '  <a class="w-more" href="/tags.html">更多 →</a>' : '',
+    '</section>',
+  ].filter(Boolean).join('\n');
+}
+
+function widgetStats(stats) {
+  const rows = [
+    ['post', '文章', stats.posts],
+    ['cat', '分类', stats.categories],
+    ['tag', '标签', stats.tags],
+    ['words', '总字数', stats.chars.toLocaleString('en-US')],
+    ['days', '运行时长', stats.running + ' 天'],
+    ['pulse', '近期活动', stats.idle + ' 天前'],
+  ];
+
+  return [
+    '<section class="widget widget-stats">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>站点数据</h2></header>',
+    '  <ul class="stat-list">',
+    rows
+      .map(function (r) {
+        return '    <li>' + icon(r[0]) + '<span>' + r[1] + '</span><b>' + r[2] + '</b></li>';
+      })
+      .join('\n'),
+    '  </ul>',
+    '</section>',
+  ].join('\n');
+}
+
+function buildSidebar(postStats) {
+  return {
+    left: [widgetNotice(), widgetStats(postStats)].filter(Boolean).join('\n'),
+    right: [widgetMusic(), widgetCategories(postStats), widgetTags(postStats)].filter(Boolean).join('\n'),
+  };
+}
+
 /* ============================ 输出 ============================ */
 
 function rmrf(dir) {
@@ -1284,6 +1483,7 @@ function main() {
   // 独立页面
   writeFile('archive.html', buildArchive(posts));
   writeFile('tags.html', buildTags(posts));
+  writeFile('categories.html', buildCategories(posts));
   writeFile('notes.html', buildNotes(notes));
   writeFile('photos.html', buildPhotos(albums));
   writeFile('search.html', buildSearch());

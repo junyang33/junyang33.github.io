@@ -465,43 +465,48 @@ function carouselHtml() {
     .join('\n');
 }
 
+function loadMusic() {
+  const raw = loadJson('music.json', null);
+  if (!raw || !Array.isArray(raw.tracks) || !raw.tracks.length) return null;
+
+  const tracks = raw.tracks.filter(function (t) {
+    return t && t.src;
+  });
+  if (!tracks.length) return null;
+
+  return { title: raw.title || '听点什么', tracks: tracks };
+}
+
 function musicPlayerHtml() {
   const m = SITE.music;
-  if (!m || !m.enabled || !m.id) return '';
+  if (!m || !m.enabled) return '';
 
-  const type = m.type === 'song' ? '2' : '0';
-  const height = type === '2' ? 86 : 430;
-  const src =
-    'https://music.163.com/outchain/player?type=' + type +
-    '&id=' + encodeURIComponent(m.id) + '&auto=0&height=' + height;
-
-  const webUrl =
-    type === '2'
-      ? 'https://music.163.com/#/song?id=' + encodeURIComponent(m.id)
-      : 'https://music.163.com/#/playlist?id=' + encodeURIComponent(m.id);
+  const music = loadMusic();
+  if (!music) return '';
 
   return [
     '<div class="music" id="musicPlayer">',
-    '  <div class="music-panel" id="musicPanel" hidden>',
-    '    <header class="mp-head">',
-    '      <span class="mp-cover" aria-hidden="true">♪</span>',
-    '      <div class="mp-meta">',
-    '        <strong>' + esc(m.name || '听点什么') + '</strong>',
-    '        <span>网易云' + (type === '2' ? '单曲' : '歌单') + '</span>',
+    '  <audio id="musicAudio" preload="metadata"></audio>',
+    '  <div class="mp-card">',
+    '    <div class="mp-top">',
+    '      <span class="music-disc" aria-hidden="true">♪</span>',
+    '      <div class="mp-info">',
+    '        <span class="mp-title" id="mpTitle">' + esc(music.tracks[0].title) + '</span>',
+    '        <span class="mp-sub" id="mpSub">' + esc(music.tracks[0].artist || '') + '</span>',
     '      </div>',
-    '      <a class="mp-link" href="' + esc(webUrl) + '" target="_blank" rel="noopener">在网易云打开</a>',
-    '      <button class="mp-close" id="musicClose" type="button" aria-label="收起播放器">×</button>',
-    '    </header>',
-    '    <div class="mp-frame">',
-    '      <iframe title="网易云音乐播放器" loading="lazy" allow="autoplay"',
-    '              data-src="' + esc(src) + '"></iframe>',
+    '      <div class="mp-controls">',
+    '        <button class="mp-btn" type="button" data-act="prev" aria-label="上一首">‹‹</button>',
+    '        <button class="mp-btn mp-play" type="button" id="mpPlay" data-act="play" aria-label="播放">▶</button>',
+    '        <button class="mp-btn" type="button" data-act="next" aria-label="下一首">››</button>',
+    '      </div>',
+    '    </div>',
+    '    <div class="mp-progress" id="mpProgress" role="slider" tabindex="0" aria-label="播放进度">',
+    '      <i></i>',
     '    </div>',
     '  </div>',
-    '  <button class="music-toggle" id="musicToggle" type="button" aria-expanded="false">',
-    '    <span class="music-disc" aria-hidden="true">♪</span>',
-    '    <span class="music-name">' + esc(m.name || '听点什么') + '</span>',
-    '    <span class="music-eq" aria-hidden="true"><i></i><i></i><i></i></span>',
-    '  </button>',
+    '  <script type="application/json" id="musicData">' +
+      JSON.stringify({ title: music.title, tracks: music.tracks }).replace(/</g, '\\u003c') +
+      '</script>',
     '</div>',
   ].join('\n');
 }
@@ -1452,19 +1457,32 @@ function widgetCalendar(posts) {
 
 function widgetMusic() {
   const m = SITE.music;
-  if (!m || !m.enabled || !m.id) return '';
+  if (!m || !m.enabled) return '';
+
+  const music = loadMusic();
+  if (!music) return '';
+
+  const first = music.tracks[0];
 
   return [
     '<section class="widget widget-music">',
-    '  <header class="widget-head"><span class="w-bar"></span><h2>音乐</h2></header>',
-    '  <div class="music-card">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>音乐</h2>',
+    '    <span class="w-count" id="mwCount">' + music.tracks.length + ' 首</span>',
+    '  </header>',
+    '  <div class="mw-now">',
     '    <span class="music-disc lg" aria-hidden="true">♪</span>',
-    '    <div class="music-meta">',
-    '      <strong>' + esc(m.name || '写代码的时候听') + '</strong>',
-    '      <span>网易云歌单 · ' + (m.type === 'song' ? '单曲' : '播放列表') + '</span>',
+    '    <div class="mw-meta">',
+    '      <strong class="mw-title" id="mwTitle">' + esc(first.title) + '</strong>',
+    '      <span class="mw-sub" id="mwSub">' + esc(first.artist || '') + '</span>',
     '    </div>',
     '  </div>',
-    '  <button class="music-open" type="button" id="musicFromWidget">打开播放器</button>',
+    '  <div class="mw-progress" id="mwProgress" role="slider" tabindex="0" aria-label="播放进度"><i></i></div>',
+    '  <div class="mw-controls">',
+    '    <button class="mw-btn" type="button" data-act="prev" aria-label="上一首">‹‹</button>',
+    '    <button class="mw-btn mw-play" type="button" id="mwPlay" data-act="play" aria-label="播放">▶</button>',
+    '    <button class="mw-btn" type="button" data-act="next" aria-label="下一首">››</button>',
+    '    <span class="mw-time" id="mwTime">0:00 / 0:00</span>',
+    '  </div>',
     '</section>',
   ].join('\n');
 }

@@ -146,54 +146,211 @@
   }
 
   /* ============================ 音乐 ============================ */
-  /* 播放器在 <main> 之外，软导航不会重建它，所以播放不会中断 */
+  /* 自建播放器：<audio> 在 <main> 之外，软导航不会中断播放 */
 
-  var music = $('#musicPlayer');
-  if (music) {
-    var mToggle = $('#musicToggle', music);
-    var mPanel = $('#musicPanel', music);
-    var mFrame = mPanel ? $('iframe', mPanel) : null;
-    var mClose = $('#musicClose', music);
-    var MUSIC_KEY = 'musicOpen';
+  var musicEl = document.getElementById('musicPlayer');
+  var musicAudio = document.getElementById('musicAudio');
+  var musicDataEl = document.getElementById('musicData');
+  var mTracks = [];
+  var mIndex = 0;
+  var mRestored = false;
 
-    function setMusicOpen(open) {
-      mPanel.hidden = !open;
-      mToggle.setAttribute('aria-expanded', String(open));
-      music.classList.toggle('is-playing', open);
+  function fmtTime(sec) {
+    if (!sec || !isFinite(sec) || sec < 0) sec = 0;
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
 
-      if (open && mFrame && !mFrame.getAttribute('src')) {
-        mFrame.src = mFrame.getAttribute('data-src');
-      }
-      try { localStorage.setItem(MUSIC_KEY, open ? '1' : '0'); } catch (e) {}
+  function mTrack() {
+    return mTracks[mIndex] || null;
+  }
+
+  function mRender() {
+    var t = mTrack();
+    if (!t) return;
+
+    var title = t.title || '未知曲目';
+    var sub = t.artist || '';
+    var dur = musicAudio && isFinite(musicAudio.duration) ? musicAudio.duration : 0;
+    var cur = musicAudio ? musicAudio.currentTime : 0;
+    var ratio = dur > 0 ? Math.min(1, cur / dur) : 0;
+    var playing = musicAudio && !musicAudio.paused;
+    var icon = playing ? '❚❚' : '▶';
+
+    var mpTitle = $('#mpTitle');
+    var mpSub = $('#mpSub');
+    var mpPlay = $('#mpPlay');
+    var mpFill = $('#mpProgress i');
+    if (mpTitle) mpTitle.textContent = title;
+    if (mpSub) mpSub.textContent = sub;
+    if (mpPlay) {
+      mpPlay.textContent = icon;
+      mpPlay.setAttribute('aria-label', playing ? '暂停' : '播放');
     }
+    if (mpFill) mpFill.style.width = (ratio * 100).toFixed(2) + '%';
+    if (musicEl) musicEl.classList.toggle('is-playing', !!playing);
 
-    mToggle.addEventListener('click', function () {
-      setMusicOpen(mPanel.hidden);
-    });
-
-    if (mClose) {
-      mClose.addEventListener('click', function () { setMusicOpen(false); });
+    /* 侧栏挂件 */
+    var mwTitle = $('#mwTitle');
+    var mwSub = $('#mwSub');
+    var mwPlay = $('#mwPlay');
+    var mwFill = $('#mwProgress i');
+    var mwTime = $('#mwTime');
+    if (mwTitle) mwTitle.textContent = title;
+    if (mwSub) mwSub.textContent = sub;
+    if (mwPlay) {
+      mwPlay.textContent = icon;
+      mwPlay.setAttribute('aria-label', playing ? '暂停' : '播放');
     }
+    if (mwFill) mwFill.style.width = (ratio * 100).toFixed(2) + '%';
+    if (mwTime) mwTime.textContent = fmtTime(cur) + ' / ' + fmtTime(dur);
+  }
 
-    /* 上次开着就自动恢复（不自动播放，只是把面板摆好） */
+  function mSave() {
+    if (!musicAudio) return;
     try {
-      if (localStorage.getItem(MUSIC_KEY) === '1') setMusicOpen(true);
+      localStorage.setItem('musicState', JSON.stringify({
+        i: mIndex,
+        t: musicAudio.currentTime || 0,
+        v: musicAudio.volume,
+      }));
     } catch (e) {}
+  }
 
-    /* 快捷键 M 开关 */
-    document.addEventListener('keydown', function (e) {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      var el = e.target;
-      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
-      if (e.key !== 'm' && e.key !== 'M') return;
-      e.preventDefault();
-      setMusicOpen(mPanel.hidden);
-    });
+  function mLoad(i, resumeAt, autoPlay) {
+    if (!mTracks.length) return;
+    mIndex = ((i % mTracks.length) + mTracks.length) % mTracks.length;
 
-    /* Esc 收起 */
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !mPanel.hidden) setMusicOpen(false);
+    var t = mTrack();
+    if (!t) return;
+
+    musicAudio.src = t.src;
+    musicAudio.load();
+
+    if (resumeAt) {
+      var seek = function () {
+        try { musicAudio.currentTime = Math.min(resumeAt, musicAudio.duration || resumeAt); } catch (e) {}
+        musicAudio.removeEventListener('loadedmetadata', seek);
+      };
+      musicAudio.addEventListener('loadedmetadata', seek);
+    }
+
+    if (autoPlay) {
+      var p = musicAudio.play();
+      if (p && p.catch) p.catch(function () { mRender(); });
+    }
+    mRender();
+  }
+
+  function mToggle() {
+    if (!musicAudio || !mTracks.length) return;
+    if (!musicAudio.src) {
+      mLoad(mIndex, 0, true);
+      return;
+    }
+    if (musicAudio.paused) {
+      var p = musicAudio.play();
+      if (p && p.catch) p.catch(function () {});
+    } else {
+      musicAudio.pause();
+    }
+  }
+
+  function mStep(delta) {
+    mLoad(mIndex + delta, 0, true);
+  }
+
+  function mSeekTo(el, clientX) {
+    if (!musicAudio || !musicAudio.duration || !el) return;
+    var r = el.getBoundingClientRect();
+    var ratio = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    musicAudio.currentTime = ratio * musicAudio.duration;
+    mRender();
+  }
+
+  function bindMusicControls(root) {
+    if (!root) return;
+    $$('[data-act]', root).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var act = btn.getAttribute('data-act');
+        if (act === 'play') mToggle();
+        else if (act === 'next') mStep(1);
+        else if (act === 'prev') mStep(-1);
+      });
     });
+  }
+
+  if (musicEl && musicAudio && musicDataEl) {
+    try {
+      var data = JSON.parse(musicDataEl.textContent || '{}');
+      mTracks = Array.isArray(data.tracks) ? data.tracks.filter(function (t) { return t && t.src; }) : [];
+    } catch (e) {
+      mTracks = [];
+    }
+
+    if (mTracks.length) {
+      /* 悬浮条控件（只绑一次） */
+      bindMusicControls(musicEl);
+
+      var floatingProgress = $('#mpProgress');
+      if (floatingProgress) {
+        floatingProgress.addEventListener('click', function (e) {
+          mSeekTo(floatingProgress, e.clientX);
+        });
+      }
+
+      musicAudio.addEventListener('timeupdate', mRender);
+      musicAudio.addEventListener('durationchange', mRender);
+      musicAudio.addEventListener('play', mRender);
+      musicAudio.addEventListener('pause', mRender);
+      musicAudio.addEventListener('ended', function () { mStep(1); });
+      musicAudio.addEventListener('error', function () {
+        var mpSub = $('#mpSub');
+        if (mpSub) mpSub.textContent = '音频加载失败';
+      });
+
+      /* 恢复上次的曲目与进度（不自动播放） */
+      var savedState = null;
+      try { savedState = JSON.parse(localStorage.getItem('musicState') || 'null'); } catch (e) {}
+      var startIndex = savedState && typeof savedState.i === 'number' ? savedState.i : 0;
+      var startAt = savedState && savedState.t ? savedState.t : 0;
+
+      mLoad(startIndex, startAt, false);
+      mRestored = true;
+
+      window.addEventListener('pagehide', mSave);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) mSave();
+      });
+
+      /* 快捷键：M 播放/暂停，Shift+M 下一首 */
+      document.addEventListener('keydown', function (e) {
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        var el = e.target;
+        if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+        if (e.key !== 'm' && e.key !== 'M') return;
+        e.preventDefault();
+        if (e.shiftKey) mStep(1);
+        else mToggle();
+      });
+    }
+  }
+
+  function syncMusicWidget() {
+    var widget = document.querySelector('.widget-music');
+    if (!widget || !musicEl) return;
+
+    bindMusicControls(widget);
+
+    var bar = $('#mwProgress');
+    if (bar) {
+      bar.addEventListener('click', function (e) {
+        mSeekTo(bar, e.clientX);
+      });
+    }
+
+    mRender();
   }
 
   /* ============================ 快捷键 ============================ */
@@ -790,13 +947,8 @@
       });
     }
 
-    var musicWidgetBtn = $('#musicFromWidget');
-    if (musicWidgetBtn) {
-      musicWidgetBtn.addEventListener('click', function () {
-        var btn = document.getElementById('musicToggle');
-        if (btn) btn.click();
-      });
-    }
+    /* ---------- 音乐挂件 ---------- */
+    syncMusicWidget();
 
     /* ---------- 天气 ---------- */
     var weatherEl = document.getElementById('weatherWidget');

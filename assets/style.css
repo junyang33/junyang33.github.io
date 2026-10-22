@@ -2597,3 +2597,98 @@ body.has-carousel .home-layout .post-list {
     margin-right: 12px !important;
   }
 }
+/* ==========================================================================
+   v17：首页图片改为两列并排卡片
+   ========================================================================== */
+
+.car-duo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: min(var(--wrap), 1200px) !important;
+  margin: 6px auto 10px;
+}
+
+.duo-card {
+  position: relative;
+  margin: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: #12141c;
+  isolation: isolate;
+  transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 0.4s ease;
+}
+.duo-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 48px rgba(20, 26, 45, 0.28);
+}
+
+.duo-media {
+  aspect-ratio: 16 / 10;
+  background-size: cover;
+  background-position: center 40%;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.duo-card:hover .duo-media { transform: scale(1.03); }
+
+.duo-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 8, 16, 0.02) 30%,
+    rgba(6, 8, 16, 0.45) 72%,
+    rgba(6, 8, 16, 0.72) 100%
+  );
+}
+
+.duo-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 18px 22px 20px;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+}
+.duo-cap strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.duo-cap span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+@media (max-width: 760px) {
+  .car-duo {
+    grid-template-columns: minmax(0, 1fr);
+    width: auto !important;
+    margin: 4px 14px 10px;
+    gap: 12px;
+  }
+  .duo-media { aspect-ratio: 16 / 9; }
+  .duo-cap { padding: 14px 16px 16px; }
+  .duo-cap strong { font-size: 0.95rem; }
+}
+/* 奇数张时，最后一张横跨两列，避免落单 */
+.car-duo .duo-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+.car-duo .duo-card:last-child:nth-child(odd) .duo-media {
+  aspect-ratio: 21 / 8;
+}
+.car-duo .duo-card:last-child:nth-child(odd) .duo-cap strong { font-size: 1.15rem; }
+
+@media (max-width: 760px) {
+  .car-duo .duo-card:last-child:nth-child(odd) .duo-media { aspect-ratio: 16 / 9; }
+}

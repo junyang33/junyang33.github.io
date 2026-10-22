@@ -425,6 +425,29 @@ function carouselHtml() {
 
   const total = c.slides.length;
 
+  /* 并排模式：静态两列图片卡片 */
+  if (c.layout === 'duo') {
+    const cards = c.slides
+      .map(function (s, i) {
+        return [
+          '<figure class="duo-card">',
+          '  <div class="duo-media" style="background-image:url(' + esc(s.image) + ')"></div>',
+          '  <figcaption class="duo-cap">',
+          s.title ? '    <strong>' + esc(s.title) + '</strong>' : '',
+          s.subtitle ? '    <span>' + esc(s.subtitle) + '</span>' : '',
+          '  </figcaption>',
+          '</figure>',
+        ]
+          .filter(Boolean)
+          .join('\n');
+      })
+      .join('\n');
+
+    return (
+      '<section class="car-duo" id="carousel" aria-label="站点图片">\n' + cards + '\n</section>'
+    );
+  }
+
   const slides = c.slides
     .map(function (s, i) {
       return [

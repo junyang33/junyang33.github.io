@@ -1685,6 +1685,20 @@ function widgetCategories(stats) {
   ].filter(Boolean).join('\n');
 }
 
+function widgetTags(stats) {
+  if (!stats.tagList.length) return '';
+  const pills = stats.tagList.slice(0, 14).map(function (t) {
+    return '<span class="w-tag">' + esc(t.name) + '<i>' + t.count + '</i></span>';
+  }).join('');
+
+  return [
+    '<section class="widget widget-tags">',
+    '  <header class="widget-head"><span class="w-bar"></span><h2>标签</h2></header>',
+    '  <div class="w-pills">' + pills + '</div>',
+    '</section>',
+  ].filter(Boolean).join('\n');
+}
+
 function widgetStats(stats) {
   const rows = [
     ['post', '文章', stats.posts, ''],
@@ -1714,7 +1728,7 @@ function widgetStats(stats) {
 function buildSidebar(postStats, posts) {
   return {
     left: [widgetProfile(), widgetNotice(), widgetCalendar(posts || []), widgetStats(postStats)].filter(Boolean).join('\n'),
-    right: [widgetWeather(), widgetMusic(), widgetCategories(postStats)].filter(Boolean).join('\n'),
+    right: [widgetWeather(), widgetMusic(), widgetCategories(postStats), widgetTags(postStats)].filter(Boolean).join('\n'),
   };
 }
 

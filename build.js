@@ -1203,7 +1203,10 @@ function buildLinks(friends) {
         '    <button class="friends-shuffle" type="button" id="friendsShuffle">换个顺序 →</button>\n' +
         '  </div>'
       : '',
-    '<div class="post-content">' + introHtml + '</div>',
+    '<div class="post-content">' +
+      (friends.length ? '' : '<p class="friends-empty">还没有友链。想交换链接，按下面的方式联系我。</p>') +
+      introHtml +
+    '</div>',
     '</article>',
   ]
     .filter(Boolean)

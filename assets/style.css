@@ -5098,3 +5098,44 @@ a.w-tag:hover {
 @media (max-width: 640px) {
   .pf-avatar { aspect-ratio: 16 / 10; }
 }
+/* ==========================================================================
+   v41：名片头像改正方形、压缩间距
+   ========================================================================== */
+
+.widget-profile { padding: 12px 12px 14px !important; }
+
+.pf-avatar {
+  aspect-ratio: 1 / 1 !important;
+  margin: 0 0 10px !important;
+  border-radius: 14px !important;
+}
+.pf-avatar img { object-position: center 24%; }
+
+.pf-name {
+  font-size: 1.28rem !important;
+  margin: 0 !important;
+  line-height: 1.2;
+}
+
+.pf-bar {
+  margin: 6px auto 7px !important;
+}
+
+.pf-bio {
+  margin: 0 0 10px !important;
+  font-size: 0.84rem !important;
+  line-height: 1.6 !important;
+}
+
+.pf-links {
+  gap: 8px !important;
+  margin-top: 0 !important;
+}
+.pf-link {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+@media (max-width: 640px) {
+  .pf-avatar { aspect-ratio: 1 / 1 !important; }
+}

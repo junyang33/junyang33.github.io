@@ -78,5 +78,29 @@
     "latitude": 28.68,
     "longitude": 115.858,
     "days": 3
+  },
+  "profile": {
+    "enabled": true,
+    "name": "Mental",
+    "bio": "Hello, I'm Mental.",
+    "avatar": "/assets/images/avatar.jpg",
+    "links": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/junyang33"
+      },
+      {
+        "label": "邮箱",
+        "url": "mailto:hsdfgkjvbsjkafh@163.com"
+      },
+      {
+        "label": "关于",
+        "url": "/about.html"
+      },
+      {
+        "label": "RSS",
+        "url": "/feed.xml"
+      }
+    ]
   }
 }

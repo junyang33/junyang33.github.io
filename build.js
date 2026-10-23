@@ -38,6 +38,7 @@ const SITE = {
   background: rawConfig.background || { enabled: false },
   carousel: rawConfig.carousel || { enabled: false },
   notice: rawConfig.notice || { enabled: false },
+  profile: rawConfig.profile || { enabled: true },
   weather: rawConfig.weather || { enabled: false },
 };
 
@@ -1428,6 +1429,54 @@ function icon(name) {
   );
 }
 
+const PF_ICON = {
+  github: '<path d="M12 2.6a9.4 9.4 0 0 0-3 18.3c.5.1.6-.2.6-.5v-1.7c-2.5.6-3.1-1.2-3.1-1.2-.4-1-1-1.3-1-1.3-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .8 1.4 2.2 1 2.7.8.1-.6.3-1 .6-1.3-2-.2-4.1-1-4.1-4.5 0-1 .3-1.8.9-2.4-.1-.2-.4-1.1.1-2.3 0 0 .7-.2 2.4.9a8.3 8.3 0 0 1 4.4 0c1.7-1.1 2.4-.9 2.4-.9.5 1.2.2 2.1.1 2.3.6.6.9 1.4.9 2.4 0 3.5-2.1 4.2-4.1 4.5.3.3.6.9.6 1.7v2.6c0 .3.1.6.6.5A9.4 9.4 0 0 0 12 2.6z"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.6 6.4 8.4 6 8.4-6"/>',
+  rss: '<path d="M5 19a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4z"/><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/>',
+  link: '<path d="M10 13.5a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1 1"/><path d="M14 10.5a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1-1"/>',
+  user: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+  music: '<circle cx="7" cy="18" r="2.6"/><circle cx="18" cy="16" r="2.6"/><path d="M9.6 18V7l11-2v11"/>',
+};
+
+function profileIconFor(label, url) {
+  const s = String(label || '') + ' ' + String(url || '');
+  if (/github/i.test(s)) return 'github';
+  if (/mail|邮箱|email/i.test(s)) return 'mail';
+  if (/rss|feed/i.test(s)) return 'rss';
+  if (/music|音乐/i.test(s)) return 'music';
+  if (/about|关于/i.test(s)) return 'user';
+  return 'link';
+}
+
+function widgetProfile() {
+  const p = SITE.profile;
+  if (!p || p.enabled === false) return '';
+
+  const name = p.name || SITE.author || '';
+  const bio = p.bio || '';
+  const avatar = p.avatar || '/assets/images/avatar.jpg';
+  const links = Array.isArray(p.links) && p.links.length ? p.links : (SITE.social || []);
+
+  const icons = links.map(function (l) {
+    const ext = /^https?:\/\//.test(l.url) ? ' target="_blank" rel="noopener"' : '';
+    return '<a class="pf-link" href="' + esc(l.url) + '"' + ext + ' aria-label="' + esc(l.label) + '"' +
+      ' title="' + esc(l.label) + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"' +
+      ' stroke-linejoin="round" aria-hidden="true">' + (PF_ICON[profileIconFor(l.label, l.url)] || PF_ICON.link) +
+      '</svg></a>';
+  }).join('\n      ');
+
+  return [
+    '<section class="widget widget-profile">',
+    '  <div class="pf-avatar"><img src="' + esc(avatar) + '" alt="' + esc(name) + '" loading="lazy"></div>',
+    '  <h2 class="pf-name">' + esc(name) + '</h2>',
+    '  <span class="pf-bar" aria-hidden="true"></span>',
+    bio ? '  <p class="pf-bio">' + esc(bio) + '</p>' : '',
+    icons ? '  <div class="pf-links">\n      ' + icons + '\n  </div>' : '',
+    '</section>',
+  ].filter(Boolean).join('\n');
+}
+
 function siteStats(posts) {
   const cats = {};
   const tags = {};
@@ -1617,7 +1666,7 @@ function widgetStats(stats) {
 
 function buildSidebar(postStats, posts) {
   return {
-    left: [widgetNotice(), widgetCalendar(posts || []), widgetStats(postStats)].filter(Boolean).join('\n'),
+    left: [widgetProfile(), widgetNotice(), widgetCalendar(posts || []), widgetStats(postStats)].filter(Boolean).join('\n'),
     right: [widgetWeather(), widgetMusic(), widgetCategories(postStats), widgetTags(postStats)].filter(Boolean).join('\n'),
   };
 }

@@ -65,7 +65,6 @@ const NAV = [
 /* 下拉菜单里的次要入口 */
 const NAV_MORE = [
   { href: '/categories.html', label: '分类', key: 'categories', icon: 'folder' },
-  { href: '/search.html', label: '搜索', key: 'search', icon: 'search' },
   { href: '/feed.xml', label: 'RSS 订阅', key: 'rss', icon: 'rss', external: true },
 ];
 

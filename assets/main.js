@@ -480,14 +480,6 @@
     var el = e.target;
     if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
 
-    if (e.key === '/') {
-      e.preventDefault();
-      var si = document.getElementById('searchInput');
-      if (si) si.focus();
-      else navigate('/search.html');
-      return;
-    }
-
     if (e.key === 't' || e.key === 'T') {
       applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
       return;

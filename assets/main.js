@@ -1138,6 +1138,49 @@
       renderList(selected);
     }
 
+    /* ---------- 动态：展开全文 / 评论 ---------- */
+    $$('.pn-more').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var body = document.getElementById(btn.getAttribute('data-target') || '');
+        if (!body) return;
+        var clamped = body.classList.toggle('is-clamped');
+        btn.classList.toggle('is-open', !clamped);
+        btn.setAttribute('aria-expanded', String(!clamped));
+        btn.innerHTML = (clamped ? '查看更多' : '收起') + ' <span class="pn-caret">⌄</span>';
+      });
+    });
+
+    $$('.pn-comments').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var box = btn.parentNode.querySelector('.pn-giscus');
+        if (!box) return;
+
+        var open = box.hidden;
+        box.hidden = !open;
+        btn.setAttribute('aria-expanded', String(open));
+
+        if (open && !box.dataset.mounted) {
+          box.dataset.mounted = '1';
+          var sc = document.createElement('script');
+          sc.src = 'https://giscus.app/client.js';
+          sc.setAttribute('data-repo', btn.getAttribute('data-repo') || '');
+          sc.setAttribute('data-repo-id', btn.getAttribute('data-repo-id') || '');
+          sc.setAttribute('data-category-id', btn.getAttribute('data-category-id') || '');
+          sc.setAttribute('data-mapping', 'specific');
+          sc.setAttribute('data-term', btn.getAttribute('data-term') || 'note');
+          sc.setAttribute('data-reactions-enabled', '1');
+          sc.setAttribute('data-emit-metadata', '0');
+          sc.setAttribute('data-input-position', 'top');
+          sc.setAttribute('data-theme', root.dataset.theme === 'dark' ? 'dark' : 'light');
+          sc.setAttribute('data-lang', 'zh-CN');
+          sc.setAttribute('data-loading', 'lazy');
+          sc.crossOrigin = 'anonymous';
+          sc.async = true;
+          box.appendChild(sc);
+        }
+      });
+    });
+
     /* ---------- 侧栏挂件 ---------- */
     var notice = $('#noticeWidget');
     var noticeClose = $('#noticeClose');

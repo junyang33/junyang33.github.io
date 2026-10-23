@@ -56,7 +56,7 @@ const BRAND_MARK =
 const NAV = [
   { href: '/', label: '首页', key: 'home', icon: 'home' },
   { href: '/archive.html', label: '文章', key: 'archive', icon: 'file' },
-  { href: '/notes.html', label: '说说', key: 'notes', icon: 'chat' },
+  { href: '/notes.html', label: '动态', key: 'notes', icon: 'chat' },
   { href: '/photos.html', label: '照片', key: 'photos', icon: 'image' },
   { href: '/links.html', label: '友链', key: 'links', icon: 'users' },
   { href: '/about.html', label: '关于', key: 'about', icon: 'user' },
@@ -1368,16 +1368,16 @@ function buildSearchIndex(posts) {
 /* ============================ 说说 / 照片 ============================ */
 
 function buildNotes(notes) {
-  const cards = notes.map(function (n, i) {
-    const images = n.images.length
-      ? '<div class="note-images">' +
+  const giscus = SITE.comments && SITE.comments.giscus ? SITE.comments.giscus : {};
+
+  const cards = notes.map(function (n) {
+    const images = (n.images || []).length
+      ? '<div class="pn-images">' +
         n.images
           .map(function (src) {
-            return (
-              '<button class="thumb" type="button" data-src="' + esc(src) +
+            return '<button class="thumb" type="button" data-src="' + esc(src) +
               '" data-caption="' + esc(fmtDate(n.date)) + '" aria-label="查看图片">' +
-              '<img src="' + esc(src) + '" alt="" loading="lazy"></button>'
-            );
+              '<img src="' + esc(src) + '" alt="" loading="lazy"></button>';
           })
           .join('') +
         '</div>'
@@ -1388,30 +1388,54 @@ function buildNotes(notes) {
       .map(function (p) { return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>'; })
       .join('');
 
+    const longNote = (n.text || '').length > 120 || (n.text || '').split(/\n{2,}/).length > 2;
+
+    const stamp = n.time
+      ? String(n.date).replace(/-/g, '/') + ' ' + esc(n.time) + ' UTC+8'
+      : String(n.date).replace(/-/g, '/');
+
+    const avatar = SITE.profile && SITE.profile.avatar ? SITE.profile.avatar : '/assets/images/avatar.jpg';
+    const author = (SITE.profile && SITE.profile.name) || SITE.author;
+
     return [
-      '<article class="note note--' + esc(n.color) + '" style="--i:' + (i % 6) + '">',
-      '  <time class="note-date" datetime="' + esc(n.date) + '">' + fmtDate(n.date) + '</time>',
-      '  <div class="note-body">' + paragraphs + '</div>',
+      '<article class="pn" id="' + esc(n.id) + '">',
+      '  <header class="pn-head">',
+      '    <img class="pn-avatar" src="' + esc(avatar) + '" alt="" loading="lazy">',
+      '    <div class="pn-meta">',
+      '      <strong class="pn-author">' + esc(author) + '</strong>',
+      '      <time class="pn-time" datetime="' + esc(n.date) + '">' + stamp + '</time>',
+      '    </div>',
+      '    <span class="pn-quote" aria-hidden="true">&rdquo;</span>',
+      '  </header>',
+      '  <div class="pn-body' + (longNote ? ' is-clamped' : '') + '" id="body-' + esc(n.id) + '">' + paragraphs + '</div>',
+      longNote ? '  <button class="pn-more" type="button" data-target="body-' + esc(n.id) + '" aria-expanded="false">查看更多 <span class="pn-caret">⌄</span></button>' : '',
       images ? '  ' + images : '',
+      '  <footer class="pn-foot">',
+      '    <button class="pn-comments" type="button" data-term="note-' + esc(n.id) + '"' +
+        ' data-repo="' + esc(giscus.repo || '') + '" data-repo-id="' + esc(giscus.repoId || '') + '"' +
+        ' data-category-id="' + esc(giscus.categoryId || '') + '" aria-expanded="false">',
+      '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-4 4z"/></svg>',
+      '      <span>评论</span> <span class="pn-caret">⌄</span>',
+      '    </button>',
+      '    <div class="pn-giscus" hidden></div>',
+      '  </footer>',
       '</article>',
-    ]
-      .filter(Boolean)
-      .join('\n');
+    ].filter(Boolean).join('\n');
   }).join('\n');
 
   const content = [
     '<section class="notes-page">',
     '  <header class="page-head">',
-    '    <h1 class="page-title">说说</h1>',
+    '    <h1 class="page-title">动态</h1>',
     '    <p class="page-desc">零碎的记录，比文章短，比朋友圈长。共 ' + notes.length + ' 条。</p>',
     '  </header>',
     notes.length
-      ? '  <div class="note-grid">\n' + cards + '\n  </div>'
-      : '  <p class="empty">还没有说说。在 <code>content/notes.json</code> 里加一条，或打开管理后台。</p>',
+      ? '  <div class="pn-list">\n' + cards + '\n  </div>'
+      : '  <p class="empty">还没有动态。在 <code>content/notes.json</code> 里加一条，或打开管理后台。</p>',
     '</section>',
   ].join('\n');
 
-  return layout({ title: '说说', content: content, active: 'notes', path: '/notes.html', description: '零碎的日常记录' });
+  return layout({ title: '动态', content: content, active: 'notes', path: '/notes.html', description: '零碎的日常记录' });
 }
 
 function buildPhotos(albums) {

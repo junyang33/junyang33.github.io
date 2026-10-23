@@ -2,7 +2,7 @@
 title: Markdown 写法速查
 date: 2026-10-20
 category: 写作
-cover: /assets/images/mountain/3.jpg
+cover: /assets/images/covers/cover-news-black.webp
 tags: [写作, Markdown]
 summary: 本站支持的 Markdown 语法一览。既当速查表，也当渲染测试：标题、列表、引用、表格、代码、脚注和图片。
 ---

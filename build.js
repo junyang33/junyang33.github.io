@@ -715,7 +715,7 @@ function layout(opts) {
         '</p>'
       : '',
     '    <p class="footer-nav">',
-    '      <a href="/">首页</a><a href="/archive.html">文章</a><a href="/notes.html">说说</a>',
+    '      <a href="/">首页</a><a href="/archive.html">文章</a><a href="/notes.html">动态</a>',
     '      <a href="/photos.html">照片</a><a href="/links.html">友链</a>',
     '      <a href="/about.html">关于</a><a href="/search.html">搜索</a><a href="#top">回到顶部</a>',
     '    </p>',

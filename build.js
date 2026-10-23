@@ -1106,11 +1106,6 @@ function buildTags(posts) {
 
   const tags = Object.keys(map).sort(function (a, b) { return map[b].length - map[a].length; });
 
-  const cloud = tags.length
-    ? '<p class="tag-cloud">' + tags.map(function (t) {
-        return '<a href="#' + tagId(t) + '">' + esc(t) + '<span>' + map[t].length + '</span></a>';
-      }).join('') + '</p>'
-    : '';
 
   const body = tags.map(function (t) {
     const rows = map[t].map(function (p) {
@@ -1129,7 +1124,7 @@ function buildTags(posts) {
 
   const content = '<h1 class="page-title">标签</h1>\n' +
     '<p class="page-desc">共 ' + tags.length + ' 个标签。</p>\n' +
-    cloud + '\n' + (tags.length ? body : '<p class="empty">还没有标签。</p>');
+    (tags.length ? body : '<p class="empty">还没有标签。</p>');
 
   return layout({ title: '标签', content: content, active: 'tags', path: '/tags.html' });
 }

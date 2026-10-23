@@ -1113,12 +1113,32 @@ function buildTags(posts) {
 function buildCategories(posts) {
   const map = {};
   posts.forEach(function (p) {
-    (map[p.category] = map[p.category] || []).push(p);
+    const key = p.category || '未分类';
+    (map[key] = map[key] || []).push(p);
   });
 
-  const names = Object.keys(map).sort(function (a, b) { return map[b].length - map[a].length; });
+  const names = Object.keys(map).sort(function (a, b) {
+    return map[b].length - map[a].length || a.localeCompare(b);
+  });
 
-  const body = names.map(function (name) {
+  const cards = names.map(function (name) {
+    const id = encodeURIComponent(name);
+    return [
+      '  <a class="cat-card" href="#' + id + '">',
+      '    <span class="cat-icon" aria-hidden="true">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M4 7a2 2 0 0 1 2-2h3.4l1.8 2.4H18a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>' +
+        '<path d="M4 9.6h16"/></svg></span>',
+      '    <span class="cat-body">',
+      '      <strong class="cat-name">' + esc(name) + '</strong>',
+      '      <span class="cat-count">' + map[name].length + ' 篇文章</span>',
+      '    </span>',
+      '    <span class="cat-arrow" aria-hidden="true">›</span>',
+      '  </a>',
+    ].join('\n');
+  }).join('\n');
+
+  const sections = names.map(function (name) {
     const rows = map[name].map(function (p) {
       return '<li><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a>' +
         '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) + '</time></li>';
@@ -1136,7 +1156,9 @@ function buildCategories(posts) {
 
   const content = '<h1 class="page-title">分类</h1>\n' +
     '<p class="page-desc">共 ' + names.length + ' 个分类，' + posts.length + ' 篇文章。</p>\n' +
-    (names.length ? body : '<p class="empty">还没有分类。在文章的 front matter 里写 <code>category: 分类名</code>。</p>');
+    (names.length
+      ? '<div class="cat-grid">\n' + cards + '\n</div>\n' + '<div class="cat-detail">' + sections + '</div>'
+      : '<p class="empty">还没有分类。在文章的 front matter 里写 <code>category: 分类名</code>。</p>');
 
   return layout({ title: '分类', content: content, active: 'archive', path: '/categories.html' });
 }

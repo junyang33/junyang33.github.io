@@ -4401,3 +4401,165 @@ body.has-hero .nav .dropdown-toggle {
   }
   .post-item h2 { font-size: 1.15rem !important; }
 }
+/* ==========================================================================
+   v34：归档页时间轴样式
+   ========================================================================== */
+
+.timeline {
+  margin-top: 22px;
+  padding: 6px 0 10px;
+  border-radius: 18px;
+}
+
+.tl-year { border: 0; }
+.tl-year + .tl-year { margin-top: 8px; }
+
+.tl-head {
+  display: grid;
+  grid-template-columns: 96px 22px 1fr auto;
+  align-items: center;
+  gap: 0;
+  padding: 12px 18px;
+  background: var(--glass-soft);
+  border-radius: 14px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.tl-head::-webkit-details-marker { display: none; }
+
+.tl-year-num {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  text-align: right;
+  padding-right: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tl-node {
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--bg);
+  justify-self: center;
+}
+
+.tl-count {
+  padding-left: 18px;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.tl-caret {
+  justify-self: end;
+  width: 9px;
+  height: 9px;
+  border-right: 1.6px solid var(--ink-3);
+  border-bottom: 1.6px solid var(--ink-3);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.25s ease;
+}
+.tl-year[open] .tl-caret { transform: rotate(225deg) translateY(-2px); }
+
+/* 列表 */
+.tl-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 4px;
+}
+
+.tl-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px 22px 96px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0;
+  padding: 9px 18px;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+.tl-item:hover { background: var(--glass-soft); }
+
+/* 竖直虚线 */
+.tl-item::before {
+  content: "";
+  position: absolute;
+  left: calc(18px + 96px + 10.5px);
+  top: 0;
+  bottom: 0;
+  border-left: 1.5px dotted var(--stroke);
+}
+
+.tl-date {
+  text-align: right;
+  padding-right: 16px;
+  font-size: 0.82rem;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.tl-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  justify-self: center;
+  position: relative;
+  z-index: 1;
+}
+.tl-item:hover .tl-dot { background: var(--accent); }
+
+.tl-cat {
+  margin-left: 14px;
+  padding: 2px 9px;
+  font-size: 0.72rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  white-space: nowrap;
+  justify-self: start;
+}
+.tl-cat.is-empty { background: none; }
+
+.tl-title {
+  padding: 0 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tl-item:hover .tl-title { color: var(--accent); }
+
+.tl-tags {
+  font-size: 0.76rem;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+@media (max-width: 900px) {
+  .tl-head { grid-template-columns: 72px 20px 1fr auto; }
+  .tl-year-num { font-size: 1.3rem; padding-right: 12px; }
+  .tl-item {
+    grid-template-columns: 60px 20px minmax(0, 1fr);
+    grid-template-areas:
+      "date dot cat"
+      ".    .   title"
+      ".    .   tags";
+    row-gap: 4px;
+    padding: 10px 12px;
+  }
+  .tl-item::before { left: calc(12px + 60px + 9.5px); }
+  .tl-date { grid-area: date; padding-right: 12px; }
+  .tl-dot { grid-area: dot; }
+  .tl-cat { grid-area: cat; margin-left: 12px; }
+  .tl-title { grid-area: title; padding: 0 12px; white-space: normal; }
+  .tl-tags { grid-area: tags; padding: 0 12px; max-width: none; }
+}

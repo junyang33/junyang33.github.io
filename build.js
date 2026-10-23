@@ -1033,29 +1033,43 @@ function buildPost(post, all) {
 function buildArchive(posts) {
   const byYear = {};
   posts.forEach(function (p) {
-    const y = (p.date || '').slice(0, 4) || '未标注日期';
+    const y = (p.date || '').slice(0, 4) || '未标注';
     (byYear[y] = byYear[y] || []).push(p);
   });
 
   const years = Object.keys(byYear).sort(function (a, b) { return b.localeCompare(a); });
 
-  const html = years.map(function (y) {
+  const html = years.map(function (y, idx) {
     const rows = byYear[y].map(function (p) {
-      return '<li><time datetime="' + esc(p.date) + '">' + esc(String(p.date).slice(5)) + '</time>' +
-        '<a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a></li>';
-    }).join('\n        ');
+      const tags = (p.tags || []).slice(0, 3).map(function (t) { return '#' + esc(t); }).join(' ');
+      return [
+        '      <li class="tl-item">',
+        '        <time class="tl-date" datetime="' + esc(p.date) + '">' + esc(String(p.date).slice(5)) + '</time>',
+        '        <span class="tl-dot" aria-hidden="true"></span>',
+        p.category ? '        <span class="tl-cat">' + esc(p.category) + '</span>' : '        <span class="tl-cat is-empty"></span>',
+        '        <a class="tl-title" href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a>',
+        '        <span class="tl-tags">' + tags + '</span>',
+        '      </li>',
+      ].join('\n');
+    }).join('\n');
+
     return [
-      '<section class="year-group">',
-      '  <h2>' + esc(y) + ' <span class="count">' + byYear[y].length + '</span></h2>',
-      '  <ul class="archive-list">',
-      '        ' + rows,
+      '<details class="tl-year" open data-year="' + esc(y) + '">',
+      '  <summary class="tl-head">',
+      '    <span class="tl-year-num">' + esc(y) + '</span>',
+      '    <span class="tl-node" aria-hidden="true"></span>',
+      '    <span class="tl-count">' + byYear[y].length + ' 篇文章</span>',
+      '    <span class="tl-caret" aria-hidden="true"></span>',
+      '  </summary>',
+      '  <ul class="tl-list">',
+      rows,
       '  </ul>',
-      '</section>',
+      '</details>',
     ].join('\n');
   }).join('\n');
 
   const content = '<h1 class="page-title">归档</h1>\n<p class="page-desc">共 ' + posts.length +
-    ' 篇文章，按年份排列。</p>\n' + (posts.length ? html : '<p class="empty">还没有文章。</p>');
+    ' 篇文章，按年份排列。</p>\n' + (posts.length ? '<div class="timeline">\n' + html + '\n</div>' : '<p class="empty">还没有文章。</p>');
 
   return layout({ title: '归档', content: content, active: 'archive', path: '/archive.html' });
 }

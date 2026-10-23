@@ -4563,3 +4563,50 @@ body.has-hero .nav .dropdown-toggle {
   .tl-title { grid-area: title; padding: 0 12px; white-space: normal; }
   .tl-tags { grid-area: tags; padding: 0 12px; max-width: none; }
 }
+/* ==========================================================================
+   v35：归档时间轴加强对比
+   ========================================================================== */
+
+/* 时间轴用更深的点线 */
+.tl-item::before {
+  border-left: 2px dotted color-mix(in srgb, var(--ink-3) 62%, transparent) !important;
+}
+
+/* 圆点加深、加白圈把它从线上托起来 */
+.tl-dot {
+  width: 8px !important;
+  height: 8px !important;
+  background: color-mix(in srgb, var(--ink) 55%, var(--ink-3)) !important;
+  box-shadow: 0 0 0 3px var(--bg);
+}
+.tl-item:hover .tl-dot { box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* 年份节点更醒目 */
+.tl-node {
+  width: 13px !important;
+  height: 13px !important;
+  border-width: 2.5px !important;
+  box-shadow: 0 0 0 3px var(--bg);
+}
+
+/* 归档内容放到纯白底上，和参考图一致 */
+body[data-page="archive"] .timeline {
+  background: #ffffff;
+  padding: 10px 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--ink) 7%, transparent);
+  box-shadow: 0 2px 12px rgba(20, 30, 25, 0.04);
+}
+body[data-page="archive"] .tl-head {
+  background: color-mix(in srgb, var(--ink) 5%, #ffffff);
+}
+body[data-page="archive"] .tl-date { color: color-mix(in srgb, var(--ink-3) 88%, var(--ink)); }
+
+[data-theme="dark"] body[data-page="archive"] .timeline {
+  background: color-mix(in srgb, var(--bg) 70%, #000);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+[data-theme="dark"] body[data-page="archive"] .tl-head {
+  background: rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .tl-dot { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bg) 70%, #000); }

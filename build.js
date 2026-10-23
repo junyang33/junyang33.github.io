@@ -39,6 +39,7 @@ const SITE = {
   carousel: rawConfig.carousel || { enabled: false },
   notice: rawConfig.notice || { enabled: false },
   hero: rawConfig.hero || {},
+  defaultCover: rawConfig.defaultCover || '/assets/images/banner/1.jpg',
   profile: rawConfig.profile || { enabled: true },
   weather: rawConfig.weather || { enabled: false },
 };
@@ -364,6 +365,7 @@ function loadPosts() {
         updated: isoDate(parsed.data.updated),
         tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : parsed.data.tags ? [parsed.data.tags] : [],
         category: parsed.data.category || '未分类',
+        cover: parsed.data.cover || '',
         summary: parsed.data.summary || truncate(stripMd(parsed.body), 110),
         draft: String(parsed.data.draft || '').toLowerCase() === 'true',
         pinned: String(parsed.data.pinned || '').toLowerCase() === 'true',
@@ -741,25 +743,35 @@ function pageUrl(n) {
 
 function postCard(p) {
   const tags = p.tags.length
-    ? '      <ul class="tags">' +
+    ? '        <ul class="tags">' +
       p.tags
         .map(function (t) {
-          return '<li><a href="/tags.html#' + tagId(t) + '">' + esc(t) + '</a></li>';
+          return '<li><a href="/tags.html#' + tagId(t) + '">#' + esc(t) + '</a></li>';
         })
         .join('') +
       '</ul>'
     : '';
 
+  const cover = p.cover || SITE.defaultCover || '/assets/images/banner/1.jpg';
+  const url = '/posts/' + p.slug + '.html';
+
   return [
     '    <article class="post-item">',
-    '      <h2><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a></h2>',
-    '      <p class="meta">' + (p.pinned ? '<span class="pin">置顶</span>' : '') +
-      '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) +
-      '</time><span class="dot">·</span>约 ' + p.minutes + ' 分钟</p>',
-    '      <p class="summary">' + esc(p.summary) + '</p>',
+    '      <div class="post-body">',
+    '        <h2><a href="' + url + '">' + esc(p.title) + '</a></h2>',
+    '        <p class="meta">' + (p.pinned ? '<span class="pin">置顶</span>' : '') +
+      '<span class="meta-item">' + icon('days') +
+        '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) + '</time></span>' +
+      '<span class="meta-item">' + icon('cat') + '<span>' + esc(p.category || '未分类') + '</span></span>' +
+      '<span class="meta-item">约 ' + p.minutes + ' 分钟</span></p>',
+    '        <p class="summary">' + esc(p.summary) + '</p>',
     tags,
+    '      </div>',
+    '      <a class="post-cover" href="' + url + '" tabindex="-1" aria-hidden="true">',
+    '        <img src="' + esc(cover) + '" alt="" loading="lazy">',
+    '      </a>',
     '    </article>',
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 function buildIndex(posts, page, totalPages) {

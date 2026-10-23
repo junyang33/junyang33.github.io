@@ -2,6 +2,7 @@
 title: 静态博客到底省掉了什么
 date: 2026-10-18
 category: 思考
+cover: /assets/images/city-night/2.jpg
 tags: [静态博客, 思考]
 summary: 静态和动态不是审美之争，是成本结构的差别。把每一项成本摊开看，个人博客的选择其实很清楚。
 ---

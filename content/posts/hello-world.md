@@ -4,6 +4,7 @@ date: 2026-10-21
 updated: 2026-10-21
 pinned: true
 category: 建站
+cover: /assets/images/banner/1.jpg
 tags: [建站, 静态博客, 说明]
 summary: 折腾了两天，终于有了一个自己说了算的地方。这篇文章记录它是什么、为什么这么做，以及我打算在这里写什么。
 ---

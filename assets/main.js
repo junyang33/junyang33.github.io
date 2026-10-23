@@ -708,6 +708,8 @@
         ci++;
         out.textContent = line.slice(0, ci);
         if (ci >= line.length) {
+          /* 只有一句时打完就停住，不再删除重打 */
+          if (lines.length === 1) return;
           deleting = true;
           timer = setTimeout(tick, 1900);
           return;

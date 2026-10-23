@@ -3918,3 +3918,170 @@ body.has-hero .nav-search .search-ico { color: rgba(255, 255, 255, 0.8); }
   .widget-profile { padding: 18px 14px 16px; }
   .pf-avatar { width: 72px; height: 72px; }
 }
+/* ==========================================================================
+   v30：音乐挂件改版（封面 + 进度 + 大播放键）
+   ========================================================================== */
+
+.widget-music .w-count { margin-left: auto; font-size: 0.68rem; color: var(--ink-3); }
+
+.mw-main {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 12px;
+}
+
+.mw-cover {
+  width: 54px;
+  height: 54px;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--bg-2);
+  box-shadow: 0 6px 18px rgba(20, 30, 25, 0.18);
+}
+.mw-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.widget-music.is-playing .mw-cover { animation: spin 12s linear infinite; }
+
+.mw-info { min-width: 0; flex: 1; }
+
+.mw-title-row { display: flex; align-items: center; gap: 6px; }
+.mw-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mw-note { font-size: 0.7rem; color: var(--ink-3); flex: none; }
+
+.mw-sub {
+  display: block;
+  margin-top: 1px;
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+}
+.mw-time {
+  font-size: 0.66rem;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+.mw-vol {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  color: var(--ink-3);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.mw-vol svg { width: 15px; height: 15px; display: block; }
+.mw-vol:hover, .mw-vol.is-on { color: var(--accent); }
+
+.mw-progress-row .mw-progress {
+  flex: 1;
+  height: 3px;
+  margin: 0;
+  background: var(--stroke-soft);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.mw-progress-row .mw-progress i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.15s linear;
+}
+
+/* 底部控制条 */
+.mw-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding-top: 11px;
+  border-top: 1px solid var(--stroke-soft);
+}
+
+.mw-ico {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--ink-3);
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.mw-ico svg { width: 15px; height: 15px; }
+.mw-ico:hover { color: var(--accent); background: var(--glass-soft); }
+.mw-ico.is-on { color: var(--accent); }
+
+.mw-play-big {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.5, 0.64, 1), background 0.2s ease;
+}
+.mw-play-big svg { width: 20px; height: 20px; }
+.mw-play-big:hover { transform: scale(1.06); }
+.mw-play-big .i-pause { display: none; }
+.widget-music.is-playing .mw-play-big .i-play { display: none; }
+.widget-music.is-playing .mw-play-big .i-pause { display: block; }
+
+/* 播放列表 */
+.mw-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  max-height: 168px;
+  overflow-y: auto;
+  border-top: 1px solid var(--stroke-soft);
+}
+.mw-list[hidden] { display: none; }
+.mw-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 6px;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.mw-track:hover { background: var(--glass-soft); }
+.mw-track.is-active { color: var(--accent); }
+.mw-track-i { width: 1.2em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.mw-track-t { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mw-track-a { color: var(--ink-3); font-size: 0.72rem; white-space: nowrap; }

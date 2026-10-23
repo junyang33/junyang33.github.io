@@ -253,17 +253,37 @@
     /* 侧栏挂件 */
     var mwTitle = $('#mwTitle');
     var mwSub = $('#mwSub');
-    var mwPlay = $('#mwPlay');
     var mwFill = $('#mwProgress i');
     var mwTime = $('#mwTime');
+    var widget = document.querySelector('.widget-music');
+    var mwCover = $('#mwCover');
+    var mwVol = $('#mwVol');
+
     if (mwTitle) mwTitle.textContent = title;
     if (mwSub) mwSub.textContent = sub;
-    if (mwPlay) {
-      mwPlay.textContent = icon;
-      mwPlay.setAttribute('aria-label', playing ? '暂停' : '播放');
-    }
     if (mwFill) mwFill.style.width = (ratio * 100).toFixed(2) + '%';
     if (mwTime) mwTime.textContent = fmtTime(cur) + ' / ' + fmtTime(dur);
+    if (mwCover && t.cover && mwCover.getAttribute('src') !== t.cover) mwCover.src = t.cover;
+
+    if (widget) {
+      widget.classList.toggle('is-playing', !!playing);
+      var mwPlayBtn = $('#mwPlay', widget);
+      if (mwPlayBtn) mwPlayBtn.setAttribute('aria-label', playing ? '暂停' : '播放');
+
+      var loopBtn = $('#mwLoop', widget);
+      if (loopBtn) loopBtn.classList.toggle('is-on', !!(musicAudio && musicAudio.loop));
+
+      if (mwVol) {
+        var muted = !!(musicAudio && (musicAudio.muted || musicAudio.volume === 0));
+        mwVol.innerHTML = muted ? VOL_ICON.mute : VOL_ICON.volume;
+        mwVol.setAttribute('aria-label', muted ? '取消静音' : '静音');
+        mwVol.classList.toggle('is-on', muted);
+      }
+
+      $$('.mw-track', widget).forEach(function (btn) {
+        btn.classList.toggle('is-active', Number(btn.getAttribute('data-index')) === mIndex);
+      });
+    }
   }
 
   function mSave() {
@@ -328,6 +348,23 @@
     mRender();
   }
 
+  var VOL_ICON = {
+    volume: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9.5a4 4 0 0 1 0 5"/></svg>',
+    mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="m17 9 4 6M21 9l-4 6"/></svg>',
+  };
+
+  function toggleLoop() {
+    if (!musicAudio) return;
+    musicAudio.loop = !musicAudio.loop;
+    mRender();
+  }
+
+  function toggleMute() {
+    if (!musicAudio) return;
+    musicAudio.muted = !musicAudio.muted;
+    mRender();
+  }
+
   function bindMusicControls(root) {
     if (!root) return;
     $$('[data-act]', root).forEach(function (btn) {
@@ -336,6 +373,14 @@
         if (act === 'play') mToggle();
         else if (act === 'next') mStep(1);
         else if (act === 'prev') mStep(-1);
+        else if (act === 'loop') toggleLoop();
+        else if (act === 'list') {
+          var listEl = document.getElementById('mwList');
+          if (!listEl) return;
+          var open = listEl.hidden;
+          listEl.hidden = !open;
+          btn.setAttribute('aria-expanded', String(open));
+        }
       });
     });
   }
@@ -414,6 +459,15 @@
         mSeekTo(bar, e.clientX);
       });
     }
+
+    var volBtn = $('#mwVol');
+    if (volBtn) volBtn.addEventListener('click', toggleMute);
+
+    $$('.mw-track', widget).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        mLoad(Number(btn.getAttribute('data-index')), 0, true);
+      });
+    });
 
     mRender();
   }

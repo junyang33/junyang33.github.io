@@ -1408,6 +1408,18 @@ function buildPhotos(albums) {
   return layout({ title: '照片', content: content, active: 'photos', path: '/photos.html', description: '相册与照片' });
 }
 
+/* 播放器图标 */
+const MUSIC_ICON = {
+  volume: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9.5a4 4 0 0 1 0 5"/></svg>',
+  mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="m17 9 4 6M21 9l-4 6"/></svg>',
+  repeat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l3 3-3 3"/><path d="M20 6H8a4 4 0 0 0-4 4v1"/><path d="M7 21l-3-3 3-3"/><path d="M4 18h12a4 4 0 0 0 4-4v-1"/></svg>',
+  prev: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h2v12H7zM19 6v12l-9-6z"/></svg>',
+  next: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 6h2v12h-2zM5 6l9 6-9 6z"/></svg>',
+  play: '<svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>',
+  pause: '<svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5.5" width="3.6" height="13" rx="1"/><rect x="13.4" y="5.5" width="3.6" height="13" rx="1"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h11M4 12h11M4 17h7"/><path d="M19 9v7"/><circle cx="17.4" cy="17.6" r="1.8"/></svg>',
+};
+
 /* ============================ 首页侧栏挂件 ============================ */
 
 const ICON = {
@@ -1581,26 +1593,49 @@ function widgetMusic() {
   if (!music) return '';
 
   const first = music.tracks[0];
+  const cover = first.cover || '/assets/images/music/cover.jpg';
+
+  const list = music.tracks
+    .map(function (t, i) {
+      return '    <li><button class="mw-track" type="button" data-index="' + i + '">' +
+        '<span class="mw-track-i">' + (i + 1) + '</span>' +
+        '<span class="mw-track-t">' + esc(t.title) + '</span>' +
+        '<span class="mw-track-a">' + esc(t.artist || '') + '</span>' +
+        '</button></li>';
+    })
+    .join('\n');
 
   return [
     '<section class="widget widget-music">',
     '  <header class="widget-head"><span class="w-bar"></span><h2>音乐</h2>',
     '    <span class="w-count" id="mwCount">' + music.tracks.length + ' 首</span>',
     '  </header>',
-    '  <div class="mw-now">',
-    '    <span class="music-disc lg" aria-hidden="true">♪</span>',
-    '    <div class="mw-meta">',
-    '      <strong class="mw-title" id="mwTitle">' + esc(first.title) + '</strong>',
+    '  <div class="mw-main">',
+    '    <div class="mw-cover"><img id="mwCover" src="' + esc(cover) + '" alt="" loading="lazy"></div>',
+    '    <div class="mw-info">',
+    '      <div class="mw-title-row">',
+    '        <strong class="mw-title" id="mwTitle">' + esc(first.title) + '</strong>',
+    '        <span class="mw-note" aria-hidden="true">♪</span>',
+    '      </div>',
     '      <span class="mw-sub" id="mwSub">' + esc(first.artist || '') + '</span>',
+    '      <div class="mw-progress-row">',
+    '        <span class="mw-time" id="mwTime">0:00 / 0:00</span>',
+    '        <button class="mw-vol" id="mwVol" type="button" aria-label="静音">' + MUSIC_ICON.volume + '</button>',
+    '        <div class="mw-progress" id="mwProgress" role="slider" tabindex="0" aria-label="播放进度"><i></i></div>',
+    '      </div>',
     '    </div>',
     '  </div>',
-    '  <div class="mw-progress" id="mwProgress" role="slider" tabindex="0" aria-label="播放进度"><i></i></div>',
-    '  <div class="mw-controls">',
-    '    <button class="mw-btn" type="button" data-act="prev" aria-label="上一首">‹‹</button>',
-    '    <button class="mw-btn mw-play" type="button" id="mwPlay" data-act="play" aria-label="播放">▶</button>',
-    '    <button class="mw-btn" type="button" data-act="next" aria-label="下一首">››</button>',
-    '    <span class="mw-time" id="mwTime">0:00 / 0:00</span>',
+    '  <div class="mw-footer">',
+    '    <button class="mw-ico" id="mwLoop" type="button" data-act="loop" aria-label="单曲循环" title="单曲循环">' + MUSIC_ICON.repeat + '</button>',
+    '    <button class="mw-ico" type="button" data-act="prev" aria-label="上一首" title="上一首">' + MUSIC_ICON.prev + '</button>',
+    '    <button class="mw-play-big" id="mwPlay" type="button" data-act="play" aria-label="播放">' +
+      MUSIC_ICON.play + MUSIC_ICON.pause + '</button>',
+    '    <button class="mw-ico" type="button" data-act="next" aria-label="下一首" title="下一首">' + MUSIC_ICON.next + '</button>',
+    '    <button class="mw-ico" id="mwListBtn" type="button" data-act="list" aria-expanded="false" aria-label="播放列表" title="播放列表">' + MUSIC_ICON.list + '</button>',
     '  </div>',
+    '  <ul class="mw-list" id="mwList" hidden>',
+    list,
+    '  </ul>',
     '</section>',
   ].join('\n');
 }

@@ -1647,7 +1647,6 @@ function widgetCalendar(posts) {
     '<section class="widget widget-calendar">',
     '  <header class="widget-head"><span class="w-bar"></span><h2>站点日历</h2></header>',
     '  <div class="cal" id="calendar"></div>',
-    '  <div class="cal-heat" id="calHeat" aria-hidden="true"></div>',
     '  <div class="cal-list" id="calList"></div>',
     '  <script type="application/json" id="calendarData">' +
       JSON.stringify(data).replace(/</g, '\\u003c') +

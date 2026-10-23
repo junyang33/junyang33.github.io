@@ -1057,7 +1057,6 @@
       var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
       var selected = null;
 
-      var heatEl = document.getElementById('calHeat');
       var listEl = document.getElementById('calList');
 
       /* 点击某天后，在下方列出这一天的文章 */
@@ -1113,26 +1112,7 @@
           '<div class="cal-grid">' + cells.join('') + '</div>';
       };
 
-      /* 近 12 周的热力条 */
-      var renderHeat = function () {
-        if (!heatEl) return;
-        var cells = [];
-        var cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        cursor.setDate(cursor.getDate() - 83);
-
-        for (var i = 0; i < 84; i++) {
-          var key = keyOf(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
-          var n = (byDate[key] || []).length;
-          var lvl = n === 0 ? 0 : n === 1 ? 2 : 3;
-          cells.push('<i class="cal-h l' + lvl + '" title="' + key + ' · ' + n + ' 篇"></i>');
-          cursor.setDate(cursor.getDate() + 1);
-        }
-
-        heatEl.innerHTML = cells.join('');
-      };
-
       renderCalendar();
-      renderHeat();
 
       calEl.addEventListener('click', function (e) {
         var nav = e.target.closest('.cal-nav');

@@ -58,7 +58,6 @@ const NAV = [
   { href: '/archive.html', label: '文章', key: 'archive', icon: 'file' },
   { href: '/notes.html', label: '说说', key: 'notes', icon: 'chat' },
   { href: '/photos.html', label: '照片', key: 'photos', icon: 'image' },
-  { href: '/tags.html', label: '标签', key: 'tags', icon: 'tag' },
   { href: '/links.html', label: '友链', key: 'links', icon: 'users' },
   { href: '/about.html', label: '关于', key: 'about', icon: 'user' },
 ];
@@ -143,7 +142,6 @@ function truncate(s, n) {
   return s.length > n ? s.slice(0, n) + '…' : s;
 }
 
-const tagId = (t) => 'tag-' + encodeURIComponent(t);
 
 function tagSlugText(t) {
   return '#' + t;
@@ -719,7 +717,7 @@ function layout(opts) {
       : '',
     '    <p class="footer-nav">',
     '      <a href="/">首页</a><a href="/archive.html">文章</a><a href="/notes.html">说说</a>',
-    '      <a href="/photos.html">照片</a><a href="/tags.html">标签</a><a href="/links.html">友链</a>',
+    '      <a href="/photos.html">照片</a><a href="/links.html">友链</a>',
     '      <a href="/about.html">关于</a><a href="/search.html">搜索</a><a href="#top">回到顶部</a>',
     '    </p>',
     '    <p>© ' + SITE.startYear + '–' + new Date().getFullYear() + ' ' + esc(SITE.author) + '</p>',
@@ -742,15 +740,6 @@ function pageUrl(n) {
 }
 
 function postCard(p) {
-  const tags = p.tags.length
-    ? '        <ul class="tags">' +
-      p.tags
-        .map(function (t) {
-          return '<li><a href="/tags.html#' + tagId(t) + '">#' + esc(t) + '</a></li>';
-        })
-        .join('') +
-      '</ul>'
-    : '';
 
   const cover = p.cover || SITE.defaultCover || '/assets/images/banner/1.jpg';
   const url = '/posts/' + p.slug + '.html';
@@ -765,7 +754,6 @@ function postCard(p) {
       '<span class="meta-item">' + icon('cat') + '<span>' + esc(p.category || '未分类') + '</span></span>' +
       '<span class="meta-item">约 ' + p.minutes + ' 分钟</span></p>',
     '        <p class="summary">' + esc(p.summary) + '</p>',
-    tags,
     '      </div>',
     '      <a class="post-cover" href="' + url + '" tabindex="-1" aria-hidden="true">',
     '        <img src="' + esc(cover) + '" alt="" loading="lazy">',
@@ -941,15 +929,6 @@ function buildPost(post, all) {
       : '',
   ].filter(Boolean).join(' ');
 
-  const tags = post.tags.length
-    ? '<ul class="tags">' +
-      post.tags
-        .map(function (t) {
-          return '<li><a href="/tags.html#' + tagId(t) + '">' + esc(t) + '</a></li>';
-        })
-        .join('') +
-      '</ul>'
-    : '';
 
   const tocHtml = renderToc(post.toc);
 
@@ -982,7 +961,6 @@ function buildPost(post, all) {
     '  <div class="post-hero-inner">',
     '    <h1>' + esc(post.title) + '</h1>',
     '    <p class="meta">' + meta + '</p>',
-    tags ? tags : '',
     '  </div>',
     '</header>',
     '<div class="post-shell">',
@@ -1096,37 +1074,6 @@ function buildCategoryPage(allPosts, name, id) {
     active: 'archive',
     path: '/category/' + id + '.html',
   });
-}
-
-function buildTags(posts) {
-  const map = {};
-  posts.forEach(function (p) {
-    p.tags.forEach(function (t) { (map[t] = map[t] || []).push(p); });
-  });
-
-  const tags = Object.keys(map).sort(function (a, b) { return map[b].length - map[a].length; });
-
-
-  const body = tags.map(function (t) {
-    const rows = map[t].map(function (p) {
-      return '<li><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a>' +
-        '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) + '</time></li>';
-    }).join('\n        ');
-    return [
-      '<section class="tag-group" id="' + tagId(t) + '">',
-      '  <h2>' + esc(tagSlugText(t)) + ' <span class="count">' + map[t].length + '</span></h2>',
-      '  <ul class="tag-posts">',
-      '        ' + rows,
-      '  </ul>',
-      '</section>',
-    ].join('\n');
-  }).join('\n');
-
-  const content = '<h1 class="page-title">标签</h1>\n' +
-    '<p class="page-desc">共 ' + tags.length + ' 个标签。</p>\n' +
-    (tags.length ? body : '<p class="empty">还没有标签。</p>');
-
-  return layout({ title: '标签', content: content, active: 'tags', path: '/tags.html' });
 }
 
 function categoryList(posts) {
@@ -1313,7 +1260,7 @@ function buildFeed(posts) {
 }
 
 function buildSitemap(posts) {
-  const pages = ['/', '/archive.html', '/tags.html', '/categories.html', '/notes.html', '/photos.html', '/search.html', '/links.html', '/about.html'];
+  const pages = ['/', '/archive.html', '/categories.html', '/notes.html', '/photos.html', '/search.html', '/links.html', '/about.html'];
   const latest = posts.length ? posts[0].date : '';
 
   const rows = pages.map(function (u) {
@@ -1738,26 +1685,10 @@ function widgetCategories(stats) {
   ].filter(Boolean).join('\n');
 }
 
-function widgetTags(stats) {
-  if (!stats.tagList.length) return '';
-  const pills = stats.tagList.slice(0, 12).map(function (t) {
-    return '<a href="/tags.html#' + encodeURIComponent(t.name) + '">' + esc(t.name) + '<i>' + t.count + '</i></a>';
-  }).join('');
-
-  return [
-    '<section class="widget widget-tags">',
-    '  <header class="widget-head"><span class="w-bar"></span><h2>标签</h2></header>',
-    '  <div class="w-pills">' + pills + '</div>',
-    stats.tagList.length > 12 ? '  <a class="w-more" href="/tags.html">更多 →</a>' : '',
-    '</section>',
-  ].filter(Boolean).join('\n');
-}
-
 function widgetStats(stats) {
   const rows = [
     ['post', '文章', stats.posts, ''],
     ['cat', '分类', stats.categories, ''],
-    ['tag', '标签', stats.tags, ''],
     ['words', '总字数', stats.chars.toLocaleString('en-US'), ''],
     /* 下面两项带 data-since，打开页面时由 JS 按当天时间重算 */
     ['days', '运行时长', stats.running + ' 天',
@@ -1783,7 +1714,7 @@ function widgetStats(stats) {
 function buildSidebar(postStats, posts) {
   return {
     left: [widgetProfile(), widgetNotice(), widgetCalendar(posts || []), widgetStats(postStats)].filter(Boolean).join('\n'),
-    right: [widgetWeather(), widgetMusic(), widgetCategories(postStats), widgetTags(postStats)].filter(Boolean).join('\n'),
+    right: [widgetWeather(), widgetMusic(), widgetCategories(postStats)].filter(Boolean).join('\n'),
   };
 }
 
@@ -1852,7 +1783,6 @@ function main() {
 
   // 独立页面
   writeFile('archive.html', buildArchive(posts));
-  writeFile('tags.html', buildTags(posts));
   writeFile('categories.html', buildCategories(posts));
 
   categoryList(posts).forEach(function (c) {

@@ -29,10 +29,15 @@
     } catch (e) {}
   }
 
+  var THEME_ICON = {
+    sun: '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>',
+    moon: '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>',
+  };
+
   function applyTheme(theme) {
     root.dataset.theme = theme;
     if (toggle) {
-      toggle.textContent = theme === 'dark' ? '☀' : '◐';
+      toggle.innerHTML = theme === 'dark' ? THEME_ICON.sun : THEME_ICON.moon;
       toggle.setAttribute('title', theme === 'dark' ? '切换到浅色' : '切换到深色');
     }
     try { localStorage.setItem('theme', theme); } catch (e) {}
@@ -72,6 +77,60 @@
   }
 
   applyFont(scaleIdx);
+
+  /* ============================ 导航 ============================ */
+
+  var dropdowns = $$('.dropdown');
+
+  function closeDropdowns(except) {
+    dropdowns.forEach(function (d) {
+      if (d === except) return;
+      d.classList.remove('is-open');
+      var btn = $('.dropdown-toggle', d);
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  dropdowns.forEach(function (d) {
+    var btn = $('.dropdown-toggle', d);
+    if (!btn) return;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = d.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(open));
+      closeDropdowns(d);
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.dropdown')) return;
+    closeDropdowns(null);
+  });
+
+  var menuBtn = $('#menuBtn');
+  var mobileMenu = $('#mobileMenu');
+
+  function setMobileMenu(open) {
+    if (!menuBtn || !mobileMenu) return;
+    mobileMenu.hidden = !open;
+    menuBtn.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('menu-open', open);
+  }
+
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', function () {
+      setMobileMenu(mobileMenu.hidden);
+    });
+    mobileMenu.addEventListener('click', function (e) {
+      if (e.target.closest('a')) setMobileMenu(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !mobileMenu.hidden) setMobileMenu(false);
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 1080 && !mobileMenu.hidden) setMobileMenu(false);
+    });
+  }
 
   /* ============================ 灯箱 ============================ */
 
@@ -318,6 +377,12 @@
 
       mLoad(startIndex, startAt, false);
       mRestored = true;
+
+      /* 页头音乐按钮 */
+      var headerMusicBtn = $('#musicBtn');
+      if (headerMusicBtn) {
+        headerMusicBtn.addEventListener('click', function () { mToggle(); });
+      }
 
       window.addEventListener('pagehide', mSave);
       document.addEventListener('visibilitychange', function () {
@@ -1100,10 +1165,24 @@
         document.body.setAttribute('data-page', doc.body.getAttribute('data-page') || '');
 
         var path = target.pathname;
-        $$('.nav a').forEach(function (a) {
+        var inMore = false;
+
+        $$('.nav .nav-link').forEach(function (a) {
+          if (a.classList.contains('dropdown-toggle')) return;
           var ap = new URL(a.href, location.origin).pathname;
-          a.classList.toggle('active', ap === path || (ap !== '/' && path.indexOf(ap) === 0));
+          var hit = ap === path || (ap !== '/' && path.indexOf(ap) === 0);
+          a.classList.toggle('active', hit);
         });
+
+        $$('#navMore .dropdown-item').forEach(function (a) {
+          var ap = new URL(a.href, location.origin).pathname;
+          if (ap === path) inMore = true;
+        });
+
+        var moreToggle = document.querySelector('.nav #navMore .dropdown-toggle');
+        if (moreToggle) moreToggle.classList.toggle('active', inMore);
+        closeDropdowns(null);
+        setMobileMenu(false);
 
         if (push) {
           try { history.pushState({ soft: true }, '', target.href); } catch (e) {}

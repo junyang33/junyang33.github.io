@@ -42,13 +42,40 @@ const SITE = {
 };
 
 const NAV = [
-  { href: '/', label: '首页', key: 'home' },
-  { href: '/archive.html', label: '文章', key: 'archive' },
-  { href: '/notes.html', label: '说说', key: 'notes' },
-  { href: '/photos.html', label: '照片', key: 'photos' },
-  { href: '/tags.html', label: '标签', key: 'tags' },
-  { href: '/about.html', label: '关于', key: 'about' },
+  { href: '/', label: '首页', key: 'home', icon: 'home' },
+  { href: '/archive.html', label: '文章', key: 'archive', icon: 'file' },
+  { href: '/notes.html', label: '说说', key: 'notes', icon: 'chat' },
+  { href: '/photos.html', label: '照片', key: 'photos', icon: 'image' },
+  { href: '/tags.html', label: '标签', key: 'tags', icon: 'tag' },
+  { href: '/links.html', label: '友链', key: 'links', icon: 'users' },
+  { href: '/about.html', label: '关于', key: 'about', icon: 'user' },
 ];
+
+/* 下拉菜单里的次要入口 */
+const NAV_MORE = [
+  { href: '/categories.html', label: '分类', key: 'categories', icon: 'folder' },
+  { href: '/search.html', label: '搜索', key: 'search', icon: 'search' },
+  { href: '/feed.xml', label: 'RSS 订阅', key: 'rss', icon: 'rss', external: true },
+];
+
+const NAV_ICON = {
+  home: '<path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-4v-7H9v7H5a1 1 0 0 1-1-1z"/>',
+  file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/>',
+  chat: '<path d="M4 5h16v11H9l-4 4z"/>',
+  image: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m5 17 5-5 4 4 3-2 3 3"/>',
+  tag: '<path d="M4 11V5a1 1 0 0 1 1-1h6l9 9-7 7z"/><circle cx="8.5" cy="8.5" r="1.3"/>',
+  users: '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 5.6M17 20a6 6 0 0 0-2-4.5"/>',
+  user: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+  folder: '<path d="M4 6a2 2 0 0 1 2-2h4l2 3h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>',
+  rss: '<path d="M5 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/>',
+  music: '<circle cx="7" cy="18" r="2.6"/><circle cx="18" cy="16" r="2.6"/><path d="M9.6 18V7l11-2v11"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
+  moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+};
 
 let POST_COUNT = 0;
 
@@ -388,11 +415,38 @@ function loadAlbums() {
 
 /* ============================ 模板片段 ============================ */
 
-function navHtml(active) {
-  return NAV.map(function (item) {
-    const cls = active === item.key ? ' class="active"' : '';
-    return '<a href="' + item.href + '"' + cls + '>' + item.label + '</a>';
-  }).join('\n        ');
+function ni(name, cls) {
+  return '<svg class="' + (cls || 'ni') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
+    ' stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    (NAV_ICON[name] || '') + '</svg>';
+}
+
+function navHtml(active, idSuffix) {
+  const links = NAV.map(function (item) {
+    const cls = 'nav-link' + (active === item.key ? ' active' : '');
+    return '<a class="' + cls + '" href="' + item.href + '">' + ni(item.icon) +
+      '<span>' + item.label + '</span></a>';
+  });
+
+  const more = NAV_MORE.map(function (item) {
+    const ext = item.external ? ' target="_blank" rel="noopener"' : '';
+    return '<a class="dropdown-item" href="' + item.href + '"' + ext + '>' + ni(item.icon) +
+      '<span>' + item.label + '</span></a>';
+  }).join('');
+
+  const hasActiveMore = NAV_MORE.some(function (i) { return i.key === active; });
+
+  links.push(
+    '<div class="dropdown" id="navMore' + (idSuffix || '') + '">' +
+      '<button class="nav-link dropdown-toggle' + (hasActiveMore ? ' active' : '') + '" type="button"' +
+        ' aria-expanded="false" aria-haspopup="true">' +
+        ni('folder') + '<span>更多</span>' + ni('chevron', 'ni ni-chevron') +
+      '</button>' +
+      '<div class="dropdown-menu">' + more + '</div>' +
+    '</div>'
+  );
+
+  return links.join('\n        ');
 }
 
 function analyticsHtml() {
@@ -594,15 +648,30 @@ function layout(opts) {
     '<a class="skip" href="#main">跳到正文</a>',
     '<header class="site-header">',
     '  <div class="header-inner">',
-    '    <a class="brand" href="/">' + esc(SITE.title) +
-      (SITE.tagline ? '<span class="brand-tag">' + esc(SITE.tagline) + '</span>' : '') + '</a>',
+    '    <a class="brand" href="/">',
+    '      <span class="brand-logo" aria-hidden="true">' + ni('home', 'brand-svg') + '</span>',
+    '      <span class="brand-text">' + esc(SITE.title) +
+      (SITE.tagline ? '<span class="brand-tag">' + esc(SITE.tagline) + '</span>' : '') + '</span>',
+    '    </a>',
     '    <nav class="nav" aria-label="主导航">',
     '        ' + navHtml(opts.active),
     '    </nav>',
-    '    <a class="icon-btn" href="/search.html" title="搜索" aria-label="搜索">' +
-      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>' +
-      '</a>',
-    '    <button class="icon-btn" id="themeToggle" type="button" title="切换明暗主题" aria-label="切换明暗主题">◐</button>',
+    '    <form class="nav-search" action="/search.html" method="get" role="search">',
+    '      ' + ni('search', 'search-ico'),
+    '      <input type="search" name="q" placeholder="搜索" aria-label="搜索文章" autocomplete="off">',
+    '    </form>',
+    '    <div class="nav-actions">',
+    '      <button class="icon-btn" id="musicBtn" type="button" title="播放/暂停音乐（M）" aria-label="播放音乐">' + ni('music') + '</button>',
+    '      <button class="icon-btn" id="themeToggle" type="button" title="切换明暗主题" aria-label="切换明暗主题">' + ni('moon') + '</button>',
+    '      <button class="icon-btn menu-btn" id="menuBtn" type="button" title="菜单" aria-label="展开菜单" aria-expanded="false">' + ni('menu') + '</button>',
+    '    </div>',
+    '  </div>',
+    '  <div class="mobile-menu" id="mobileMenu" hidden>',
+    '    <form class="mobile-search" action="/search.html" method="get" role="search">',
+    '      ' + ni('search', 'search-ico'),
+    '      <input type="search" name="q" placeholder="搜索文章…" aria-label="搜索文章" autocomplete="off">',
+    '    </form>',
+    navHtml(opts.active, '-m').replace(/class="nav-link/g, 'class="mobile-link nav-link').replace(/<div class="dropdown"/g, '<div class="dropdown mobile-dropdown"'),
     '  </div>',
     '</header>',
     opts.carousel ? carouselHtml() : '',

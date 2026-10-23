@@ -1030,7 +1030,7 @@ function buildPost(post, all) {
   });
 }
 
-function buildArchive(posts) {
+function timelineHtml(posts) {
   const byYear = {};
   posts.forEach(function (p) {
     const y = (p.date || '').slice(0, 4) || '未标注';
@@ -1039,14 +1039,16 @@ function buildArchive(posts) {
 
   const years = Object.keys(byYear).sort(function (a, b) { return b.localeCompare(a); });
 
-  const html = years.map(function (y, idx) {
+  return years.map(function (y) {
     const rows = byYear[y].map(function (p) {
       const tags = (p.tags || []).slice(0, 3).map(function (t) { return '#' + esc(t); }).join(' ');
       return [
         '      <li class="tl-item">',
         '        <time class="tl-date" datetime="' + esc(p.date) + '">' + esc(String(p.date).slice(5)) + '</time>',
         '        <span class="tl-dot" aria-hidden="true"></span>',
-        p.category ? '        <span class="tl-cat">' + esc(p.category) + '</span>' : '        <span class="tl-cat is-empty"></span>',
+        p.category
+          ? '        <span class="tl-cat">' + esc(p.category) + '</span>'
+          : '        <span class="tl-cat is-empty"></span>',
         '        <a class="tl-title" href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a>',
         '        <span class="tl-tags">' + tags + '</span>',
         '      </li>',
@@ -1067,11 +1069,33 @@ function buildArchive(posts) {
       '</details>',
     ].join('\n');
   }).join('\n');
+}
 
+function buildArchive(posts) {
   const content = '<h1 class="page-title">归档</h1>\n<p class="page-desc">共 ' + posts.length +
-    ' 篇文章，按年份排列。</p>\n' + (posts.length ? '<div class="timeline">\n' + html + '\n</div>' : '<p class="empty">还没有文章。</p>');
+    ' 篇文章，按年份排列。</p>\n' + (posts.length
+      ? '<div class="timeline">\n' + timelineHtml(posts) + '\n</div>'
+      : '<p class="empty">还没有文章。</p>');
 
   return layout({ title: '归档', content: content, active: 'archive', path: '/archive.html' });
+}
+
+function buildCategoryPage(allPosts, name, id) {
+  const posts = allPosts.filter(function (p) { return (p.category || '未分类') === name; });
+
+  const content = '<p class="crumb"><a href="/categories.html">分类</a> / ' + esc(name) + '</p>\n' +
+    '<h1 class="page-title">' + esc(name) + '</h1>\n' +
+    '<p class="page-desc">共 ' + posts.length + ' 篇文章。</p>\n' +
+    (posts.length
+      ? '<div class="timeline">\n' + timelineHtml(posts) + '\n</div>'
+      : '<p class="empty">这个分类下还没有文章。</p>');
+
+  return layout({
+    title: name,
+    content: content,
+    active: 'archive',
+    path: '/category/' + id + '.html',
+  });
 }
 
 function buildTags(posts) {
@@ -1110,7 +1134,7 @@ function buildTags(posts) {
   return layout({ title: '标签', content: content, active: 'tags', path: '/tags.html' });
 }
 
-function buildCategories(posts) {
+function categoryList(posts) {
   const map = {};
   posts.forEach(function (p) {
     const key = p.category || '未分类';
@@ -1121,43 +1145,34 @@ function buildCategories(posts) {
     return map[b].length - map[a].length || a.localeCompare(b);
   });
 
-  const cards = names.map(function (name) {
-    const id = encodeURIComponent(name);
+  return names.map(function (name, i) {
+    return { name: name, posts: map[name], id: i + 1 };
+  });
+}
+
+function buildCategories(posts) {
+  const cats = categoryList(posts);
+
+  const cards = cats.map(function (c) {
     return [
-      '  <a class="cat-card" href="#' + id + '">',
+      '  <a class="cat-card" href="/category/' + c.id + '.html">',
       '    <span class="cat-icon" aria-hidden="true">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M4 7a2 2 0 0 1 2-2h3.4l1.8 2.4H18a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>' +
         '<path d="M4 9.6h16"/></svg></span>',
       '    <span class="cat-body">',
-      '      <strong class="cat-name">' + esc(name) + '</strong>',
-      '      <span class="cat-count">' + map[name].length + ' 篇文章</span>',
+      '      <strong class="cat-name">' + esc(c.name) + '</strong>',
+      '      <span class="cat-count">' + c.posts.length + ' 篇文章</span>',
       '    </span>',
       '    <span class="cat-arrow" aria-hidden="true">›</span>',
       '  </a>',
     ].join('\n');
   }).join('\n');
 
-  const sections = names.map(function (name) {
-    const rows = map[name].map(function (p) {
-      return '<li><a href="/posts/' + p.slug + '.html">' + esc(p.title) + '</a>' +
-        '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) + '</time></li>';
-    }).join('\n        ');
-
-    return [
-      '<section class="tag-group" id="' + encodeURIComponent(name) + '">',
-      '  <h2>' + esc(name) + ' <span class="count">' + map[name].length + '</span></h2>',
-      '  <ul class="tag-posts">',
-      '        ' + rows,
-      '  </ul>',
-      '</section>',
-    ].join('\n');
-  }).join('\n');
-
   const content = '<h1 class="page-title">分类</h1>\n' +
-    '<p class="page-desc">共 ' + names.length + ' 个分类，' + posts.length + ' 篇文章。</p>\n' +
-    (names.length
-      ? '<div class="cat-grid">\n' + cards + '\n</div>\n' + '<div class="cat-detail">' + sections + '</div>'
+    '<p class="page-desc">共 ' + cats.length + ' 个分类，' + posts.length + ' 篇文章。</p>\n' +
+    (cats.length
+      ? '<div class="cat-grid">\n' + cards + '\n</div>'
       : '<p class="empty">还没有分类。在文章的 front matter 里写 <code>category: 分类名</code>。</p>');
 
   return layout({ title: '分类', content: content, active: 'archive', path: '/categories.html' });
@@ -1844,6 +1859,11 @@ function main() {
   writeFile('archive.html', buildArchive(posts));
   writeFile('tags.html', buildTags(posts));
   writeFile('categories.html', buildCategories(posts));
+
+  categoryList(posts).forEach(function (c) {
+    writeFile('category/' + c.id + '.html', buildCategoryPage(posts, c.name, c.id));
+  });
+  writeFile('notes.html', buildNotes(notes));
   writeFile('notes.html', buildNotes(notes));
   writeFile('photos.html', buildPhotos(albums));
   writeFile('search.html', buildSearch());

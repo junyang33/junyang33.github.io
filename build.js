@@ -1019,7 +1019,12 @@ function timelineHtml(posts) {
 
   return years.map(function (y) {
     const rows = byYear[y].map(function (p) {
-      const tags = (p.tags || []).slice(0, 3).map(function (t) { return '#' + esc(t); }).join(' ');
+      const tags = (p.tags || []).slice(0, 3).map(function (t) {
+        const id = TAG_INDEX[t];
+        return id
+          ? '<a class="tl-tag" href="/tag/' + id + '.html">#' + esc(t) + '</a>'
+          : '#' + esc(t);
+      }).join(' ');
       return [
         '      <li class="tl-item">',
         '        <time class="tl-date" datetime="' + esc(p.date) + '">' + esc(String(p.date).slice(5)) + '</time>',
@@ -1056,6 +1061,43 @@ function buildArchive(posts) {
       : '<p class="empty">还没有文章。</p>');
 
   return layout({ title: '归档', content: content, active: 'archive', path: '/archive.html' });
+}
+
+let TAG_INDEX = {};
+
+function buildTagIndex(posts) {
+  const map = {};
+  posts.forEach(function (p) {
+    (p.tags || []).forEach(function (t) { (map[t] = map[t] || []).push(p); });
+  });
+
+  const names = Object.keys(map).sort(function (a, b) {
+    return map[b].length - map[a].length || a.localeCompare(b);
+  });
+
+  TAG_INDEX = {};
+  return names.map(function (name, i) {
+    TAG_INDEX[name] = i + 1;
+    return { name: name, posts: map[name], id: i + 1 };
+  });
+}
+
+function buildTagPage(allPosts, name, id) {
+  const posts = allPosts.filter(function (p) { return (p.tags || []).indexOf(name) > -1; });
+
+  const content = '<p class="crumb"><a href="/archive.html">归档</a> / #' + esc(name) + '</p>\n' +
+    '<h1 class="page-title">#' + esc(name) + '</h1>\n' +
+    '<p class="page-desc">共 ' + posts.length + ' 篇带有这个标签的文章。</p>\n' +
+    (posts.length
+      ? '<div class="timeline">\n' + timelineHtml(posts) + '\n</div>'
+      : '<p class="empty">这个标签下还没有文章。</p>');
+
+  return layout({
+    title: '#' + name,
+    content: content,
+    active: 'archive',
+    path: '/tag/' + id + '.html',
+  });
 }
 
 function buildCategoryPage(allPosts, name, id) {
@@ -1688,7 +1730,10 @@ function widgetCategories(stats) {
 function widgetTags(stats) {
   if (!stats.tagList.length) return '';
   const pills = stats.tagList.slice(0, 14).map(function (t) {
-    return '<span class="w-tag">' + esc(t.name) + '<i>' + t.count + '</i></span>';
+    const id = TAG_INDEX[t.name];
+    return id
+      ? '<a class="w-tag" href="/tag/' + id + '.html">' + esc(t.name) + '<i>' + t.count + '</i></a>'
+      : '<span class="w-tag">' + esc(t.name) + '<i>' + t.count + '</i></span>';
   }).join('');
 
   return [
@@ -1784,6 +1829,9 @@ function main() {
     fs.cpSync(ASSETS, path.join(OUT, 'assets'), { recursive: true });
   }
 
+  // 标签索引（供侧栏、时间轴、标签页使用）
+  const tagList = buildTagIndex(posts);
+
   // 首页与分页
   for (let page = 1; page <= totalPages; page++) {
     const rel = page === 1 ? 'index.html' : 'page/' + page + '/index.html';
@@ -1799,6 +1847,9 @@ function main() {
   writeFile('archive.html', buildArchive(posts));
   writeFile('categories.html', buildCategories(posts));
 
+  tagList.forEach(function (t) {
+    writeFile('tag/' + t.id + '.html', buildTagPage(posts, t.name, t.id));
+  });
   categoryList(posts).forEach(function (c) {
     writeFile('category/' + c.id + '.html', buildCategoryPage(posts, c.name, c.id));
   });

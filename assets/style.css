@@ -4708,3 +4708,27 @@ body[data-page="archive"] .tl-date { color: color-mix(in srgb, var(--ink-3) 88%,
 .cat-icon svg { width: 25px !important; height: 25px !important; }
 .cat-name { font-size: 1.06rem !important; }
 .cat-count { font-size: 0.8rem !important; }
+/* ==========================================================================
+   v37：时间轴上的标签链接 + 侧栏标签链接
+   ========================================================================== */
+
+.tl-tags a.tl-tag {
+  color: inherit !important;
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+.tl-tags a.tl-tag:hover {
+  color: var(--accent) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a.w-tag {
+  color: inherit !important;
+  text-decoration: none;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+a.w-tag:hover {
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}

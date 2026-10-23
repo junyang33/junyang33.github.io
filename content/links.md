@@ -19,9 +19,9 @@ title: 友链
 ## 我的站点信息
 
 ```text
-名称：我的博客
-地址：https://example.com
-介绍：记录技术、读书与生活
+名称：Firefly
+地址：https://junyang33.github.io
+介绍：一个写东西的地方
 ```
 
 > 上面的卡片来自 `content/friends.json`。增加友链就是往数组里加一条：`{"name": "站点名", "url": "网址", "desc": "一句话介绍", "color": "violet"}`。

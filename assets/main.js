@@ -1049,17 +1049,40 @@
 
       var today = new Date();
       var view = new Date(today.getFullYear(), today.getMonth(), 1);
-      var WEEK = ['一', '二', '三', '四', '五', '六', '日'];
+      var WEEK = ['日', '一', '二', '三', '四', '五', '六'];
 
       var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
       var keyOf = function (y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); };
 
+      var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
+      var selected = null;
+
+      var heatEl = document.getElementById('calHeat');
+      var listEl = document.getElementById('calList');
+
+      /* 点击某天后，在下方列出这一天的文章 */
+      var renderList = function (key) {
+        if (!listEl) return;
+        var hits = byDate[key] || [];
+
+        if (!hits.length) {
+          listEl.innerHTML = '<p class="cal-empty">这一天没有写东西。</p>';
+          return;
+        }
+
+        listEl.innerHTML = hits.map(function (h) {
+          return '<a class="cal-item" href="' + h.u + '">' +
+            '<span class="cal-item-t">' + h.t + '</span>' +
+            '<span class="cal-item-d">' + h.d.slice(5) + '</span>' +
+            '</a>';
+        }).join('');
+      };
+
       var renderCalendar = function () {
         var y = view.getFullYear();
         var m = view.getMonth();
-        var startIdx = (new Date(y, m, 1).getDay() + 6) % 7;
+        var startIdx = new Date(y, m, 1).getDay();
         var total = new Date(y, m + 1, 0).getDate();
-        var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
         var cells = [];
 
         for (var i = 0; i < startIdx; i++) cells.push('<span class="cal-d is-out"></span>');
@@ -1067,14 +1090,17 @@
         for (var d = 1; d <= total; d++) {
           var key = keyOf(y, m, d);
           var hits = byDate[key];
-          var cls = 'cal-d' + (hits ? ' has-post' : '') + (key === todayKey ? ' is-today' : '');
+          var cls = 'cal-d' +
+            (hits ? ' has-post' : '') +
+            (key === todayKey ? ' is-today' : '') +
+            (key === selected ? ' is-selected' : '');
 
-          if (hits) {
-            var tip = hits.map(function (h) { return h.t; }).join(' / ').replace(/"/g, '&quot;');
-            cells.push('<a class="' + cls + '" href="' + hits[0].u + '" title="' + tip + '">' + d + '</a>');
-          } else {
-            cells.push('<span class="' + cls + '">' + d + '</span>');
-          }
+          cells.push(
+            '<button class="' + cls + '" type="button" data-date="' + key + '"' +
+              (hits ? ' aria-label="' + d + ' 日，' + hits.length + ' 篇文章"' : '') + '>' +
+              d + (hits ? '<i class="cal-dot"></i>' : '') +
+            '</button>'
+          );
         }
 
         calEl.innerHTML =
@@ -1087,15 +1113,49 @@
           '<div class="cal-grid">' + cells.join('') + '</div>';
       };
 
+      /* 近 12 周的热力条 */
+      var renderHeat = function () {
+        if (!heatEl) return;
+        var cells = [];
+        var cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        cursor.setDate(cursor.getDate() - 83);
+
+        for (var i = 0; i < 84; i++) {
+          var key = keyOf(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+          var n = (byDate[key] || []).length;
+          var lvl = n === 0 ? 0 : n === 1 ? 2 : 3;
+          cells.push('<i class="cal-h l' + lvl + '" title="' + key + ' · ' + n + ' 篇"></i>');
+          cursor.setDate(cursor.getDate() + 1);
+        }
+
+        heatEl.innerHTML = cells.join('');
+      };
+
       renderCalendar();
+      renderHeat();
 
       calEl.addEventListener('click', function (e) {
         var nav = e.target.closest('.cal-nav');
-        if (!nav) return;
-        var step = Number(nav.getAttribute('data-step'));
-        view.setMonth(view.getMonth() + step);
+        if (nav) {
+          view.setMonth(view.getMonth() + Number(nav.getAttribute('data-step')));
+          renderCalendar();
+          return;
+        }
+
+        var day = e.target.closest('.cal-d[data-date]');
+        if (!day) return;
+
+        var key = day.getAttribute('data-date');
+        selected = key === selected ? null : key;
         renderCalendar();
+        renderList(selected || todayKey);
       });
+
+      /* 默认显示最近一篇有文章的日期 */
+      var latestPost = entries.map(function (x) { return x.d; }).sort().pop();
+      selected = latestPost || todayKey;
+      renderCalendar();
+      renderList(selected);
     }
 
     /* ---------- 侧栏挂件 ---------- */

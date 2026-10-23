@@ -4165,3 +4165,100 @@ body.has-hero .nav-search .search-ico { color: rgba(255, 255, 255, 0.8); }
   .hb-badge { padding: 7px 14px; }
   .hb-badge b { font-size: 0.9rem; }
 }
+/* ==========================================================================
+   v32：品牌区改为 Firefly 风格（白底圆角牌 + 黑色叶标 + 衬线字）
+   ========================================================================== */
+
+.brand {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 15px 7px 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(15, 25, 20, 0.1);
+  color: #14161a !important;
+  text-shadow: none !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.brand:hover {
+  color: #14161a !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(15, 25, 20, 0.16);
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: #14161a !important;
+}
+.brand-mark svg { width: 20px; height: 20px; display: block; }
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.brand-text,
+.brand-text > span {
+  font-family: Georgia, "Times New Roman", "Songti SC", "SimSun", serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #14161a !important;
+}
+
+/* 参考图里没有副标题，这里隐藏 */
+.brand-tag { display: none !important; }
+
+/* 深色主题下仍保持白牌黑字 */
+[data-theme="dark"] .brand {
+  background: rgba(255, 255, 255, 0.94);
+  color: #14161a !important;
+}
+[data-theme="dark"] .brand-text,
+[data-theme="dark"] .brand-mark { color: #14161a !important; }
+
+/* 覆盖横幅页面上的白色文字规则 */
+body.has-hero .brand,
+body.has-hero .brand-text,
+body.has-hero .brand-text > span,
+body.has-hero .brand-mark {
+  color: #14161a !important;
+  text-shadow: none !important;
+}
+
+@media (max-width: 640px) {
+  .brand { padding: 6px 12px 6px 10px; gap: 8px; }
+  .brand-mark, .brand-mark svg { width: 18px; height: 18px; }
+  .brand-text, .brand-text > span { font-size: 0.92rem; }
+}
+/* 横幅页面上加强导航文字对比 */
+body.has-hero .nav .nav-link,
+body.has-hero .nav .dropdown-toggle {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65), 0 0 16px rgba(0, 0, 0, 0.45);
+}
+body.has-hero .nav .nav-link.active,
+body.has-hero .nav .dropdown-toggle[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.22) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+/* 横幅页面：导航加一层薄暗底，保证任何背景都看得清 */
+body.has-hero .nav {
+  padding: 4px 8px;
+  background: rgba(8, 12, 10, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+}
+body.has-hero .nav .nav-link,
+body.has-hero .nav .dropdown-toggle {
+  color: #fff !important;
+}

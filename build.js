@@ -43,6 +43,15 @@ const SITE = {
   weather: rawConfig.weather || { enabled: false },
 };
 
+/* 品牌标记：四叶形，呼应 Firefly 的植物符号 */
+const BRAND_MARK =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+  '<path d="M12 12C12 8.7 14.2 6.5 17.5 6.5 17.5 9.8 15.3 12 12 12z"/>' +
+  '<path d="M12 12C12 8.7 9.8 6.5 6.5 6.5 6.5 9.8 8.7 12 12 12z"/>' +
+  '<path d="M12 12C12 15.3 14.2 17.5 17.5 17.5 17.5 14.2 15.3 12 12 12z"/>' +
+  '<path d="M12 12C12 15.3 9.8 17.5 6.5 17.5 6.5 14.2 8.7 12 12 12z"/>' +
+  '</svg>';
+
 const NAV = [
   { href: '/', label: '首页', key: 'home', icon: 'home' },
   { href: '/archive.html', label: '文章', key: 'archive', icon: 'file' },
@@ -661,7 +670,7 @@ function layout(opts) {
     '<header class="site-header">',
     '  <div class="header-inner">',
     '    <a class="brand" href="/">',
-    '      <span class="brand-logo" aria-hidden="true">' + ni('home', 'brand-svg') + '</span>',
+    '      <span class="brand-mark" aria-hidden="true">' + BRAND_MARK + '</span>',
     '      <span class="brand-text">' + esc(SITE.title) +
       (SITE.tagline ? '<span class="brand-tag">' + esc(SITE.tagline) + '</span>' : '') + '</span>',
     '    </a>',

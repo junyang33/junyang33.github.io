@@ -5038,3 +5038,63 @@ a.w-tag:hover {
   .pn-body { font-size: 0.95rem; line-height: 1.85; }
   .pn-quote { font-size: 2rem; }
 }
+/* ==========================================================================
+   v40：个人名片头像放大为通栏图片
+   ========================================================================== */
+
+.widget-profile {
+  padding: 14px 14px 18px !important;
+}
+
+.pf-avatar {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 4 / 3;
+  margin: 0 0 16px !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+  background: none !important;
+  box-shadow: 0 6px 18px rgba(18, 26, 22, 0.12) !important;
+  overflow: hidden;
+}
+.pf-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 14px !important;
+  object-fit: cover;
+  object-position: center 28%;
+  display: block;
+}
+
+.pf-name {
+  font-family: Georgia, "Times New Roman", "Songti SC", "SimSun", serif;
+  font-size: 1.32rem !important;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin-bottom: 2px;
+}
+
+.pf-bar {
+  width: 20px !important;
+  height: 3px !important;
+  margin: 9px auto 12px !important;
+}
+
+.pf-bio {
+  font-size: 0.86rem !important;
+  line-height: 1.75 !important;
+  margin-bottom: 16px !important;
+  padding: 0 2px;
+}
+
+.pf-links { gap: 9px; }
+.pf-link {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 11px !important;
+}
+.pf-link svg { width: 18px !important; height: 18px !important; }
+
+@media (max-width: 640px) {
+  .pf-avatar { aspect-ratio: 16 / 10; }
+}

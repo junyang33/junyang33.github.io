@@ -505,7 +505,6 @@ function carouselHtml() {
   const pill = SITE.tagline || SITE.description || '';
 
   const hero = SITE.hero || {};
-  const badge = hero.badge || SITE.title;
   const heroTitle = hero.title || SITE.title;
   const subs = Array.isArray(hero.subtitles) && hero.subtitles.length
     ? hero.subtitles
@@ -518,7 +517,6 @@ function carouselHtml() {
     '  </div>',
     '  <div class="hb-scrim"></div>',
     '  <div class="hb-inner">',
-    '    <span class="hb-badge">' + ni('home', 'hb-badge-ico') + '<b>' + esc(badge) + '</b></span>',
     '    <h1 class="hb-title">' + esc(heroTitle) + '</h1>',
     subs[0]
       ? '    <p class="hb-sub"><span id="hbType"></span><i class="hb-caret" aria-hidden="true"></i></p>'

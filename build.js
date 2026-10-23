@@ -38,6 +38,7 @@ const SITE = {
   background: rawConfig.background || { enabled: false },
   carousel: rawConfig.carousel || { enabled: false },
   notice: rawConfig.notice || { enabled: false },
+  hero: rawConfig.hero || {},
   profile: rawConfig.profile || { enabled: true },
   weather: rawConfig.weather || { enabled: false },
 };
@@ -503,6 +504,13 @@ function carouselHtml() {
 
   const pill = SITE.tagline || SITE.description || '';
 
+  const hero = SITE.hero || {};
+  const badge = hero.badge || SITE.title;
+  const heroTitle = hero.title || SITE.title;
+  const subs = Array.isArray(hero.subtitles) && hero.subtitles.length
+    ? hero.subtitles
+    : [SITE.tagline || SITE.description || ''];
+
   return [
     '<section class="hero-banner" id="heroBanner" data-autoplay="' + (Number(c.autoplay) || 5200) + '">',
     '  <div class="hb-slides">',
@@ -510,8 +518,13 @@ function carouselHtml() {
     '  </div>',
     '  <div class="hb-scrim"></div>',
     '  <div class="hb-inner">',
-    '    <h1 class="hb-title">' + esc(SITE.title) + '</h1>',
-    pill ? '    <p class="hb-pill">' + esc(pill) + '</p>' : '',
+    '    <span class="hb-badge">' + ni('home', 'hb-badge-ico') + '<b>' + esc(badge) + '</b></span>',
+    '    <h1 class="hb-title">' + esc(heroTitle) + '</h1>',
+    subs[0]
+      ? '    <p class="hb-sub"><span id="hbType"></span><i class="hb-caret" aria-hidden="true"></i></p>'
+      : '',
+    '    <script type="application/json" id="heroSubs">' +
+      JSON.stringify(subs).replace(/</g, '\\u003c') + '</script>',
     '  </div>',
     WAVE_LAYERS,
     '</section>',

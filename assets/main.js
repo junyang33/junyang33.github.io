@@ -678,6 +678,59 @@
     addCleanup(function () { clearInterval(timer); });
   }
 
+  /* ====================== 首页横幅：打字机副标题 ====================== */
+
+  function initHeroTyping(hero) {
+    var out = document.getElementById('hbType');
+    var data = document.getElementById('heroSubs');
+    if (!out || !data) return;
+
+    var lines = [];
+    try { lines = JSON.parse(data.textContent || '[]'); } catch (e) {}
+    lines = (Array.isArray(lines) ? lines : []).filter(Boolean);
+    if (!lines.length) return;
+
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) {
+      out.textContent = lines[0];
+      return;
+    }
+
+    var li = 0;
+    var ci = 0;
+    var deleting = false;
+    var timer = null;
+
+    function tick() {
+      var line = lines[li % lines.length];
+
+      if (!deleting) {
+        ci++;
+        out.textContent = line.slice(0, ci);
+        if (ci >= line.length) {
+          deleting = true;
+          timer = setTimeout(tick, 1900);
+          return;
+        }
+        timer = setTimeout(tick, 110 + Math.random() * 60);
+        return;
+      }
+
+      ci--;
+      out.textContent = line.slice(0, ci);
+      if (ci <= 0) {
+        deleting = false;
+        li++;
+        timer = setTimeout(tick, 320);
+        return;
+      }
+      timer = setTimeout(tick, 45);
+    }
+
+    timer = setTimeout(tick, 500);
+    addCleanup(function () { clearTimeout(timer); });
+  }
+
   /* ====================== 页面级初始化 ====================== */
 
   var cleanups = [];
@@ -1096,6 +1149,7 @@
     /* ---------- 首页横幅轮换 ---------- */
     var hero = document.getElementById('heroBanner');
     if (hero) {
+      initHeroTyping(hero);
       var hbSlides = $$('.hb-slide', hero);
       var hbDelay = Number(hero.getAttribute('data-autoplay')) || 5200;
       var hbIndex = 0;

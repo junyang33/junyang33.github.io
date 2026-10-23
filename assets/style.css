@@ -4085,3 +4085,83 @@ body.has-hero .nav-search .search-ico { color: rgba(255, 255, 255, 0.8); }
 .mw-track-i { width: 1.2em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .mw-track-t { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mw-track-a { color: var(--ink-3); font-size: 0.72rem; white-space: nowrap; }
+/* ==========================================================================
+   v31：首页横幅文案（衬线标题 + 徽章 + 打字机副标题）
+   ========================================================================== */
+
+.hb-inner {
+  gap: 16px;
+}
+
+/* 品牌徽章 */
+.hb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 18px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
+}
+.hb-badge b {
+  font-family: Georgia, "Times New Roman", "Songti SC", "SimSun", serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.hb-badge-ico { width: 17px; height: 17px; }
+
+/* 大标题：衬线 */
+.hb-title {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", "Songti SC", "SimSun", serif !important;
+  font-size: clamp(2.2rem, 5vw, 3.9rem) !important;
+  font-weight: 700;
+  letter-spacing: 0.012em;
+  line-height: 1.16;
+  color: #fff;
+  text-shadow:
+    0 2px 26px rgba(0, 0, 0, 0.42),
+    0 0 60px rgba(255, 255, 255, 0.14);
+}
+
+/* 打字机副标题 */
+.hb-sub {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 1.6em;
+  font-family: Georgia, "Times New Roman", "Songti SC", "SimSun", serif;
+  font-size: clamp(0.92rem, 1.5vw, 1.15rem);
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.02em;
+}
+
+.hb-caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 1.05em;
+  margin-left: 1px;
+  background: rgba(255, 255, 255, 0.9);
+  animation: caretBlink 1s step-end infinite;
+}
+@keyframes caretBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hb-caret { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .hb-title { font-size: 1.9rem !important; }
+  .hb-badge { padding: 7px 14px; }
+  .hb-badge b { font-size: 0.9rem; }
+}

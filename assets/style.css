@@ -6670,3 +6670,9 @@ body[data-page="archive"] .timeline,
   .bm-grid { grid-template-columns: 1fr; }
   .bm-search { max-width: 100%; }
 }
+/* 修复：页头层级要高于正文，否则下拉菜单被 main 盖住点不到 */
+.site-header {
+  z-index: 50 !important;
+}
+
+.dropdown-menu { z-index: 60 !important; }

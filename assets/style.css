@@ -5652,3 +5652,29 @@ main.container,
 [data-theme="dark"] .bubbles::after {
   background: linear-gradient(0deg, rgba(10, 15, 21, 0.45), rgba(10, 15, 21, 0));
 }
+
+/* v49 修正：深色模式卡片悬停时不要变白（--card-2 被浅色规则覆盖了） */
+[data-theme="dark"] {
+  --card-2: #17232f;
+  --card: #121c26;
+}
+
+[data-theme="dark"] .post-item:hover,
+[data-theme="dark"] .cat-card:hover,
+[data-theme="dark"] .pn:hover,
+[data-theme="dark"] .widget:hover {
+  background: var(--card-2) !important;
+}
+
+/* 深色卡片里的标题、摘要、元信息确保用浅色 */
+[data-theme="dark"] .post-item h2 a,
+[data-theme="dark"] .post-item .summary,
+[data-theme="dark"] .post-item .meta,
+[data-theme="dark"] .post-item .meta time,
+[data-theme="dark"] .tl-title,
+[data-theme="dark"] .tl-date {
+  color: var(--ink) !important;
+}
+[data-theme="dark"] .post-item .summary { color: var(--ink-2) !important; }
+[data-theme="dark"] .post-item .meta,
+[data-theme="dark"] .post-item .meta time { color: var(--ink-3) !important; }

@@ -6869,3 +6869,15 @@ body[data-page="archive"] .timeline,
 [data-theme="dark"] .post-item .tags span {
   background: color-mix(in srgb, var(--accent) 14%, transparent);
 }
+/* 首页卡片标题加粗 */
+.post-item h2,
+.post-item h2 a {
+  font-weight: 800 !important;
+  letter-spacing: 0.005em;
+}
+
+/* 衬线体在浅色底上容易显细，稍微加深一点 */
+.post-item h2 a { color: color-mix(in srgb, var(--ink) 92%, #000) !important; }
+.post-item h2 a:hover { color: var(--accent) !important; }
+
+[data-theme="dark"] .post-item h2 a { color: var(--ink) !important; }

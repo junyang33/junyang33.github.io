@@ -5139,3 +5139,23 @@ a.w-tag:hover {
 @media (max-width: 640px) {
   .pf-avatar { aspect-ratio: 1 / 1 !important; }
 }
+/* ==========================================================================
+   v42：首页横幅改为通栏（占满整宽），内容区仍居中
+   ========================================================================== */
+
+body.has-hero .hero-banner {
+  width: auto !important;
+  max-width: none !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  border-radius: 0 !important;
+}
+
+/* 图片焦点：人物在中偏左，横向裁切时保住她的位置 */
+body.has-hero .hb-slide {
+  background-position: center 42%;
+}
+
+@media (max-width: 900px) {
+  body.has-hero .hb-slide { background-position: 42% 34%; }
+}

@@ -6418,3 +6418,80 @@ body[data-page="archive"] .timeline,
   .footer-col { flex-wrap: wrap; gap: 12px 16px !important; }
   .footer-inner { padding: 20px 0 14px !important; }
 }
+/* ==========================================================================
+   v62：底栏加宽 + 布局重排（品牌靠左，链接靠右）
+   ========================================================================== */
+
+.footer-inner {
+  max-width: min(calc(100% - 72px), 1440px) !important;
+  padding: 26px 0 16px !important;
+}
+
+.footer-top {
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  padding-bottom: 16px !important;
+}
+
+/* 品牌靠左，把右侧空间让出来 */
+.footer-brand {
+  margin-right: auto;
+  gap: 14px !important;
+}
+
+/* 三组链接靠右排列 */
+.footer-col {
+  margin-left: 46px;
+  gap: 20px !important;
+}
+
+/* 版权条：中间许可信息居中，右侧信息与回顶按钮靠右 */
+.footer-bottom {
+  padding-top: 14px !important;
+  gap: 8px 24px !important;
+}
+
+.footer-bottom .footer-meta {
+  margin-left: auto;
+}
+
+/* 链接组的细腻分隔：组与组之间一条极淡竖线 */
+.footer-col + .footer-col {
+  position: relative;
+}
+.footer-col + .footer-col::before {
+  content: "";
+  position: absolute;
+  left: -23px;
+  top: 50%;
+  width: 1px;
+  height: 14px;
+  margin-top: -7px;
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+@media (max-width: 1100px) {
+  .footer-col { margin-left: 30px; }
+  .footer-col + .footer-col::before { left: -15px; }
+}
+
+@media (max-width: 900px) {
+  .footer-inner { max-width: calc(100% - 40px) !important; }
+  .footer-brand { margin-right: 0; }
+  .footer-col { margin-left: 0; gap: 14px !important; }
+  .footer-col + .footer-col::before { display: none; }
+  .footer-bottom .footer-meta { margin-left: 0; }
+}
+/* 页脚容器本身放开宽度限制，交给 .footer-inner 控制 */
+.site-footer {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.footer-inner {
+  max-width: min(calc(100% - 72px), 1440px) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}

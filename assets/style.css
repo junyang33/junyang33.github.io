@@ -6341,3 +6341,80 @@ body[data-page="archive"] .timeline,
   .footer-mark { font-size: 18vw; margin-top: 18px; }
   .footer-top-btn { margin-left: auto; }
 }
+/* ==========================================================================
+   v61：底栏瘦身 —— 一行式，去掉水印与大标题
+   ========================================================================== */
+
+.footer-mark { display: none !important; }
+
+.site-footer { margin-top: 40px !important; }
+
+.footer-inner {
+  padding: 24px 0 16px !important;
+}
+
+.footer-top {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 32px !important;
+  grid-template-columns: none !important;
+  padding-bottom: 14px !important;
+}
+
+/* 品牌缩成一行 */
+.footer-brand {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 14px !important;
+}
+.footer-logo {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  gap: 8px !important;
+}
+.footer-logo .brand-mark {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 8px;
+}
+.footer-logo .brand-mark svg { width: 15px; height: 15px; }
+
+/* 标语收起，保持简洁 */
+.footer-tagline { display: none !important; }
+
+/* 三组链接压成一行 */
+.footer-col {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 18px !important;
+}
+.footer-col h3 { display: none !important; }
+.footer-col a { font-size: 0.82rem !important; }
+
+.footer-social { margin: 0 !important; gap: 7px !important; }
+.footer-social a {
+  padding: 4px 10px !important;
+  font-size: 0.74rem !important;
+}
+
+/* 版权条更紧凑 */
+.footer-bottom {
+  padding-top: 12px !important;
+  font-size: 0.73rem !important;
+  gap: 6px 16px !important;
+}
+
+/* 顶部那层波光也收一收 */
+.site-footer .footer-inner::before { height: 64px; }
+
+@media (max-width: 900px) {
+  .footer-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px !important;
+  }
+  .footer-col { flex-wrap: wrap; gap: 12px 16px !important; }
+  .footer-inner { padding: 20px 0 14px !important; }
+}

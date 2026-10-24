@@ -5795,3 +5795,45 @@ body[data-page="archive"] .timeline,
   --bg-2: #0d1620;
 }
 [data-theme="dark"] .hb-waves path { fill: #0a121b !important; }
+/* ==========================================================================
+   v53：文章卡片加深一档，页底提亮以保持层次
+   ========================================================================== */
+
+:root {
+  --card: #d3e6f6;        /* 卡片：加深的浅水蓝 */
+  --card-2: #dcecf9;      /* 悬停 */
+  --bg: #edf4fb;          /* 页底：提亮 */
+  --bg-2: #f4f9fd;
+  --card-line: rgba(47, 98, 128, 0.18);
+}
+
+body { background: var(--bg) !important; }
+
+.post-item,
+.widget,
+.pn,
+.cat-card,
+body[data-page="archive"] .timeline,
+.note-card,
+.friend,
+.search-results li {
+  background: var(--card) !important;
+  border-color: var(--card-line) !important;
+  box-shadow: 0 1px 2px rgba(24, 60, 84, 0.06), 0 8px 22px rgba(24, 60, 84, 0.09) !important;
+}
+
+.post-item:hover,
+.cat-card:hover { background: var(--card-2) !important; }
+
+.post-cover,
+.pf-avatar,
+.mw-cover { background: #ffffff !important; }
+
+.hb-waves path { fill: var(--bg) !important; }
+
+/* 卡片加深后，标签、日历等浅色元素提亮一点保证对比 */
+.post-item .tags a,
+.widget-tags .w-tag,
+.cal-d.is-out {
+  background: rgba(255, 255, 255, 0.6) !important;
+}

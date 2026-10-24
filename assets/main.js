@@ -154,7 +154,7 @@
 
       var narrow = window.innerWidth < 760;
       var petal = kind === 'petal';
-      var count = narrow ? (petal ? 12 : 10) : (petal ? 26 : 20);
+      var count = narrow ? (petal ? 26 : 10) : (petal ? 58 : 20);
       var frag = document.createDocumentFragment();
 
       for (var i = 0; i < count; i++) {
@@ -162,7 +162,7 @@
         el.className = petal ? 'petal' : 'bubble';
 
         var size = petal
-          ? 7 + Math.random() * 11
+          ? 6 + Math.random() * 15
           : 8 + Math.random() * (narrow ? 22 : 34);
 
         el.style.width = size.toFixed(1) + 'px';

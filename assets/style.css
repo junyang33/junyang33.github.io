@@ -5612,3 +5612,43 @@ main.container,
 @media (prefers-reduced-motion: reduce) {
   .petal { display: none !important; }
 }
+
+/* ==========================================================================
+   v49：花瓣浮到最上层 + 数量增加
+   ========================================================================== */
+
+.bubbles {
+  z-index: 90 !important;
+}
+
+/* 花瓣在卡片上方时保持轻，不要盖住文字 */
+.petal { mix-blend-mode: multiply; opacity: 0.9; }
+[data-theme="dark"] .petal { mix-blend-mode: normal; }
+
+/* 深色气泡也在上层，但更透明一些 */
+.bubble { opacity: 0.85; }
+
+/* 页面顶部/底部的淡出遮罩，避免边缘突然出现 */
+.bubbles::before,
+.bubbles::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 60px;
+  pointer-events: none;
+}
+.bubbles::before {
+  top: 0;
+  background: linear-gradient(180deg, rgba(230, 240, 248, 0.55), rgba(230, 240, 248, 0));
+}
+.bubbles::after {
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(230, 240, 248, 0.4), rgba(230, 240, 248, 0));
+}
+[data-theme="dark"] .bubbles::before {
+  background: linear-gradient(180deg, rgba(10, 15, 21, 0.6), rgba(10, 15, 21, 0));
+}
+[data-theme="dark"] .bubbles::after {
+  background: linear-gradient(0deg, rgba(10, 15, 21, 0.45), rgba(10, 15, 21, 0));
+}

@@ -41,6 +41,7 @@ const SITE = {
   notice: rawConfig.notice || { enabled: false },
   hero: rawConfig.hero || {},
   defaultCover: rawConfig.defaultCover || '/assets/images/banner/1.jpg',
+  postHero: rawConfig.postHero || '',
   profile: rawConfig.profile || { enabled: true },
   weather: rawConfig.weather || { enabled: false },
 };
@@ -1003,10 +1004,13 @@ function buildPost(post, all) {
   }
   pager.push('</nav>');
 
+  /* 文章页头图优先用这篇自己的封面，其次站点设定，最后回落到横幅图 */
+  const heroPhoto = post.cover || SITE.postHero || (hasCarousel() && firstSlideImage()) || '';
+
   const content = [
-    '<header class="post-hero' + (hasCarousel() ? ' has-photo' : '') + '">',
-    hasCarousel() && firstSlideImage()
-      ? '  <div class="post-hero-photo" style="background-image:url(' + esc(firstSlideImage()) + ')"></div>'
+    '<header class="post-hero' + (heroPhoto ? ' has-photo' : '') + '">',
+    heroPhoto
+      ? '  <div class="post-hero-photo" style="background-image:url(' + esc(heroPhoto) + ')"></div>'
       : '',
     '  <div class="post-hero-inner">',
     '    <h1>' + esc(post.title) + '</h1>',

@@ -6834,3 +6834,38 @@ body[data-page="archive"] .timeline,
 [data-theme="dark"] .post-item .tags a {
   background: color-mix(in srgb, var(--accent) 14%, transparent) !important;
 }
+/* ==========================================================================
+   v66：首页卡片标签恢复
+   ========================================================================== */
+
+.post-item .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-item .tags a,
+.post-item .tags span {
+  display: inline-block;
+  padding: 5px 12px;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--ink-2) !important;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  border-radius: 7px;
+  text-decoration: none;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.post-item .tags a:hover {
+  color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 17%, transparent);
+}
+
+[data-theme="dark"] .post-item .tags a,
+[data-theme="dark"] .post-item .tags span {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}

@@ -168,12 +168,6 @@
           "icon": "/assets/images/bm/gemini-google-com.png"
         },
         {
-          "name": "Perplexity",
-          "url": "https://www.perplexity.ai/",
-          "desc": "带引用来源的搜索问答",
-          "icon": "/assets/images/bm/perplexity-ai.png"
-        },
-        {
           "name": "Kimi",
           "url": "https://kimi.moonshot.cn/",
           "desc": "长文档阅读与总结",
@@ -204,18 +198,6 @@
           "icon": "/assets/images/bm/cursor-com.png"
         },
         {
-          "name": "v0",
-          "url": "https://v0.dev/",
-          "desc": "用一句话生成前端界面",
-          "icon": "/assets/images/bm/v0-dev.png"
-        },
-        {
-          "name": "Midjourney",
-          "url": "https://www.midjourney.com/",
-          "desc": "高质量 AI 绘画",
-          "icon": "/assets/images/bm/midjourney-com.png"
-        },
-        {
           "name": "Suno",
           "url": "https://suno.com/",
           "desc": "输入描述生成整首歌",
@@ -228,10 +210,10 @@
           "icon": "/assets/images/bm/ollama-com.png"
         },
         {
-          "name": "OpenRouter",
-          "url": "https://openrouter.ai/",
-          "desc": "一个接口调用各家模型",
-          "icon": "/assets/images/bm/openrouter-ai.png"
+          "name": "Grok",
+          "url": "https://grok.com/",
+          "desc": "xAI 的对话模型",
+          "icon": "/assets/images/bm/grok-com.png"
         }
       ]
     }

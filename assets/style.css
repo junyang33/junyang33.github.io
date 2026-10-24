@@ -5678,3 +5678,19 @@ main.container,
 [data-theme="dark"] .post-item .summary { color: var(--ink-2) !important; }
 [data-theme="dark"] .post-item .meta,
 [data-theme="dark"] .post-item .meta time { color: var(--ink-3) !important; }
+
+/* v50：气泡与花瓣同样置于最上层，数量与花瓣一致 */
+.bubbles {
+  z-index: 100 !important;
+}
+
+/* 深色下气泡提高可见度 */
+[data-theme="dark"] .bubble {
+  opacity: 0.95 !important;
+}
+
+/* 气泡压在卡片上时略微增强边缘，避免"糊"在深色背景里 */
+.bubble {
+  backdrop-filter: blur(0.5px);
+  -webkit-backdrop-filter: blur(0.5px);
+}

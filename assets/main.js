@@ -154,7 +154,7 @@
 
       var narrow = window.innerWidth < 760;
       var petal = kind === 'petal';
-      var count = narrow ? (petal ? 26 : 10) : (petal ? 58 : 20);
+      var count = narrow ? (petal ? 26 : 26) : (petal ? 58 : 58);
       var frag = document.createDocumentFragment();
 
       for (var i = 0; i < count; i++) {
@@ -175,7 +175,7 @@
         el.style.setProperty('--bubble-sway', (Math.random() * 50 - 25).toFixed(0) + 'px');
         el.style.setProperty('--bubble-op', petal
           ? (0.35 + Math.random() * 0.4).toFixed(2)
-          : (0.2 + Math.random() * 0.22).toFixed(2));
+          : (0.26 + Math.random() * 0.26).toFixed(2));
 
         frag.appendChild(el);
       }

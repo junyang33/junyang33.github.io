@@ -759,7 +759,6 @@ function layout(opts) {
     '    <div class="footer-bottom">',
     '      <span>© ' + SITE.startYear + '–' + new Date().getFullYear() + ' ' + esc(SITE.author) + '</span>',
     SITE.footerNote ? '      <span>' + esc(SITE.footerNote) + '</span>' : '',
-    '      <span class="footer-meta">共 ' + POST_COUNT + ' 篇 · 由 build.js 生成 · 无追踪</span>',
     '      <a class="footer-top-btn" href="#top" aria-label="回到顶部">↑</a>',
     '    </div>',
     '    <div class="footer-mark" aria-hidden="true">' + esc(SITE.title) + '</div>',

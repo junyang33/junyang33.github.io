@@ -505,7 +505,7 @@
     });
   }
 
-  if (musicEl && musicAudio && musicDataEl) {
+  if (musicAudio && musicDataEl) {
     try {
       var data = JSON.parse(musicDataEl.textContent || '{}');
       mTracks = Array.isArray(data.tracks) ? data.tracks.filter(function (t) { return t && t.src; }) : [];
@@ -515,7 +515,7 @@
 
     if (mTracks.length) {
       /* 悬浮条控件（只绑一次） */
-      bindMusicControls(musicEl);
+      if (musicEl) bindMusicControls(musicEl);
 
       var floatingProgress = $('#mpProgress');
       if (floatingProgress) {
@@ -569,7 +569,7 @@
 
   function syncMusicWidget() {
     var widget = document.querySelector('.widget-music');
-    if (!widget || !musicEl) return;
+    if (!widget || !musicAudio) return;
 
     bindMusicControls(widget);
 

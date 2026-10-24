@@ -583,26 +583,10 @@ function musicPlayerHtml() {
   const music = loadMusic();
   if (!music) return '';
 
+  /* 只保留音频元素与曲目数据，界面交给侧栏挂件 */
   return [
-    '<div class="music" id="musicPlayer">',
+    '<div class="music-audio-only" id="musicPlayer" hidden>',
     '  <audio id="musicAudio" preload="metadata"></audio>',
-    '  <div class="mp-card">',
-    '    <div class="mp-top">',
-    '      <span class="music-disc" aria-hidden="true">♪</span>',
-    '      <div class="mp-info">',
-    '        <span class="mp-title" id="mpTitle">' + esc(music.tracks[0].title) + '</span>',
-    '        <span class="mp-sub" id="mpSub">' + esc(music.tracks[0].artist || '') + '</span>',
-    '      </div>',
-    '      <div class="mp-controls">',
-    '        <button class="mp-btn" type="button" data-act="prev" aria-label="上一首">‹‹</button>',
-    '        <button class="mp-btn mp-play" type="button" id="mpPlay" data-act="play" aria-label="播放">▶</button>',
-    '        <button class="mp-btn" type="button" data-act="next" aria-label="下一首">››</button>',
-    '      </div>',
-    '    </div>',
-    '    <div class="mp-progress" id="mpProgress" role="slider" tabindex="0" aria-label="播放进度">',
-    '      <i></i>',
-    '    </div>',
-    '  </div>',
     '  <script type="application/json" id="musicData">' +
       JSON.stringify({ title: music.title, tracks: music.tracks }).replace(/</g, '\\u003c') +
       '</script>',

@@ -10,6 +10,7 @@
  */
 
 const fs = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 
 const ROOT = __dirname;
@@ -52,6 +53,19 @@ const BRAND_MARK =
   '<path d="M12 12C12 15.3 14.2 17.5 17.5 17.5 17.5 14.2 15.3 12 12 12z"/>' +
   '<path d="M12 12C12 15.3 9.8 17.5 6.5 17.5 6.5 14.2 8.7 12 12 12z"/>' +
   '</svg>';
+
+/* 静态资源版本号：内容变了才变，用来打破浏览器缓存 */
+const ASSET_V = (function () {
+  const files = [
+    path.join(__dirname, 'assets', 'style.css'),
+    path.join(__dirname, 'assets', 'main.js'),
+  ];
+  const h = crypto.createHash("md5");
+  files.forEach(function (f) {
+    try { h.update(fs.readFileSync(f)); } catch (e) {}
+  });
+  return h.digest("hex").slice(0, 8);
+})();
 
 const NAV = [
   { href: '/', label: '首页', key: 'home', icon: 'home' },
@@ -651,7 +665,7 @@ function layout(opts) {
 
   head.push('<link rel="alternate" type="application/rss+xml" title="' + esc(SITE.title) + '" href="/feed.xml">');
   head.push('<link rel="alternate" type="application/feed+json" title="' + esc(SITE.title) + ' (JSON Feed)" href="/feed.json">');
-  head.push('<link rel="stylesheet" href="/assets/style.css">');
+  head.push('<link rel="stylesheet" href="/assets/style.css?v=' + ASSET_V + '">');
   head.push('<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">');
   head.push(
     '<script>(function(){try{var t=localStorage.getItem("theme");if(t){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>'
@@ -741,7 +755,7 @@ function layout(opts) {
     '</footer>',
     musicPlayerHtml(),
     lightboxHtml(),
-    '<script src="/assets/main.js"></script>',
+    '<script src="/assets/main.js?v=' + ASSET_V + '"></script>',
     '</body>',
     '</html>',
   ].join('\n');

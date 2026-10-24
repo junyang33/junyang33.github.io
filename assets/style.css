@@ -6881,3 +6881,11 @@ body[data-page="archive"] .timeline,
 .post-item h2 a:hover { color: var(--accent) !important; }
 
 [data-theme="dark"] .post-item h2 a { color: var(--ink) !important; }
+/* 标题再加粗一档：900 + 极细描边补充笔画厚度 */
+.post-item h2,
+.post-item h2 a {
+  font-weight: 900 !important;
+  -webkit-text-stroke: 0.35px currentColor;
+  paint-order: stroke fill;
+  letter-spacing: 0.002em;
+}

@@ -794,6 +794,7 @@ function postCard(p) {
       '<span class="meta-item">' + icon('days') +
         '<time datetime="' + esc(p.date) + '">' + fmtDate(p.date) + '</time></span>' +
       '<span class="meta-item">' + icon('cat') + '<span>' + esc(p.category || '未分类') + '</span></span>' +
+      '<span class="meta-item">' + icon('words') + '<span>' + (p.chars || 0).toLocaleString('en-US') + ' 字</span></span>' +
       '<span class="meta-item">约 ' + p.minutes + ' 分钟</span></p>',
     '        <p class="summary">' + esc(p.summary) + '</p>',
     '      </div>',

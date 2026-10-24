@@ -6769,3 +6769,68 @@ body[data-page="archive"] .timeline,
 .cal-dot {
   bottom: 1px !important;
 }
+/* ==========================================================================
+   v65：首页文章卡片元信息改为「图标块 + 文字」样式
+   ========================================================================== */
+
+.post-item .meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 18px !important;
+  margin: 0 0 14px !important;
+  font-size: 0.82rem !important;
+  color: var(--ink-2) !important;
+}
+
+.post-item .meta .meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* 图标做成浅色圆角小方块 */
+.post-item .meta .w-ico {
+  width: 26px !important;
+  height: 26px !important;
+  padding: 5px !important;
+  box-sizing: border-box;
+  color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 7px;
+  opacity: 1 !important;
+}
+
+.post-item .meta time { color: var(--ink-2) !important; }
+
+/* 置顶徽标：和图标块同一圆角语汇 */
+.post-item .meta .pin {
+  padding: 5px 11px !important;
+  font-size: 0.76rem !important;
+  font-weight: 600;
+  color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 12%, transparent) !important;
+  border-radius: 7px !important;
+}
+
+/* 标签：# + 名字，浅底胶囊 */
+.post-item .tags a {
+  padding: 5px 12px !important;
+  font-size: 0.76rem !important;
+  color: var(--ink-2) !important;
+  background: color-mix(in srgb, var(--accent) 9%, transparent) !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+}
+.post-item .tags a:hover {
+  color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 16%, transparent) !important;
+}
+
+[data-theme="dark"] .post-item .meta .w-ico,
+[data-theme="dark"] .post-item .meta .pin {
+  background: color-mix(in srgb, var(--accent) 18%, transparent) !important;
+}
+[data-theme="dark"] .post-item .tags a {
+  background: color-mix(in srgb, var(--accent) 14%, transparent) !important;
+}

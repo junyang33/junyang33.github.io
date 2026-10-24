@@ -505,8 +505,19 @@ function carouselHtml() {
 
   const slides = c.slides
     .map(function (s, i) {
-      return '<div class="hb-slide' + (i === 0 ? ' is-active' : '') +
-        '" style="background-image:url(' + esc(s.image) + ')"></div>';
+      const active = i === 0 ? ' is-active' : '';
+
+      /* 视频素材：静音 + 循环 + 自动播放；加载失败会显示 poster */
+      if (s.video) {
+        return '<div class="hb-slide hb-slide--video' + active + '"' +
+          (s.image ? ' style="background-image:url(' + esc(s.image) + ')"' : '') + '>' +
+          '<video class="hb-video" autoplay muted loop playsinline preload="metadata"' +
+          (s.image ? ' poster="' + esc(s.image) + '"' : '') + '>' +
+          '<source src="' + esc(s.video) + '" type="video/mp4">' +
+          '</video></div>';
+      }
+
+      return '<div class="hb-slide' + active + '" style="background-image:url(' + esc(s.image) + ')"></div>';
     })
     .join('\n    ');
 

@@ -5286,3 +5286,38 @@ a:hover { color: var(--accent); }
   background: color-mix(in srgb, var(--bg-2) 88%, #000) !important;
   border-color: rgba(255, 255, 255, 0.09) !important;
 }
+/* ==========================================================================
+   v44：横幅支持视频背景
+   ========================================================================== */
+
+.hb-slide--video { overflow: hidden; }
+.hb-slide--video::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  background-size: cover;
+  background-position: inherit;
+  z-index: -1;
+}
+
+.hb-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  display: block;
+  pointer-events: none;
+}
+
+/* 尊重系统「减少动态效果」：直接暂停并显示封面 */
+@media (prefers-reduced-motion: reduce) {
+  .hb-video { display: none !important; }
+  .hb-slide--video { background-size: cover; background-position: center 42%; }
+}
+
+@media (max-width: 900px) {
+  .hb-video { object-position: 42% 34%; }
+}

@@ -5848,3 +5848,53 @@ body[data-page="archive"] .timeline,
     background-position: 46% 34% !important;
   }
 }
+/* ==========================================================================
+   v55：页底回到 #D5E5F2，卡片按页底色阶往下压一档（更蓝）
+   ========================================================================== */
+
+:root {
+  --bg: #d5e5f2;          /* 页底 */
+  --bg-2: #dcebf6;
+  --card: #c6dbec;        /* 卡片：比页底深一档的蓝 */
+  --card-2: #cfe1f0;      /* 悬停 */
+  --card-line: rgba(38, 84, 116, 0.2);
+}
+
+body { background: var(--bg) !important; }
+
+.post-item,
+.widget,
+.pn,
+.cat-card,
+body[data-page="archive"] .timeline,
+.note-card,
+.friend,
+.search-results li {
+  background: var(--card) !important;
+  border-color: var(--card-line) !important;
+  box-shadow: 0 1px 2px rgba(24, 60, 84, 0.07), 0 8px 22px rgba(24, 60, 84, 0.1) !important;
+}
+
+.post-item:hover,
+.cat-card:hover { background: var(--card-2) !important; }
+
+.post-cover,
+.pf-avatar,
+.mw-cover { background: #ffffff !important; }
+
+.hb-waves path { fill: var(--bg) !important; }
+
+/* 卡片加深后，内部浅色元素提亮以保持对比 */
+.post-item .tags a,
+.widget-tags .w-tag,
+.cal-d { background: rgba(255, 255, 255, 0.55); }
+
+/* 元信息、日期再深一点也不至于糊在蓝底上 */
+.post-item .meta,
+.post-item .meta time,
+.tl-date { color: color-mix(in srgb, var(--ink-3) 82%, var(--ink)); }
+/* 修正：日历格子不要整片白底，只保留今天/选中的高亮 */
+.cal-d { background: transparent !important; }
+.cal-d:hover { background: var(--glass-soft) !important; }
+.cal-d.is-today { background: color-mix(in srgb, #ffffff 62%, var(--card)) !important; }
+.cal-d.is-selected { background: transparent !important; border-color: var(--accent) !important; }

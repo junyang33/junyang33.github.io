@@ -79,6 +79,7 @@ const NAV = [
 /* 下拉菜单里的次要入口 */
 const NAV_MORE = [
   { href: '/categories.html', label: '分类', key: 'categories', icon: 'folder' },
+  { href: '/bookmarks.html', label: '书签导航', key: 'bookmarks', icon: 'bookmark' },
   { href: '/feed.xml', label: 'RSS 订阅', key: 'rss', icon: 'rss', external: true },
 ];
 
@@ -91,6 +92,7 @@ const NAV_ICON = {
   users: '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 5.6M17 20a6 6 0 0 0-2-4.5"/>',
   user: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
   folder: '<path d="M4 6a2 2 0 0 1 2-2h4l2 3h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>',
+  bookmark: '<path d="M6 4h12v17l-6-4.5L6 21z"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>',
   rss: '<path d="M5 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/>',
   music: '<circle cx="7" cy="18" r="2.6"/><circle cx="18" cy="16" r="2.6"/><path d="M9.6 18V7l11-2v11"/>',
@@ -745,6 +747,7 @@ function layout(opts) {
     '      <nav class="footer-col" aria-label="更多">',
     '        <h3>更多</h3>',
     '        <a href="/categories.html">分类</a>',
+    '        <a href="/bookmarks.html">书签导航</a>',
     '        <a href="/links.html">友链</a>',
     '        <a href="/about.html">关于</a>',
     '        <a href="/feed.xml">RSS 订阅</a>',
@@ -1155,6 +1158,68 @@ function buildCategoryPage(allPosts, name, id) {
     active: 'archive',
     path: '/category/' + id + '.html',
   });
+}
+
+function loadBookmarks() {
+  const raw = loadJson('bookmarks.json', null);
+  if (!raw || !Array.isArray(raw.groups) || !raw.groups.length) return null;
+  return raw;
+}
+
+function hostOf(url) {
+  return String(url || '').replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+}
+
+function buildBookmarks() {
+  const data = loadBookmarks();
+
+  if (!data) {
+    const empty = '<h1 class="page-title">书签导航</h1>' +
+      '<p class="page-desc">还没有书签。在 content/bookmarks.json 里加一条。</p>';
+    return layout({ title: '书签导航', content: empty, active: 'bookmarks', path: '/bookmarks.html' });
+  }
+
+  const total = data.groups.reduce(function (n, g) { return n + (g.items || []).length; }, 0);
+
+  const groups = data.groups.map(function (g, gi) {
+    const cards = (g.items || []).map(function (it) {
+      const host = hostOf(it.url);
+      const letter = (it.name || host || "?").trim().charAt(0).toUpperCase();
+      return [
+        '      <a class="bm" href="' + esc(it.url) + '" target="_blank" rel="noopener">',
+        '        <span class="bm-icon" aria-hidden="true">' + esc(letter) + '</span>',
+        '        <span class="bm-body">',
+        '          <strong class="bm-name">' + esc(it.name) + '</strong>',
+        it.desc ? '          <span class="bm-desc">' + esc(it.desc) + '</span>' : '',
+        '          <span class="bm-host">' + esc(host) + '</span>',
+        '        </span>',
+        '      </a>',
+      ].filter(Boolean).join('\n');
+    }).join('\n');
+
+    return [
+      '  <section class="bm-group" id="bm-g' + gi + '">',
+      '    <h2>' + esc(g.title) + ' <span class="bm-count">' + (g.items || []).length + '</span></h2>',
+      '    <div class="bm-grid">',
+      cards,
+      '    </div>',
+      '  </section>',
+    ].join('\n');
+  }).join('\n');
+
+  const content = [
+    '<h1 class="page-title">' + esc(data.title || '书签导航') + '</h1>',
+    '<p class="page-desc">' + esc(data.desc || '') + ' 共 ' + total + ' 个。</p>',
+    '<div class="bm-search-wrap">',
+    '  <input id="bmSearch" class="bm-search" type="search" placeholder="搜索名称、描述或域名…" autocomplete="off">',
+    '</div>',
+    '<div class="bm-list">',
+    groups,
+    '</div>',
+    '<p class="bm-empty" id="bmEmpty" hidden>没有匹配的书签。</p>',
+  ].join('\n');
+
+  return layout({ title: '书签导航', content: content, active: 'bookmarks', path: '/bookmarks.html' });
 }
 
 function categoryList(posts) {
@@ -1923,6 +1988,7 @@ function main() {
   writeFile('search.html', buildSearch());
   writeFile('about.html', buildMarkdownPage('about.md', '关于', 'about', '/about.html'));
   writeFile('links.html', buildLinks(loadFriends()));
+  writeFile('bookmarks.html', buildBookmarks());
   writeFile('404.html', build404());
 
   // 订阅与索引

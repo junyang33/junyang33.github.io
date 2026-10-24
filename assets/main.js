@@ -1259,6 +1259,38 @@
       renderList(selected);
     }
 
+    /* ---------- 书签导航：搜索过滤 ---------- */
+    var bmInput = document.getElementById('bmSearch');
+    if (bmInput) {
+      var bmGroups = Array.prototype.slice.call(document.querySelectorAll('.bm-group'));
+      var bmEmpty = document.getElementById('bmEmpty');
+
+      var filterBookmarks = function () {
+        var q = bmInput.value.trim().toLowerCase();
+        var shown = 0;
+
+        bmGroups.forEach(function (g) {
+          var cards = Array.prototype.slice.call(g.querySelectorAll('.bm'));
+          var hit = 0;
+
+          cards.forEach(function (c) {
+            var text = (c.textContent || '').toLowerCase();
+            var ok = !q || text.indexOf(q) > -1;
+            c.hidden = !ok;
+            if (ok) hit++;
+          });
+
+          g.hidden = hit === 0;
+          shown += hit;
+        });
+
+        if (bmEmpty) bmEmpty.hidden = shown > 0;
+      };
+
+      bmInput.addEventListener('input', filterBookmarks);
+      filterBookmarks();
+    }
+
     /* ---------- 动态：展开全文 / 评论 ---------- */
     $$('.pn-more').forEach(function (btn) {
       btn.addEventListener('click', function () {

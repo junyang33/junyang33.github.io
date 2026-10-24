@@ -6693,3 +6693,15 @@ body[data-page="archive"] .timeline,
   background: rgba(255, 255, 255, 0.92);
   border-color: rgba(255, 255, 255, 0.14);
 }
+/* 修复：文章页头图下方内容面板上移过多，把日期/时间那行盖住了 */
+.post-hero.has-photo + .post-shell {
+  margin-top: -26px !important;
+}
+
+.post-hero.has-photo .post-hero-inner {
+  padding-bottom: 40px !important;
+}
+
+@media (max-width: 900px) {
+  .post-hero.has-photo + .post-shell { margin-top: -16px !important; }
+}

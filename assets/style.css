@@ -5837,3 +5837,14 @@ body[data-page="archive"] .timeline,
 .cal-d.is-out {
   background: rgba(255, 255, 255, 0.6) !important;
 }
+/* ==========================================================================
+   v54：手机上横幅用静态图，不加载视频
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .hb-video { display: none !important; }
+  .hb-slide--video {
+    background-size: cover !important;
+    background-position: 46% 34% !important;
+  }
+}

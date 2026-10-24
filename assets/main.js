@@ -133,6 +133,48 @@
     });
   }
 
+  /* ============================ 横幅视频：手机上用静态图 ============================ */
+
+  function syncHeroVideo() {
+    var v = document.querySelector('.hb-video');
+    if (!v) return;
+
+    var narrow = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+
+    if (narrow) {
+      if (v.dataset.detached === '1') return;
+      var src = v.querySelector('source');
+      v.dataset.src = src ? src.getAttribute('src') : '';
+      try { v.pause(); } catch (e) {}
+      v.removeAttribute('autoplay');
+      if (src) src.remove();
+      try { v.load(); } catch (e) {}
+      v.dataset.detached = '1';
+      v.style.display = 'none';
+      return;
+    }
+
+    if (v.dataset.detached === '1') {
+      var url = v.dataset.src;
+      if (url && !v.querySelector('source')) {
+        var el = document.createElement('source');
+        el.src = url;
+        el.type = 'video/mp4';
+        v.appendChild(el);
+      }
+      v.dataset.detached = '0';
+      v.style.display = '';
+      v.setAttribute('autoplay', '');
+      try { v.load(); var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+    }
+  }
+
+  var heroVideoTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(heroVideoTimer);
+    heroVideoTimer = setTimeout(syncHeroVideo, 250);
+  });
+
   /* ============================ 漂浮气泡 ============================ */
 
   function initBubbles() {
@@ -822,6 +864,7 @@
   }
 
   function bootPage() {
+    syncHeroVideo();
     /* ---------- 字号按钮（按钮在 main 内，每次重绑） ---------- */
     var fontBtn = $('#fontBtn');
     if (fontBtn) {

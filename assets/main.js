@@ -154,7 +154,7 @@
 
       var narrow = window.innerWidth < 760;
       var petal = kind === 'petal';
-      var count = narrow ? (petal ? 26 : 26) : (petal ? 58 : 58);
+      var count = narrow ? (petal ? 26 : 14) : (petal ? 58 : 28);
       var frag = document.createDocumentFragment();
 
       for (var i = 0; i < count; i++) {

@@ -6761,3 +6761,11 @@ body[data-page="archive"] .timeline,
     border-radius: 18px !important;
   }
 }
+/* 日历：数字与小圆点之间再拉开一点距离 */
+.cal-d {
+  padding-bottom: 4px !important;
+  align-items: center;
+}
+.cal-dot {
+  bottom: 1px !important;
+}

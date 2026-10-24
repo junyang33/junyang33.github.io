@@ -5321,3 +5321,71 @@ a:hover { color: var(--accent); }
 @media (max-width: 900px) {
   .hb-video { object-position: 42% 34%; }
 }
+/* ==========================================================================
+   v45：内容卡片改用横幅的浅水蓝，页底接近白
+   ========================================================================== */
+
+:root {
+  --card: #e7f1f8;
+  --card-2: #eef6fb;
+  --card-line: rgba(47, 98, 128, 0.13);
+  --bg: #f8fafc;
+  --bg-2: #fdfefe;
+}
+
+body { background: var(--bg); }
+
+/* 首页文章卡片、侧栏挂件、动态、分类卡、归档面板 */
+.post-item,
+.widget,
+.pn,
+.cat-card,
+body[data-page="archive"] .timeline,
+.note-card,
+.friend,
+.search-results li {
+  background: var(--card) !important;
+  border-color: var(--card-line) !important;
+  box-shadow: 0 1px 2px rgba(24, 60, 84, 0.05), 0 8px 22px rgba(24, 60, 84, 0.06) !important;
+}
+
+/* 悬停时提亮一点，别跳色 */
+.post-item:hover,
+.cat-card:hover {
+  background: var(--card-2) !important;
+}
+
+/* 卡片里的图片和标签仍要白底衬托 */
+.post-cover,
+.pf-avatar,
+.mw-cover {
+  background: #ffffff !important;
+}
+
+/* 归档年份条：蓝色系浅底 */
+body[data-page="archive"] .tl-head {
+  background: color-mix(in srgb, var(--accent) 10%, #ffffff) !important;
+}
+
+/* 个人名片、公告按钮等保持主色 */
+.widget .w-count { color: color-mix(in srgb, var(--ink-3) 85%, var(--accent)); }
+
+/* 深色模式：卡片比底色再深一点，偏蓝 */
+[data-theme="dark"] {
+  --bg: #0b1016;
+  --bg-2: #0e141c;
+  --card: #111b25;
+  --card-2: #14202b;
+  --card-line: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .post-item,
+[data-theme="dark"] .widget,
+[data-theme="dark"] .pn,
+[data-theme="dark"] .cat-card,
+[data-theme="dark"] body[data-page="archive"] .timeline {
+  background: var(--card) !important;
+}
+[data-theme="dark"] body[data-page="archive"] .tl-head {
+  background: rgba(255, 255, 255, 0.05) !important;
+}

@@ -132,6 +132,66 @@
     });
   }
 
+  /* ============================ 漂浮气泡 ============================ */
+
+  function initBubbles() {
+    var layer = document.getElementById('bubbles');
+    var btn = document.getElementById('bubbleBtn');
+    if (!layer || !btn) return;
+
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var off = false;
+    try { off = localStorage.getItem('bubblesOff') === '1'; } catch (e) {}
+
+    var build = function () {
+      if (layer.dataset.built === '1') return;
+      layer.dataset.built = '1';
+      layer.innerHTML = '';
+
+      var narrow = window.innerWidth < 760;
+      var count = narrow ? 10 : 20;
+      var frag = document.createDocumentFragment();
+
+      for (var i = 0; i < count; i++) {
+        var b = document.createElement('span');
+        var size = 8 + Math.random() * (narrow ? 22 : 34);
+        b.className = 'bubble';
+        b.style.width = size.toFixed(1) + 'px';
+        b.style.height = size.toFixed(1) + 'px';
+        b.style.left = (Math.random() * 96 + 2).toFixed(2) + '%';
+        b.style.animationDuration = (14 + Math.random() * 16).toFixed(1) + 's';
+        b.style.animationDelay = (-Math.random() * 26).toFixed(1) + 's';
+        b.style.setProperty('--bubble-sway', (Math.random() * 46 - 23).toFixed(0) + 'px');
+        b.style.setProperty('--bubble-op', (0.5 + Math.random() * 0.32).toFixed(2));
+        frag.appendChild(b);
+      }
+
+      layer.appendChild(frag);
+    };
+
+    var sync = function () {
+      if (off || reduce) {
+        layer.hidden = true;
+      } else {
+        build();
+        layer.hidden = false;
+      }
+      btn.classList.toggle('is-off', off);
+      btn.setAttribute('aria-pressed', String(!off));
+      btn.setAttribute('title', off ? '显示气泡' : '隐藏气泡');
+    };
+
+    btn.addEventListener('click', function () {
+      off = !off;
+      try { localStorage.setItem('bubblesOff', off ? '1' : '0'); } catch (e) {}
+      sync();
+    });
+
+    sync();
+  }
+
+  initBubbles();
+
   /* ============================ 灯箱 ============================ */
 
   var lb = $('#lightbox');

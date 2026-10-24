@@ -676,6 +676,7 @@ function layout(opts) {
       ? '<div class="bg" aria-hidden="true" style="background-image:url(' + esc(SITE.background.image) +
         ');background-position:' + esc(SITE.background.position || 'center 15%') + '"></div>'
       : '',
+    '<div class="bubbles" id="bubbles" aria-hidden="true"></div>',
     '<a class="skip" href="#main">跳到正文</a>',
     '<header class="site-header">',
     '  <div class="header-inner">',
@@ -692,6 +693,9 @@ function layout(opts) {
     '      <input type="search" name="q" placeholder="搜索" aria-label="搜索文章" autocomplete="off">',
     '    </form>',
     '    <div class="nav-actions">',
+    '      <button class="icon-btn" id="bubbleBtn" type="button" title="气泡效果" aria-label="气泡效果" aria-pressed="true">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="14" r="5"/><circle cx="16.5" cy="7.5" r="2.6"/><circle cx="18" cy="16" r="1.4"/></svg>' +
+      '</button>',
     '      <button class="icon-btn" id="musicBtn" type="button" title="播放/暂停音乐（M）" aria-label="播放音乐">' + ni('music') + '</button>',
     '      <button class="icon-btn" id="themeToggle" type="button" title="切换明暗主题" aria-label="切换明暗主题">' + ni('moon') + '</button>',
     '      <button class="icon-btn menu-btn" id="menuBtn" type="button" title="菜单" aria-label="展开菜单" aria-expanded="false">' + ni('menu') + '</button>',

@@ -162,7 +162,7 @@
         b.style.animationDuration = (14 + Math.random() * 16).toFixed(1) + 's';
         b.style.animationDelay = (-Math.random() * 26).toFixed(1) + 's';
         b.style.setProperty('--bubble-sway', (Math.random() * 46 - 23).toFixed(0) + 'px');
-        b.style.setProperty('--bubble-op', (0.5 + Math.random() * 0.32).toFixed(2));
+        b.style.setProperty('--bubble-op', (0.2 + Math.random() * 0.22).toFixed(2));
         frag.appendChild(b);
       }
 

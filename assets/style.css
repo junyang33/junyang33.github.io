@@ -5694,3 +5694,61 @@ main.container,
   backdrop-filter: blur(0.5px);
   -webkit-backdrop-filter: blur(0.5px);
 }
+
+/* ==========================================================================
+   v51：卡片也带入横幅的水蓝（比页底更浅一档，保持层次）
+   ========================================================================== */
+
+:root {
+  --bg: #dde9f4;          /* 页底：浅水蓝，略深 */
+  --bg-2: #e7f1f9;
+  --card: #eef6fb;        /* 卡片：更浅的水蓝，浮在页底上 */
+  --card-2: #f5fbff;      /* 悬停提亮 */
+  --card-line: rgba(47, 98, 128, 0.14);
+}
+
+body { background: var(--bg) !important; }
+
+.post-item,
+.widget,
+.pn,
+.cat-card,
+body[data-page="archive"] .timeline,
+.note-card,
+.friend,
+.search-results li {
+  background: var(--card) !important;
+  border-color: var(--card-line) !important;
+  box-shadow: 0 1px 2px rgba(24, 60, 84, 0.05), 0 10px 26px rgba(24, 60, 84, 0.08) !important;
+}
+
+.post-item:hover,
+.cat-card:hover { background: var(--card-2) !important; }
+
+/* 卡片里的图片区域仍用白底衬托 */
+.post-cover,
+.pf-avatar,
+.mw-cover { background: #ffffff !important; }
+
+/* 横幅波浪跟随页底 */
+.hb-waves path { fill: var(--bg) !important; }
+
+/* 标签、日历格子等在蓝卡上要够清楚 */
+.widget-tags .w-tag,
+.cal-d { border-color: rgba(47, 98, 128, 0.16); }
+
+/* 深色：底色更深，卡片偏蓝一档 */
+[data-theme="dark"] {
+  --bg: #0a121b;
+  --bg-2: #0d1620;
+  --card: #16232f;
+  --card-2: #1b2a38;
+  --card-line: rgba(255, 255, 255, 0.09);
+}
+[data-theme="dark"] .hb-waves path { fill: #0a121b !important; }
+[data-theme="dark"] .post-item,
+[data-theme="dark"] .widget,
+[data-theme="dark"] .pn,
+[data-theme="dark"] .cat-card { background: var(--card) !important; }
+[data-theme="dark"] .post-item:hover,
+[data-theme="dark"] .cat-card:hover { background: var(--card-2) !important; }

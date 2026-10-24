@@ -5930,3 +5930,40 @@ body[data-page="archive"] .timeline,
 [data-theme="dark"] .cat-card:hover { background: #17232f !important; }
 
 [data-theme="dark"] .hb-waves path { fill: #0a0f15 !important; }
+/* ==========================================================================
+   v57：深色模式标签挂件优化（只改深色）
+   ========================================================================== */
+
+[data-theme="dark"] .widget-tags .w-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #cbd8e3 !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 999px;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+[data-theme="dark"] .widget-tags .w-tag i {
+  font-style: normal;
+  font-size: 0.92em;
+  color: #7e8e9c !important;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="dark"] .widget-tags .w-tag:hover {
+  color: #f2f8fc !important;
+  background: rgba(127, 182, 209, 0.18) !important;
+  border-color: rgba(127, 182, 209, 0.42) !important;
+}
+[data-theme="dark"] .widget-tags .w-tag:hover i { color: #9fc4d9 !important; }
+
+/* 数量为 1 的标签降低存在感，文章多的更突出 */
+[data-theme="dark"] .widget-tags .w-tag:has(i) i { opacity: 0.9; }
+
+/* 挂件本身的内边距微调，让两行胶囊更舒展 */
+[data-theme="dark"] .widget-tags .w-pills { gap: 8px 7px; }

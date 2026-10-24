@@ -5389,3 +5389,56 @@ body[data-page="archive"] .tl-head {
 [data-theme="dark"] body[data-page="archive"] .tl-head {
   background: rgba(255, 255, 255, 0.05) !important;
 }
+/* ==========================================================================
+   v46：页面底色改为浅水蓝，卡片回到白色（左右留白区域变蓝）
+   ========================================================================== */
+
+:root {
+  --bg: #e6f0f8;
+  --bg-2: #eef6fb;
+  --card: #ffffff;
+  --card-2: #fbfdff;
+  --card-line: rgba(47, 98, 128, 0.12);
+}
+
+body {
+  background: var(--bg) !important;
+}
+
+/* 卡片恢复白色 */
+.post-item,
+.widget,
+.pn,
+.cat-card,
+body[data-page="archive"] .timeline,
+.note-card,
+.friend,
+.search-results li {
+  background: #ffffff !important;
+  border-color: var(--card-line) !important;
+  box-shadow: 0 1px 2px rgba(24, 60, 84, 0.04), 0 8px 22px rgba(24, 60, 84, 0.07) !important;
+}
+
+.post-item:hover,
+.cat-card:hover { background: var(--card-2) !important; }
+
+/* 页头、页脚在蓝底上仍保持透明玻璃质感 */
+.site-header { background: transparent; }
+.site-footer { background: transparent; }
+
+/* 横幅下方的波浪与页底同色 */
+.hb-waves path { fill: var(--bg) !important; }
+
+/* 归档年份条 */
+body[data-page="archive"] .tl-head {
+  background: color-mix(in srgb, var(--accent) 8%, #ffffff) !important;
+}
+
+/* 深色：页面更深，卡片略亮 */
+[data-theme="dark"] {
+  --bg: #0a0f15;
+  --bg-2: #0d131a;
+  --card: #121c26;
+  --card-line: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .hb-waves path { fill: #0a0f15 !important; }

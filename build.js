@@ -1187,7 +1187,9 @@ function buildBookmarks() {
       const letter = (it.name || host || "?").trim().charAt(0).toUpperCase();
       return [
         '      <a class="bm" href="' + esc(it.url) + '" target="_blank" rel="noopener">',
-        '        <span class="bm-icon" aria-hidden="true">' + esc(letter) + '</span>',
+        '        <span class="bm-icon' + (it.icon ? ' has-img' : '') + '" aria-hidden="true">' +
+          (it.icon ? '<img src="' + esc(it.icon) + '" alt="" loading="lazy">' : esc(letter)) +
+        '</span>',
         '        <span class="bm-body">',
         '          <strong class="bm-name">' + esc(it.name) + '</strong>',
         it.desc ? '          <span class="bm-desc">' + esc(it.desc) + '</span>' : '',

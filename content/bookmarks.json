@@ -5,51 +5,162 @@
     {
       "title": "开发",
       "items": [
-        { "name": "MDN Web Docs", "url": "https://developer.mozilla.org/zh-CN/", "desc": "前端最权威的文档" },
-        { "name": "GitHub", "url": "https://github.com/", "desc": "代码托管与开源社区" },
-        { "name": "Stack Overflow", "url": "https://stackoverflow.com/", "desc": "遇到报错先搜这里" },
-        { "name": "Can I use", "url": "https://caniuse.com/", "desc": "浏览器特性兼容查询" },
-        { "name": "npm", "url": "https://www.npmjs.com/", "desc": "JavaScript 包仓库" },
-        { "name": "Vite", "url": "https://cn.vitejs.dev/", "desc": "现代前端构建工具" }
+        {
+          "name": "MDN Web Docs",
+          "url": "https://developer.mozilla.org/zh-CN/",
+          "desc": "前端最权威的文档",
+          "icon": "/assets/images/bm/developer-mozilla-org.png"
+        },
+        {
+          "name": "GitHub",
+          "url": "https://github.com/",
+          "desc": "代码托管与开源社区",
+          "icon": "/assets/images/bm/github-com.png"
+        },
+        {
+          "name": "Stack Overflow",
+          "url": "https://stackoverflow.com/",
+          "desc": "遇到报错先搜这里",
+          "icon": "/assets/images/bm/stackoverflow-com.png"
+        },
+        {
+          "name": "Can I use",
+          "url": "https://caniuse.com/",
+          "desc": "浏览器特性兼容查询",
+          "icon": "/assets/images/bm/caniuse-com.png"
+        },
+        {
+          "name": "npm",
+          "url": "https://www.npmjs.com/",
+          "desc": "JavaScript 包仓库",
+          "icon": "/assets/images/bm/npmjs-com.png"
+        },
+        {
+          "name": "Vite",
+          "url": "https://cn.vitejs.dev/",
+          "desc": "现代前端构建工具",
+          "icon": "/assets/images/bm/cn-vitejs-dev.png"
+        }
       ]
     },
     {
       "title": "设计",
       "items": [
-        { "name": "Figma", "url": "https://www.figma.com/", "desc": "界面设计与协作" },
-        { "name": "Dribbble", "url": "https://dribbble.com/", "desc": "设计作品灵感库" },
-        { "name": "Unsplash", "url": "https://unsplash.com/", "desc": "免费高清图库" },
-        { "name": "Coolors", "url": "https://coolors.co/", "desc": "快速生成配色方案" },
-        { "name": "Google Fonts", "url": "https://fonts.google.com/", "desc": "免费开源字体" }
+        {
+          "name": "Figma",
+          "url": "https://www.figma.com/",
+          "desc": "界面设计与协作",
+          "icon": "/assets/images/bm/figma-com.png"
+        },
+        {
+          "name": "Dribbble",
+          "url": "https://dribbble.com/",
+          "desc": "设计作品灵感库",
+          "icon": "/assets/images/bm/dribbble-com.png"
+        },
+        {
+          "name": "Unsplash",
+          "url": "https://unsplash.com/",
+          "desc": "免费高清图库"
+        },
+        {
+          "name": "Coolors",
+          "url": "https://coolors.co/",
+          "desc": "快速生成配色方案",
+          "icon": "/assets/images/bm/coolors-co.png"
+        },
+        {
+          "name": "Google Fonts",
+          "url": "https://fonts.google.com/",
+          "desc": "免费开源字体",
+          "icon": "/assets/images/bm/fonts-google-com.png"
+        }
       ]
     },
     {
       "title": "工具",
       "items": [
-        { "name": "TinyPNG", "url": "https://tinypng.com/", "desc": "图片压缩，几乎无损" },
-        { "name": "Squoosh", "url": "https://squoosh.app/", "desc": "Google 出的图片转换" },
-        { "name": "Regex101", "url": "https://regex101.com/", "desc": "正则调试与解释" },
-        { "name": "Excalidraw", "url": "https://excalidraw.com/", "desc": "手绘风白板画图" },
-        { "name": "Carbon", "url": "https://carbon.now.sh/", "desc": "把代码截成好看的图" },
-        { "name": "JSON 格式化", "url": "https://www.json.cn/", "desc": "JSON 在线查看与校验" }
+        {
+          "name": "TinyPNG",
+          "url": "https://tinypng.com/",
+          "desc": "图片压缩，几乎无损",
+          "icon": "/assets/images/bm/tinypng-com.png"
+        },
+        {
+          "name": "Squoosh",
+          "url": "https://squoosh.app/",
+          "desc": "Google 出的图片转换",
+          "icon": "/assets/images/bm/squoosh-app.png"
+        },
+        {
+          "name": "Regex101",
+          "url": "https://regex101.com/",
+          "desc": "正则调试与解释",
+          "icon": "/assets/images/bm/regex101-com.png"
+        },
+        {
+          "name": "Excalidraw",
+          "url": "https://excalidraw.com/",
+          "desc": "手绘风白板画图",
+          "icon": "/assets/images/bm/excalidraw-com.png"
+        },
+        {
+          "name": "Carbon",
+          "url": "https://carbon.now.sh/",
+          "desc": "把代码截成好看的图",
+          "icon": "/assets/images/bm/carbon-now-sh.png"
+        },
+        {
+          "name": "JSON 格式化",
+          "url": "https://www.json.cn/",
+          "desc": "JSON 在线查看与校验"
+        }
       ]
     },
     {
       "title": "学习",
       "items": [
-        { "name": "阮一峰的网络日志", "url": "https://www.ruanyifeng.com/blog/", "desc": "前端与科技周报" },
-        { "name": "廖雪峰的官方网站", "url": "https://liaoxuefeng.com/", "desc": "Java / Python / Git 教程" },
-        { "name": "菜鸟教程", "url": "https://www.runoob.com/", "desc": "入门速查手册" },
-        { "name": "哔哩哔哩", "url": "https://www.bilibili.com/", "desc": "视频课程与教程" }
+        {
+          "name": "菜鸟教程",
+          "url": "https://www.runoob.com/",
+          "desc": "入门速查手册",
+          "icon": "/assets/images/bm/runoob-com.png"
+        },
+        {
+          "name": "哔哩哔哩",
+          "url": "https://www.bilibili.com/",
+          "desc": "视频课程与教程",
+          "icon": "/assets/images/bm/bilibili-com.png"
+        }
       ]
     },
     {
       "title": "AI",
       "items": [
-        { "name": "Claude", "url": "https://claude.ai/", "desc": "长文本对话与写作" },
-        { "name": "ChatGPT", "url": "https://chat.openai.com/", "desc": "通用对话助手" },
-        { "name": "DeepSeek", "url": "https://chat.deepseek.com/", "desc": "中文友好的对话模型" },
-        { "name": "Hugging Face", "url": "https://huggingface.co/", "desc": "开源模型与数据集" }
+        {
+          "name": "Claude",
+          "url": "https://claude.ai/",
+          "desc": "长文本对话与写作",
+          "icon": "/assets/images/bm/claude-ai.png"
+        },
+        {
+          "name": "ChatGPT",
+          "url": "https://chat.openai.com/",
+          "desc": "通用对话助手",
+          "icon": "/assets/images/bm/chat-openai-com.png"
+        },
+        {
+          "name": "DeepSeek",
+          "url": "https://chat.deepseek.com/",
+          "desc": "中文友好的对话模型",
+          "icon": "/assets/images/bm/chat-deepseek-com.png"
+        },
+        {
+          "name": "Hugging Face",
+          "url": "https://huggingface.co/",
+          "desc": "开源模型与数据集",
+          "icon": "/assets/images/bm/huggingface-co.png"
+        }
       ]
     }
   ]

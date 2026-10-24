@@ -6676,3 +6676,20 @@ body[data-page="archive"] .timeline,
 }
 
 .dropdown-menu { z-index: 60 !important; }
+/* 书签卡片：真实图标样式 */
+.bm-icon.has-img {
+  background: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--ink) 7%, transparent);
+  overflow: hidden;
+}
+.bm-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
+}
+
+[data-theme="dark"] .bm-icon.has-img {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.14);
+}

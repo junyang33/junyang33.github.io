@@ -5568,3 +5568,47 @@ main.container,
       rgba(110, 165, 200, 0.1) 64%,
       rgba(110, 165, 200, 0.02) 92%) !important;
 }
+
+/* ==========================================================================
+   v48：浅色模式改用桃花花瓣
+   ========================================================================== */
+
+.petal {
+  position: absolute;
+  top: -70px;
+  bottom: auto !important;
+  border-radius: 64% 10% 64% 10%;
+  background:
+    radial-gradient(circle at 32% 26%,
+      #ffe3ec 0%,
+      #ffc2d4 34%,
+      #f4a3bd 66%,
+      #e88aa6 100%);
+  box-shadow: 0 1px 4px rgba(228, 138, 166, 0.22);
+  animation-name: petalFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes petalFall {
+  0% {
+    transform: translate3d(0, -8vh, 0) rotate(0deg) rotateY(0deg);
+    opacity: 0;
+  }
+  8% { opacity: var(--bubble-op, 0.6); }
+  45% {
+    transform: translate3d(var(--bubble-sway, 24px), 45vh, 0) rotate(160deg) rotateY(40deg);
+  }
+  75% {
+    transform: translate3d(calc(var(--bubble-sway, 24px) * -0.7), 80vh, 0) rotate(280deg) rotateY(-30deg);
+  }
+  100% {
+    transform: translate3d(calc(var(--bubble-sway, 24px) * 0.4), 112vh, 0) rotate(400deg) rotateY(20deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .petal { display: none !important; }
+}

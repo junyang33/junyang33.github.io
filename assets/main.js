@@ -42,6 +42,7 @@
     }
     try { localStorage.setItem('theme', theme); } catch (e) {}
     syncComments(theme);
+    document.dispatchEvent(new Event('themechange'));
   }
 
   var saved = null;
@@ -143,27 +144,40 @@
     var off = false;
     try { off = localStorage.getItem('bubblesOff') === '1'; } catch (e) {}
 
-    var build = function () {
-      if (layer.dataset.built === '1') return;
-      layer.dataset.built = '1';
+    var kindOf = function () {
+      return document.documentElement.dataset.theme === 'dark' ? 'bubble' : 'petal';
+    };
+
+    var spawn = function (kind) {
       layer.innerHTML = '';
+      layer.dataset.kind = kind;
 
       var narrow = window.innerWidth < 760;
-      var count = narrow ? 10 : 20;
+      var petal = kind === 'petal';
+      var count = narrow ? (petal ? 12 : 10) : (petal ? 26 : 20);
       var frag = document.createDocumentFragment();
 
       for (var i = 0; i < count; i++) {
-        var b = document.createElement('span');
-        var size = 8 + Math.random() * (narrow ? 22 : 34);
-        b.className = 'bubble';
-        b.style.width = size.toFixed(1) + 'px';
-        b.style.height = size.toFixed(1) + 'px';
-        b.style.left = (Math.random() * 96 + 2).toFixed(2) + '%';
-        b.style.animationDuration = (14 + Math.random() * 16).toFixed(1) + 's';
-        b.style.animationDelay = (-Math.random() * 26).toFixed(1) + 's';
-        b.style.setProperty('--bubble-sway', (Math.random() * 46 - 23).toFixed(0) + 'px');
-        b.style.setProperty('--bubble-op', (0.2 + Math.random() * 0.22).toFixed(2));
-        frag.appendChild(b);
+        var el = document.createElement('span');
+        el.className = petal ? 'petal' : 'bubble';
+
+        var size = petal
+          ? 7 + Math.random() * 11
+          : 8 + Math.random() * (narrow ? 22 : 34);
+
+        el.style.width = size.toFixed(1) + 'px';
+        el.style.height = petal ? (size * (0.8 + Math.random() * 0.5)).toFixed(1) + 'px' : size.toFixed(1) + 'px';
+        el.style.left = (Math.random() * 98 + 1).toFixed(2) + '%';
+
+        var dur = petal ? 9 + Math.random() * 11 : 14 + Math.random() * 16;
+        el.style.animationDuration = dur.toFixed(1) + 's';
+        el.style.animationDelay = (-Math.random() * dur).toFixed(1) + 's';
+        el.style.setProperty('--bubble-sway', (Math.random() * 50 - 25).toFixed(0) + 'px');
+        el.style.setProperty('--bubble-op', petal
+          ? (0.35 + Math.random() * 0.4).toFixed(2)
+          : (0.2 + Math.random() * 0.22).toFixed(2));
+
+        frag.appendChild(el);
       }
 
       layer.appendChild(frag);
@@ -173,18 +187,22 @@
       if (off || reduce) {
         layer.hidden = true;
       } else {
-        build();
+        spawn(kindOf());
         layer.hidden = false;
       }
       btn.classList.toggle('is-off', off);
       btn.setAttribute('aria-pressed', String(!off));
-      btn.setAttribute('title', off ? '显示气泡' : '隐藏气泡');
+      btn.setAttribute('title', off ? '显示浮动效果' : '隐藏浮动效果');
     };
 
     btn.addEventListener('click', function () {
       off = !off;
       try { localStorage.setItem('bubblesOff', off ? '1' : '0'); } catch (e) {}
       sync();
+    });
+
+    document.addEventListener('themechange', function () {
+      if (!off && !reduce) spawn(kindOf());
     });
 
     sync();

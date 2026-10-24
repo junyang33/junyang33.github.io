@@ -6495,3 +6495,38 @@ body[data-page="archive"] .timeline,
   margin-left: auto !important;
   margin-right: auto !important;
 }
+/* ==========================================================================
+   v63：底栏回到内容宽度，改为增加高度（纵向留白）
+   ========================================================================== */
+
+.footer-inner {
+  max-width: var(--site-w) !important;
+  padding: 46px 0 30px !important;
+}
+
+.footer-top {
+  padding-bottom: 28px !important;
+}
+
+/* 链接行整体下沉一点，拉高视觉比重 */
+.footer-col { gap: 22px !important; }
+
+.footer-social a {
+  padding: 6px 13px !important;
+}
+
+.footer-bottom {
+  padding-top: 24px !important;
+  font-size: 0.75rem !important;
+}
+
+.footer-top-btn {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+@media (max-width: 900px) {
+  .footer-inner { padding: 30px 0 22px !important; }
+  .footer-top { padding-bottom: 18px !important; }
+  .footer-bottom { padding-top: 16px !important; }
+}

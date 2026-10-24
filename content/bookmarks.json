@@ -174,12 +174,6 @@
           "icon": "/assets/images/bm/kimi-moonshot-cn.png"
         },
         {
-          "name": "豆包",
-          "url": "https://www.doubao.com/",
-          "desc": "字节跳动的对话助手",
-          "icon": "/assets/images/bm/doubao-com.png"
-        },
-        {
           "name": "通义千问",
           "url": "https://tongyi.aliyun.com/",
           "desc": "阿里的中文大模型",

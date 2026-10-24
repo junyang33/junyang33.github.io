@@ -72,14 +72,14 @@ const NAV = [
   { href: '/archive.html', label: '文章', key: 'archive', icon: 'file' },
   { href: '/notes.html', label: '动态', key: 'notes', icon: 'chat' },
   { href: '/photos.html', label: '照片', key: 'photos', icon: 'image' },
-  { href: '/links.html', label: '友链', key: 'links', icon: 'users' },
+  { href: '/bookmarks.html', label: '书签导航', key: 'bookmarks', icon: 'bookmark' },
   { href: '/about.html', label: '关于', key: 'about', icon: 'user' },
 ];
 
 /* 下拉菜单里的次要入口 */
 const NAV_MORE = [
   { href: '/categories.html', label: '分类', key: 'categories', icon: 'folder' },
-  { href: '/bookmarks.html', label: '书签导航', key: 'bookmarks', icon: 'bookmark' },
+  { href: '/links.html', label: '友链', key: 'links', icon: 'users' },
   { href: '/feed.xml', label: 'RSS 订阅', key: 'rss', icon: 'rss', external: true },
 ];
 
@@ -743,11 +743,11 @@ function layout(opts) {
     '        <a href="/archive.html">文章归档</a>',
     '        <a href="/notes.html">动态</a>',
     '        <a href="/photos.html">照片</a>',
+    '        <a href="/bookmarks.html">书签导航</a>',
     '      </nav>',
     '      <nav class="footer-col" aria-label="更多">',
     '        <h3>更多</h3>',
     '        <a href="/categories.html">分类</a>',
-    '        <a href="/bookmarks.html">书签导航</a>',
     '        <a href="/links.html">友链</a>',
     '        <a href="/about.html">关于</a>',
     '        <a href="/feed.xml">RSS 订阅</a>',

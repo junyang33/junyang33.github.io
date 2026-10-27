@@ -2,8 +2,7 @@
 title: 固件编译与烧录
 date: 2026-10-27
 category: 鸿蒙南向工程手册
-cover: /assets/images/covers/harmony-logo-cover.jpg
-hero: /assets/images/covers/harmony-2-hero.jpg
+cover: /assets/images/covers/harmony-cover.jpg
 tags: [鸿蒙, 烧录, 调试]
 summary: 一次只勾选一个示例，编译、烧录、看启动日志；两块板子分别刷固件，靠星闪自动配对。
 ---

@@ -3,7 +3,7 @@ title: 南向工程启动与参数修改
 date: 2026-10-27
 category: 鸿蒙南向工程手册
 cover: /assets/images/covers/harmony-logo-cover.jpg
-hero: /assets/images/covers/harmony-1-hero.jpg
+hero: /assets/images/covers/huawei-hero.png
 tags: [鸿蒙, WS63, 环境搭建]
 summary: 准备 SDK 与附件、拷贝示例工程、替换 config.py，再把 Wi-Fi 和两台设备的 MQTT 参数填进配置文件。
 ---

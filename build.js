@@ -1009,7 +1009,7 @@ function buildPost(post, all) {
   const heroPhoto = post.hero || post.cover || SITE.postHero || (hasCarousel() && firstSlideImage()) || '';
 
   const content = [
-    '<header class="post-hero' + (heroPhoto ? ' has-photo' : '') + '">',
+    '<header class="post-hero' + (heroPhoto ? ' has-photo' : '') + (/huawei-hero\.(jpg|png)$/.test(heroPhoto) ? ' hero-light' : '') + '">',
     heroPhoto
       ? '  <div class="post-hero-photo" style="background-image:url(' + esc(heroPhoto) + ')"></div>'
       : '',

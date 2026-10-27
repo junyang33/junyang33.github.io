@@ -6946,3 +6946,35 @@ body {
 @media (max-width: 600px) {
   .post-content img[src*="huawei-logo"] { width: 120px; }
 }
+/* 白底标识头图：图片完整显示，不加任何渐变压暗 */
+.post-hero.hero-light .post-hero-photo {
+  background-color: #ffffff;
+  background-size: contain;
+  background-position: center right;
+  background-repeat: no-repeat;
+}
+.post-hero.hero-light .post-hero-photo::after { background: none; }
+
+.post-hero.hero-light h1 {
+  color: #13232f;
+  text-shadow: none;
+}
+.post-hero.hero-light .meta,
+.post-hero.hero-light .meta time,
+.post-hero.hero-light .meta .meta-item {
+  color: #4c5f70 !important;
+  text-shadow: none;
+}
+/* 白底标识头图：去掉底部渐变压暗，白色保持干净 */
+.post-hero.hero-light::before { background: none !important; }
+.post-hero.hero-light .post-hero-photo { background-color: #ffffff !important; }
+/* 白底标识头图：四周留出一点呼吸空间，避免标识贴边 */
+.post-hero.hero-light .post-hero-photo {
+  padding: 26px 44px;
+  box-sizing: border-box;
+  background-origin: content-box;
+  background-position: center right;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #ffffff;
+}

@@ -7,6 +7,8 @@ tags: [鸿蒙, 华为云, IoTDA]
 summary: 把 IoTDA 的连接参数写进工程，验证云端下发命令、报警联动和台灯自动控制这几条链路。
 ---
 
+![](/assets/images/harmony/huawei-logo.png)
+
 ### 1   产品与设备注册见华为云新建设备与产品(模型).pdf
 
 ### 2  复制连接参数并填写工程配置

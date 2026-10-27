@@ -7,6 +7,8 @@ tags: [鸿蒙, 烧录, 调试]
 summary: 一次只勾选一个示例，编译、烧录、看启动日志；两块板子分别刷固件，靠星闪自动配对。
 ---
 
+![](/assets/images/harmony/huawei-logo.png)
+
 ### 1  编译当前勾选的示例
 
 在 Kconfig 中保存选择后，点击 Rebuild；也可先 Clean 再 Build。等待出现 SUCCESS 提示，再检查本次编译输出中的 error 和 warning。按任务要求处理后重新编译，直至无错误、无告警。每次切换示例或修改参数后，都按此方式重新编译。

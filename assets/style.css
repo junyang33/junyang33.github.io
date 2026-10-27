@@ -6929,3 +6929,20 @@ body {
   max-width: 100%;
   height: auto;
 }
+/* 鸿蒙手册文章开头的华为标识：缩小成品牌标记，不做大图 */
+.post-content img[src*="huawei-logo"] {
+  width: 150px;
+  height: auto;
+  display: block;
+  margin: 2px 0 20px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.post-content > p > img:only-child[src*="huawei-logo"] {
+  background: none;
+}
+
+@media (max-width: 600px) {
+  .post-content img[src*="huawei-logo"] { width: 120px; }
+}

@@ -6889,3 +6889,43 @@ body[data-page="archive"] .timeline,
   paint-order: stroke fill;
   letter-spacing: 0.002em;
 }
+/* ==========================================================================
+   v67：修复移动端内容横向溢出（长路径、宽表格）
+   ========================================================================== */
+
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* 长串（文件路径、URL）允许在任意位置断开 */
+.post-content,
+.post-content p,
+.post-content li,
+.post-content td,
+.post-content th,
+.post-content code,
+.pn-body {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* 表格：窄屏改为可横向滚动的块，不再撑破页面 */
+@media (max-width: 900px) {
+  .post-content table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .post-content { padding-left: 2px; padding-right: 2px; }
+}
+
+/* 图片也不许超出 */
+.post-content img,
+.post-content video {
+  max-width: 100%;
+  height: auto;
+}

@@ -1,7 +1,7 @@
 ---
 title: 南向工程启动与参数修改
 date: 2026-10-27
-category: 鸿蒙南向工程手册
+category: 鸿蒙
 cover: /assets/images/covers/harmony-logo-cover.jpg
 hero: /assets/images/covers/huawei-hero.png
 tags: [鸿蒙, WS63, 环境搭建]

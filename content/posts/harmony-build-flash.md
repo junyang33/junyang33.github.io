@@ -1,7 +1,7 @@
 ---
 title: 固件编译与烧录
 date: 2026-10-27
-category: 鸿蒙南向工程手册
+category: 鸿蒙
 cover: /assets/images/covers/harmony-logo-cover.jpg
 hero: /assets/images/covers/huawei-hero.png
 tags: [鸿蒙, 烧录, 调试]

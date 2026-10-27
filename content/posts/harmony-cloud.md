@@ -1,7 +1,7 @@
 ---
 title: 华为云平台接入与数据贯通
 date: 2026-10-27
-category: 鸿蒙南向工程手册
+category: 鸿蒙
 cover: /assets/images/covers/harmony-logo-cover.jpg
 hero: /assets/images/covers/huawei-hero.png
 tags: [鸿蒙, 华为云, IoTDA]

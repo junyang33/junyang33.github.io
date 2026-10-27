@@ -3,11 +3,10 @@ title: 南向工程启动与参数修改
 date: 2026-10-27
 category: 鸿蒙南向工程手册
 cover: /assets/images/covers/harmony-1.jpg
+hero: /assets/images/covers/harmony-1-hero.jpg
 tags: [鸿蒙, WS63, 环境搭建]
 summary: 准备 SDK 与附件、拷贝示例工程、替换 config.py，再把 Wi-Fi 和两台设备的 MQTT 参数填进配置文件。
 ---
-
-![](/assets/images/harmony/huawei-logo.png)
 
 准备好 SDK 和 attach 附件（本套示例的附件目录为 attach_env_lamp，下文仍记为 attach），SDK 根目录统一记为 fbb_ws63。在资源管理器中分别打开附件和 SDK；也可在 VS Code左侧资源管理器中展开这两个目录。
 

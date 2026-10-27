@@ -3,11 +3,10 @@ title: 华为云平台接入与数据贯通
 date: 2026-10-27
 category: 鸿蒙南向工程手册
 cover: /assets/images/covers/harmony-3.jpg
+hero: /assets/images/covers/harmony-3-hero.jpg
 tags: [鸿蒙, 华为云, IoTDA]
 summary: 把 IoTDA 的连接参数写进工程，验证云端下发命令、报警联动和台灯自动控制这几条链路。
 ---
-
-![](/assets/images/harmony/huawei-logo.png)
 
 ### 1   产品与设备注册见华为云新建设备与产品(模型).pdf
 

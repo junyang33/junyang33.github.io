@@ -380,6 +380,7 @@ function loadPosts() {
         tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : parsed.data.tags ? [parsed.data.tags] : [],
         category: parsed.data.category || '未分类',
         cover: parsed.data.cover || '',
+        hero: parsed.data.hero || '',
         summary: parsed.data.summary || truncate(stripMd(parsed.body), 110),
         draft: String(parsed.data.draft || '').toLowerCase() === 'true',
         pinned: String(parsed.data.pinned || '').toLowerCase() === 'true',
@@ -1005,7 +1006,7 @@ function buildPost(post, all) {
   pager.push('</nav>');
 
   /* 文章页头图优先用这篇自己的封面，其次站点设定，最后回落到横幅图 */
-  const heroPhoto = post.cover || SITE.postHero || (hasCarousel() && firstSlideImage()) || '';
+  const heroPhoto = post.hero || post.cover || SITE.postHero || (hasCarousel() && firstSlideImage()) || '';
 
   const content = [
     '<header class="post-hero' + (heroPhoto ? ' has-photo' : '') + '">',

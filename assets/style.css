@@ -6978,3 +6978,14 @@ body {
   background-repeat: no-repeat;
   background-color: #ffffff;
 }
+/* 头图标识居中 */
+.post-hero.hero-light .post-hero-photo {
+  background-position: center !important;
+  background-size: contain !important;
+}
+/* 头图标识居中，并让出底部标题区域，避免文字压在标识上 */
+.post-hero.hero-light .post-hero-photo {
+  padding: 16px 40px 104px !important;
+  background-position: center top !important;
+  background-size: contain !important;
+}

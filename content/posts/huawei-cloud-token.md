@@ -2,7 +2,7 @@
 title: 如何获取华为云 Token 鉴权
 date: 2026-10-29
 category: 鸿蒙
-cover: /assets/images/covers/huawei-logo-cover.jpg
+cover: /assets/images/covers/harmony-logo-cover.jpg
 hero: /assets/images/covers/huawei-hero.png
 tags: [鸿蒙, 华为云, Token]
 summary: 用一条 PowerShell 命令向 IAM 换取 Token，再把 Token 放进 App 的每个请求头里。附参数逐个解释。

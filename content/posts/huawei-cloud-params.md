@@ -65,19 +65,19 @@ summary: 接设备前要凑齐的一串参数，分别藏在控制台的哪个�
 
 ![](/assets/images/param/fig03.png)
 
-![](/assets/images/param/fig04.png)
-
 ## 三、资源空间与接入地址
 
 **应用 ID**（`APP_ID`）
 
 在左侧「资源空间」里查看。
 
-![](/assets/images/param/fig05.png)
+![](/assets/images/param/fig04.png)
 
 **应用接入地址**
 
 实例详情里的「接入信息」页签，MQTT 连接的域名就写在这里。
+
+![](/assets/images/param/fig05.png)
 
 ## 四、设备与服务
 

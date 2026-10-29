@@ -6989,3 +6989,12 @@ body {
   background-position: center top !important;
   background-size: contain !important;
 }
+/* 白底标识头图：标题与标识之间再留一点空间 */
+.post-hero.hero-light .post-hero-photo {
+  padding-bottom: 122px !important;
+}
+/* 代码块：内容过长时可横向滚动，不撑破版面 */
+.post-content pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

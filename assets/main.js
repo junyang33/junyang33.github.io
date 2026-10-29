@@ -141,31 +141,65 @@
 
     var narrow = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
 
+    /* 手机：不下载视频，只留海报 */
     if (narrow) {
       if (v.dataset.detached === '1') return;
-      var src = v.querySelector('source');
-      v.dataset.src = src ? src.getAttribute('src') : '';
       try { v.pause(); } catch (e) {}
+      v.removeAttribute('src');
       v.removeAttribute('autoplay');
-      if (src) src.remove();
       try { v.load(); } catch (e) {}
       v.dataset.detached = '1';
       v.style.display = 'none';
       return;
     }
 
+    v.style.display = '';
+
+    /* 桌面：第一次进入时由 scheduleHeroVideo 触发下载 */
+    if (v.dataset.started !== '1') return;
     if (v.dataset.detached === '1') {
-      var url = v.dataset.src;
-      if (url && !v.querySelector('source')) {
-        var el = document.createElement('source');
-        el.src = url;
-        el.type = 'video/mp4';
-        v.appendChild(el);
-      }
       v.dataset.detached = '0';
-      v.style.display = '';
+      var url = v.dataset.src;
+      if (url && !v.getAttribute('src')) {
+        v.setAttribute('src', url);
+        try { v.load(); } catch (e) {}
+      }
       v.setAttribute('autoplay', '');
-      try { v.load(); var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+    }
+    var pr = v.play();
+    if (pr && pr.catch) pr.catch(function () {});
+  }
+
+  /* 首屏之后、浏览器空闲时再加载视频，省掉一开始的上兆流量 */
+  function videoWorthLoading() {
+    var c = navigator.connection;
+    if (c) {
+      if (c.saveData) return false;
+      if (/^(slow-)?2g$/.test(c.effectiveType || '')) return false;
+    }
+    return true;
+  }
+
+  function scheduleHeroVideo() {
+    var v = document.querySelector('.hb-video');
+    if (!v || v.dataset.started === '1') return;
+    if (!videoWorthLoading()) return;
+    v.dataset.started = '1';
+
+    var url = v.dataset.src;
+    if (!url) return;
+    v.setAttribute('src', url);
+    v.setAttribute('autoplay', '');
+    try { v.load(); } catch (e) {}
+    var pr = v.play();
+    if (pr && pr.catch) pr.catch(function () {});
+  }
+
+  function queueHeroVideo() {
+    if (document.readyState === 'complete') {
+      setTimeout(scheduleHeroVideo, 600);
+    } else {
+      window.addEventListener('load', function () { setTimeout(scheduleHeroVideo, 600); }, { once: true });
     }
   }
 
@@ -865,6 +899,7 @@
 
   function bootPage() {
     syncHeroVideo();
+    queueHeroVideo();
     /* ---------- 字号按钮（按钮在 main 内，每次重绑） ---------- */
     var fontBtn = $('#fontBtn');
     if (fontBtn) {

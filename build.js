@@ -40,7 +40,7 @@ const SITE = {
   carousel: rawConfig.carousel || { enabled: false },
   notice: rawConfig.notice || { enabled: false },
   hero: rawConfig.hero || {},
-  defaultCover: rawConfig.defaultCover || '/assets/images/banner/1.jpg',
+  defaultCover: rawConfig.defaultCover || '/assets/images/banner/1.webp',
   postHero: rawConfig.postHero || '',
   profile: rawConfig.profile || { enabled: true },
   weather: rawConfig.weather || { enabled: false },
@@ -525,14 +525,12 @@ function carouselHtml() {
     .map(function (s, i) {
       const active = i === 0 ? ' is-active' : '';
 
-      /* 视频素材：静音 + 循环 + 自动播放；加载失败会显示 poster */
+      /* 视频素材：先只显示海报，页面空闲后再挂视频，避免首屏下载上兆数据 */
       if (s.video) {
         return '<div class="hb-slide hb-slide--video' + active + '"' +
           (s.image ? ' style="background-image:url(' + esc(s.image) + ')"' : '') + '>' +
-          '<video class="hb-video" autoplay muted loop playsinline preload="metadata"' +
-          (s.image ? ' poster="' + esc(s.image) + '"' : '') + '>' +
-          '<source src="' + esc(s.video) + '" type="video/mp4">' +
-          '</video></div>';
+          '<video class="hb-video" muted loop playsinline preload="none" data-src="' + esc(s.video) + '"' +
+          (s.image ? ' poster="' + esc(s.image) + '"' : '') + '></video></div>';
       }
 
       return '<div class="hb-slide' + active + '" style="background-image:url(' + esc(s.image) + ')"></div>';
@@ -785,7 +783,7 @@ function pageUrl(n) {
 
 function postCard(p) {
 
-  const cover = p.cover || SITE.defaultCover || '/assets/images/banner/1.jpg';
+  const cover = p.cover || SITE.defaultCover || '/assets/images/banner/1.webp';
   const url = '/posts/' + p.slug + '.html';
 
   return [

@@ -60,6 +60,7 @@ const ASSET_V = (function () {
   const files = [
     path.join(__dirname, 'assets', 'style.css'),
     path.join(__dirname, 'assets', 'main.js'),
+    path.join(__dirname, 'assets', 'quiz.js'),
   ];
   const h = crypto.createHash("md5");
   files.forEach(function (f) {
@@ -74,6 +75,7 @@ const NAV = [
   { href: '/notes.html', label: '动态', key: 'notes', icon: 'chat' },
   { href: '/photos.html', label: '照片', key: 'photos', icon: 'image' },
   { href: '/bookmarks.html', label: '书签导航', key: 'bookmarks', icon: 'bookmark' },
+  { href: '/quiz.html', label: '题库', key: 'quiz', icon: 'quiz' },
   { href: '/about.html', label: '关于', key: 'about', icon: 'user' },
 ];
 
@@ -85,6 +87,7 @@ const NAV_MORE = [
 ];
 
 const NAV_ICON = {
+  quiz: '<path d="M5 4h11a2 2 0 0 1 2 2v14a1 1 0 0 1-1.5.87L12 18.3l-4.5 2.57A1 1 0 0 1 6 20V6a2 2 0 0 1-1-2z"/><path d="M9 9h6M9 13h4"/>',
   home: '<path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-4v-7H9v7H5a1 1 0 0 1-1-1z"/>',
   file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/>',
   chat: '<path d="M4 5h16v11H9l-4 4z"/>',
@@ -769,6 +772,7 @@ function layout(opts) {
     '</footer>',
     musicPlayerHtml(),
     lightboxHtml(),
+    opts.quiz ? '<script src="/assets/quiz.js?v=' + ASSET_V + '"></script>' : '',
     '<script src="/assets/main.js?v=' + ASSET_V + '"></script>',
     '</body>',
     '</html>',
@@ -1179,6 +1183,99 @@ function loadBookmarks() {
 
 function hostOf(url) {
   return String(url || '').replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+}
+
+
+/* ============================ 题库（答题 / 背题 / 模考） ============================ */
+
+function loadQuiz() {
+  try {
+    const raw = fs.readFileSync(path.join(__dirname, 'content', 'quiz.json'), 'utf8');
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function buildQuiz() {
+  const data = loadQuiz();
+  const total = data ? data.questions.length : 0;
+  const types = data ? data.types : { single: 0, multi: 0, judge: 0 };
+
+  const topics = data
+    ? data.topics.map(function (t) {
+        const n = data.questions.filter(function (q) { return q.topic === t.id; }).length;
+        return n ? { id: t.id, title: t.title, count: n } : null;
+      }).filter(Boolean)
+    : [];
+
+  const topicRows = topics.map(function (t, i) {
+    return '        <button class="qz-topic" type="button" data-topic="' + esc(t.id) + '">' +
+      '<span class="qz-topic-name">' + esc(t.title) + '</span>' +
+      '<span class="qz-topic-count">' + t.count + ' 题</span>' +
+      '</button>';
+  }).join('\n');
+
+  const content = [
+    '<section class="quiz" id="quizRoot" data-total="' + total + '">',
+    '  <header class="quiz-head">',
+    '    <h1 class="page-title">题库</h1>',
+    '    <p class="page-desc">' + (total
+      ? total + ' 道题 · 单选 ' + types.single + ' / 多选 ' + types.multi + ' / 判断 ' + types.judge
+      : '题库还在路上。') + '</p>',
+    '  </header>',
+
+    '  <div class="quiz-home" id="quizHome">',
+    '    <div class="qz-stats">',
+    '      <div class="qz-stat"><b id="qzDone">0</b><span>已练题数</span></div>',
+    '      <div class="qz-stat"><b id="qzRate">–</b><span>正确率</span></div>',
+    '      <div class="qz-stat"><b id="qzWrong">0</b><span>错题待复习</span></div>',
+    '      <div class="qz-stat"><b id="qzExamBest">–</b><span>模考最高分</span></div>',
+    '    </div>',
+
+    '    <div class="qz-modes">',
+    '      <button class="qz-mode" type="button" data-mode="practice">',
+    '        <span class="qz-mode-ico">' + icon('post') + '</span>',
+    '        <strong>顺序练习</strong>',
+    '        <small>答一题对一次，选完立刻出解析</small>',
+    '      </button>',
+    '      <button class="qz-mode" type="button" data-mode="study">',
+    '        <span class="qz-mode-ico">' + icon('words') + '</span>',
+    '        <strong>背题模式</strong>',
+    '        <small>答案与解析常显，只管往下翻</small>',
+    '      </button>',
+    '      <button class="qz-mode" type="button" data-mode="exam">',
+    '        <span class="qz-mode-ico">' + icon('pulse') + '</span>',
+    '        <strong>模拟考试</strong>',
+    '        <small>按专题比例抽 100 题，交卷后统一批改</small>',
+    '      </button>',
+    '      <button class="qz-mode" type="button" data-mode="wrong">',
+    '        <span class="qz-mode-ico">' + icon('views') + '</span>',
+    '        <strong>错题本</strong>',
+    '        <small>只练做错过的题</small>',
+    '      </button>',
+    '    </div>',
+
+    topics.length
+      ? '    <div class="qz-topics-wrap"><h2 class="qz-sub">按专题练</h2><div class="qz-topics">' + topicRows + '</div></div>'
+      : '',
+
+    '    <p class="qz-tip">进度保存在本机浏览器，换设备不会同步。</p>',
+    '  </div>',
+
+    '  <div class="quiz-play" id="quizPlay" hidden></div>',
+    '  <div class="quiz-result" id="quizResult" hidden></div>',
+    '</section>',
+  ].join('\n');
+
+  return layout({
+    title: '题库',
+    description: 'HarmonyOS 应用开发者认证与鸿蒙·华为云物联网题库，支持答题、背题与 100 题模拟考试。',
+    content: content,
+    active: 'quiz',
+    path: '/quiz.html',
+    quiz: true,
+  });
 }
 
 function buildBookmarks() {
@@ -2002,6 +2099,7 @@ function main() {
   writeFile('about.html', buildMarkdownPage('about.md', '关于', 'about', '/about.html'));
   writeFile('links.html', buildLinks(loadFriends()));
   writeFile('bookmarks.html', buildBookmarks());
+  writeFile('quiz.html', buildQuiz());
   writeFile('404.html', build404());
 
   // 订阅与索引

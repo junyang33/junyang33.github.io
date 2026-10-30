@@ -6998,3 +6998,262 @@ body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+/* ==========================================================================
+   v68：题库（答题 / 背题 / 模拟考试）
+   ========================================================================== */
+
+.quiz { max-width: 900px; margin: 0 auto; padding: 24px 0 60px; }
+.quiz-head { margin-bottom: 26px; }
+.quiz-head .page-desc { margin-top: 6px; color: var(--ink-3); font-size: 0.9rem; }
+
+/* 统计 */
+.qz-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.qz-stat {
+  padding: 16px 14px;
+  background: var(--card-solid);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  text-align: center;
+}
+.qz-stat b { display: block; font-size: 1.6rem; color: var(--accent); line-height: 1.1; }
+.qz-stat span { display: block; margin-top: 6px; font-size: 0.76rem; color: var(--ink-3); }
+
+/* 模式入口 */
+.qz-modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.qz-mode {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  grid-template-rows: auto auto;
+  gap: 2px 14px;
+  padding: 18px 18px;
+  text-align: left;
+  background: var(--card-solid);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.qz-mode:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 10px 24px rgba(16, 40, 60, 0.12);
+}
+.qz-mode-ico {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+.qz-mode-ico svg { width: 20px; height: 20px; }
+.qz-mode strong { font-size: 1rem; color: var(--ink); }
+.qz-mode small { font-size: 0.78rem; color: var(--ink-3); line-height: 1.5; }
+
+/* 专题 */
+.qz-sub { margin: 0 0 12px; font-size: 0.95rem; color: var(--ink-2); }
+.qz-topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.qz-topic {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+  background: var(--card-solid);
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.qz-topic:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.qz-topic-count { font-size: 0.72rem; color: var(--ink-3); }
+.qz-tip { margin-top: 22px; font-size: 0.76rem; color: var(--ink-3); }
+
+/* 答题区 */
+.quiz-play { max-width: 780px; margin: 0 auto; }
+.qz-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 10px;
+}
+.qz-back {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--stroke);
+  background: var(--card-solid);
+  color: var(--ink-2);
+  cursor: pointer;
+  font-size: 1rem;
+}
+.qz-bar-title { font-size: 0.9rem; color: var(--ink-2); font-weight: 600; }
+.qz-bar-count, .qz-clock { margin-left: auto; font-size: 0.8rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.qz-clock { color: var(--accent); font-weight: 600; }
+.qz-progress { height: 4px; border-radius: 99px; background: color-mix(in srgb, var(--accent) 12%, transparent); overflow: hidden; margin-bottom: 20px; }
+.qz-progress i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.25s ease; }
+
+.qz-card {
+  padding: 26px 26px 22px;
+  background: var(--card-solid);
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+}
+.qz-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.qz-badge {
+  padding: 3px 9px;
+  font-size: 0.72rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.qz-badge.is-multi { background: color-mix(in srgb, #c98a2b 16%, transparent); color: #a06a13; }
+.qz-badge.is-judge { background: color-mix(in srgb, #3f8f63 16%, transparent); color: #2f7349; }
+.qz-topic-name { font-size: 0.76rem; color: var(--ink-3); }
+.qz-stem { margin: 0 0 18px; font-size: 1.08rem; line-height: 1.7; color: var(--ink); font-weight: 600; }
+
+.qz-opts { display: flex; flex-direction: column; gap: 10px; }
+.qz-opt {
+  display: flex; align-items: flex-start; gap: 12px;
+  width: 100%;
+  padding: 13px 16px;
+  text-align: left;
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.6;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.qz-opt:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.qz-opt-key {
+  flex: none;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 0.76rem; font-weight: 700;
+}
+.qz-opt.is-picked { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.qz-opt.is-right { border-color: #2f8a5b; background: color-mix(in srgb, #2f8a5b 12%, transparent); }
+.qz-opt.is-right .qz-opt-key { background: #2f8a5b; color: #fff; }
+.qz-opt.is-wrong { border-color: #c25b5b; background: color-mix(in srgb, #c25b5b 12%, transparent); }
+.qz-opt.is-wrong .qz-opt-key { background: #c25b5b; color: #fff; }
+.qz-mark { margin-left: auto; font-weight: 700; }
+.qz-opt.is-right .qz-mark { color: #2f8a5b; }
+.qz-opt.is-wrong .qz-mark { color: #c25b5b; }
+
+.qz-actions { margin-top: 16px; display: flex; justify-content: flex-end; }
+
+/* 解析 */
+.qz-explain {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  border-left: 3px solid var(--accent);
+}
+.qz-explain.is-right { background: color-mix(in srgb, #2f8a5b 9%, transparent); border-left-color: #2f8a5b; }
+.qz-explain.is-wrong { background: color-mix(in srgb, #c25b5b 9%, transparent); border-left-color: #c25b5b; }
+.qz-explain-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+.qz-verdict { font-weight: 700; font-size: 0.86rem; color: var(--accent); }
+.qz-explain.is-right .qz-verdict { color: #2f8a5b; }
+.qz-explain.is-wrong .qz-verdict { color: #c25b5b; }
+.qz-answer { font-size: 0.82rem; color: var(--ink-2); }
+.qz-explain-text { margin: 0; font-size: 0.9rem; line-height: 1.75; color: var(--ink-2); }
+
+/* 底部导航 */
+.qz-nav { display: flex; gap: 12px; justify-content: space-between; margin-top: 20px; }
+.qz-btn {
+  padding: 10px 22px;
+  font-size: 0.88rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+.qz-btn:hover { opacity: 0.9; }
+.qz-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.qz-btn.is-ghost { background: var(--card-solid); color: var(--ink-2); border-color: var(--stroke); }
+
+/* 考试题目列表 */
+.qz-jump { margin-top: 18px; padding: 16px; background: var(--card-solid); border: 1px solid var(--stroke); border-radius: 14px; }
+.qz-jump-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; }
+.qz-jump-cell {
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+.qz-jump-cell.is-done { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); border-color: transparent; }
+.qz-jump-cell.is-cur { outline: 2px solid var(--accent); }
+.qz-jump-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 0.8rem; color: var(--ink-3); }
+
+/* 成绩单 */
+.qz-scorecard {
+  padding: 26px;
+  border-radius: 18px;
+  background: var(--card-solid);
+  border: 1px solid var(--stroke);
+  text-align: center;
+  margin-bottom: 26px;
+}
+.qz-score { font-size: 3.4rem; font-weight: 700; line-height: 1; color: var(--accent); }
+.qz-score.is-pass { color: #2f8a5b; }
+.qz-score small { font-size: 1rem; margin-left: 6px; color: var(--ink-3); font-weight: 400; }
+.qz-score-meta { display: flex; gap: 18px; justify-content: center; margin-top: 14px; font-size: 0.84rem; color: var(--ink-3); flex-wrap: wrap; }
+.qz-score-actions { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+
+/* 逐题回顾 */
+.qz-review-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.qz-review { padding: 16px 18px; border-radius: 12px; background: var(--card-solid); border: 1px solid var(--stroke); border-left: 3px solid var(--stroke); }
+.qz-review.is-right { border-left-color: #2f8a5b; }
+.qz-review.is-wrong { border-left-color: #c25b5b; }
+.qz-review-head { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--ink-3); flex-wrap: wrap; }
+.qz-ok { color: #2f8a5b; font-weight: 600; }
+.qz-no { color: #c25b5b; font-weight: 600; }
+.qz-review-stem { margin: 8px 0 6px; font-size: 0.92rem; color: var(--ink); line-height: 1.65; }
+.qz-review-ans { margin: 0 0 6px; font-size: 0.8rem; color: var(--ink-2); }
+.qz-review-exp { margin: 0; font-size: 0.84rem; color: var(--ink-3); line-height: 1.7; }
+
+.qz-empty { padding: 60px 20px; text-align: center; color: var(--ink-3); }
+.qz-empty-hint { font-size: 0.84rem; margin: 6px 0 18px; }
+
+@media (max-width: 700px) {
+  .qz-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qz-modes { grid-template-columns: 1fr; }
+  .qz-card { padding: 20px 16px; }
+  .qz-stem { font-size: 1rem; }
+  .qz-jump-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+[data-theme="dark"] .qz-opt { background: rgba(255, 255, 255, 0.04); }
+[data-theme="dark"] .qz-mode,
+[data-theme="dark"] .qz-card,
+[data-theme="dark"] .qz-scorecard,
+[data-theme="dark"] .qz-review,
+[data-theme="dark"] .qz-jump { background: var(--card-solid); }
+/* 题库模式入口图标：去掉正文图标的方块底色 */
+.qz-mode-ico svg.w-ico {
+  width: 22px !important;
+  height: 22px !important;
+  padding: 0 !important;
+  background: none !important;
+  border-radius: 0;
+}

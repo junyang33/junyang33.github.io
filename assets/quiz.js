@@ -77,6 +77,15 @@
     return t ? t.title : '';
   }
 
+  /* ---------- 载入状态 ---------- */
+  function setLoading(on) {
+    var root2 = document.getElementById('quizRoot');
+    if (!root2) return;
+    root2.classList.toggle('is-loading', !!on);
+    var tip = document.getElementById('qzLoading');
+    if (tip) tip.hidden = !on;
+  }
+
   /* ---------- 首页统计 ---------- */
   function refreshHome() {
     var done = getDone();
@@ -144,8 +153,16 @@
   }
 
   /* ---------- 开始一次练习/考试 ---------- */
+  var pending = null;
+
   function start(mode, opts) {
     opts = opts || {};
+    /* 数据还没到（移动网络较慢时常见）：先记下来，等加载完自动进入 */
+    if (!DATA) {
+      pending = { mode: mode, opts: opts };
+      setLoading(true);
+      return;
+    }
     state.mode = mode;
     state.index = 0;
     state.answers = {};
@@ -490,7 +507,7 @@
   }
 
   /* ---------- 首页按钮 ---------- */
-  homeEl.addEventListener('click', function (e) {
+  function onHomeClick(e) {
     var modeBtn = e.target.closest('[data-mode]');
     if (modeBtn) {
       start(modeBtn.getAttribute('data-mode'));
@@ -498,6 +515,13 @@
     }
     var topicBtn = e.target.closest('[data-topic]');
     if (topicBtn) start('topic', { topic: topicBtn.getAttribute('data-topic') });
+  }
+
+  /* 事件委托到 document：即便节点被替换或移动端点按，也能响应 */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest) return;
+    if (!e.target.closest('#quizHome')) return;
+    onHomeClick(e);
   });
 
   /* ---------- 载入数据 ---------- */
@@ -505,10 +529,13 @@
     .then(function (r) { return r.json(); })
     .then(function (data) {
       DATA = data;
+      setLoading(false);
       refreshHome();
+      if (pending) { var p0 = pending; pending = null; start(p0.mode, p0.opts); }
       if (window.__quizAutoStart === 'exam') start('exam');
     })
     .catch(function () {
+      setLoading(false);
       homeEl.innerHTML = '<p class="qz-empty">题库数据加载失败，刷新试试。</p>';
     });
 

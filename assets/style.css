@@ -7257,3 +7257,19 @@ body {
   background: none !important;
   border-radius: 0;
 }
+/* 题库载入提示 */
+.qz-loading {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-radius: 10px;
+}
+.qz-loading[hidden] { display: none; }
+.quiz.is-loading .qz-mode { opacity: 0.6; }
+/* 题库按钮：去掉移动端 300ms 点击延迟 */
+.qz-mode, .qz-opt, .qz-btn, .qz-topic, .qz-back, .qz-jump-cell {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}

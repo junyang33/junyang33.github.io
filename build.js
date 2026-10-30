@@ -1226,6 +1226,7 @@ function buildQuiz() {
     '  </header>',
 
     '  <div class="quiz-home" id="quizHome">',
+    '    <p class="qz-loading" id="qzLoading">题库加载中…</p>',
     '    <div class="qz-stats">',
     '      <div class="qz-stat"><b id="qzDone">0</b><span>已练题数</span></div>',
     '      <div class="qz-stat"><b id="qzRate">–</b><span>正确率</span></div>',

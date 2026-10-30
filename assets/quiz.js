@@ -4,13 +4,11 @@
 (function () {
   'use strict';
 
-  var root = document.getElementById('quizRoot');
-  if (!root) return;
-
-  var homeEl = document.getElementById('quizHome');
-  var playEl = document.getElementById('quizPlay');
-  var resEl = document.getElementById('quizResult');
-  if (!homeEl || !playEl || !resEl) return;
+  /* 软导航（PJAX）会替换 DOM，所以每次用到节点都重新取一次 */
+  function $root() { return document.getElementById('quizRoot'); }
+  function $home() { return document.getElementById('quizHome'); }
+  function $play() { return document.getElementById('quizPlay'); }
+  function $res() { return document.getElementById('quizResult'); }
 
   var DATA = null;
   var EXAM_SIZE = 100;
@@ -157,6 +155,7 @@
 
   function start(mode, opts) {
     opts = opts || {};
+    if (!$root()) return;
     /* 数据还没到（移动网络较慢时常见）：先记下来，等加载完自动进入 */
     if (!DATA) {
       pending = { mode: mode, opts: opts };
@@ -200,18 +199,18 @@
       if (firstUndone > 0 && opts.resume !== false) state.index = firstUndone;
     }
 
-    homeEl.hidden = true;
-    resEl.hidden = true;
-    playEl.hidden = false;
+    $home().hidden = true;
+    $res().hidden = true;
+    $play().hidden = false;
     render();
   }
 
   function exit() {
     stopTimer();
-    playEl.hidden = true;
-    playEl.innerHTML = '';
-    resEl.hidden = true;
-    homeEl.hidden = false;
+    $play().hidden = true;
+    $play().innerHTML = '';
+    $res().hidden = true;
+    $home().hidden = false;
     refreshHome();
   }
 
@@ -234,7 +233,7 @@
   /* ---------- 渲染一题 ---------- */
   function render() {
     if (!state.list.length) {
-      playEl.innerHTML =
+      $play().innerHTML =
         '<div class="qz-empty">' +
         '<p>这里还没有题。</p>' +
         '<p class="qz-empty-hint">' + (state.mode === 'wrong' ? '先把错题做出来再来。' : '换一个模式试试。') + '</p>' +
@@ -321,13 +320,13 @@
       '</div>',
     ].join('\n');
 
-    playEl.innerHTML = head + body + nav;
+    $play().innerHTML = head + body + nav;
     bindPlay();
   }
 
   /* ---------- 交互 ---------- */
   function bindPlay() {
-    playEl.onclick = function (e) {
+    $play().onclick = function (e) {
       var t = e.target.closest('[data-opt],[data-act]');
       if (!t) return;
 
@@ -386,7 +385,7 @@
     state.revealed[q.id] = true;
     recordAnswer(q, same(picked, q.answer));
     render();
-    var ex = playEl.querySelector('.qz-explain');
+    var ex = $play().querySelector('.qz-explain');
     if (ex && ex.scrollIntoView) ex.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
@@ -399,7 +398,7 @@
   }
 
   function toggleJump() {
-    var existing = playEl.querySelector('.qz-jump');
+    var existing = $play().querySelector('.qz-jump');
     if (existing) { existing.remove(); return; }
 
     var cells = state.list.map(function (q, i) {
@@ -413,7 +412,7 @@
     box.innerHTML = '<div class="qz-jump-grid">' + cells + '</div>' +
       '<div class="qz-jump-foot"><span>已答 ' + Object.keys(state.answers).length + ' / ' + state.list.length + '</span>' +
       '<button class="qz-btn" type="button" data-act="submit">交卷</button></div>';
-    playEl.appendChild(box);
+    $play().appendChild(box);
 
     box.onclick = function (e) {
       var c = e.target.closest('[data-goto]');
@@ -476,9 +475,9 @@
         '</li>';
     }).join('\n');
 
-    playEl.hidden = true;
-    resEl.hidden = false;
-    resEl.innerHTML = [
+    $play().hidden = true;
+    $res().hidden = false;
+    $res().innerHTML = [
       '<div class="qz-scorecard">',
       '  <div class="qz-score' + (score >= 60 ? ' is-pass' : '') + '">' + score + '<small>分</small></div>',
       '  <div class="qz-score-meta">',
@@ -497,10 +496,10 @@
       '</ol>',
     ].join('\n');
 
-    resEl.onclick = function (e) {
+    $res().onclick = function (e) {
       var t = e.target.closest('[data-act]');
       if (!t) return;
-      if (t.getAttribute('data-act') === 'again') { resEl.hidden = true; start('exam'); }
+      if (t.getAttribute('data-act') === 'again') { $res().hidden = true; start('exam'); }
       if (t.getAttribute('data-act') === 'home') exit();
     };
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -524,6 +523,19 @@
     onHomeClick(e);
   });
 
+  /* ---------- 初始化（首次加载和软导航后都会调用） ---------- */
+  function bootQuiz() {
+    if (!$root()) return;
+    setLoading(!DATA);
+    refreshHome();
+    if (pending && DATA) {
+      var p1 = pending;
+      pending = null;
+      start(p1.mode, p1.opts);
+    }
+  }
+  window.bootQuiz = bootQuiz;
+
   /* ---------- 载入数据 ---------- */
   fetch('/assets/data/quiz.json', { cache: 'force-cache' })
     .then(function (r) { return r.json(); })
@@ -536,8 +548,15 @@
     })
     .catch(function () {
       setLoading(false);
-      homeEl.innerHTML = '<p class="qz-empty">题库数据加载失败，刷新试试。</p>';
+      var h = $home();
+      if (h) h.innerHTML = '<p class="qz-empty">题库数据加载失败，刷新试试。</p>';
     });
 
   window.quizModule = { start: start, sample: sampleExam };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootQuiz);
+  } else {
+    bootQuiz();
+  }
 })();

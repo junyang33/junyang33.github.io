@@ -788,6 +788,36 @@
   /* ====================== 评论（giscus） ====================== */
 
   /* 软导航插入的 <script> 不会自动执行，需要重新创建一次 */
+
+  /* 软导航后补齐目标页专属的外部脚本（如题库的 quiz.js） */
+  var loadedScripts = (function () {
+    var map = {};
+    Array.prototype.forEach.call(document.querySelectorAll('script[src]'), function (s) {
+      map[(s.getAttribute('src') || '').split('?')[0]] = 1;
+    });
+    return map;
+  })();
+
+  function loadExtraScripts(doc) {
+    var pendingLoads = 0;
+    Array.prototype.forEach.call(doc.querySelectorAll('script[src]'), function (tag) {
+      var src = tag.getAttribute('src') || '';
+      var key = src.split('?')[0];
+      if (!key || loadedScripts[key]) return;
+      loadedScripts[key] = 1;
+      pendingLoads += 1;
+
+      var el = document.createElement('script');
+      el.src = src;
+      el.async = false;
+      el.onload = function () {
+        pendingLoads -= 1;
+        if (pendingLoads <= 0) bootPage();
+      };
+      document.body.appendChild(el);
+    });
+  }
+
   function activateScripts(container) {
     $$('script', container).forEach(function (old) {
       var type = (old.getAttribute('type') || '').toLowerCase();
@@ -899,6 +929,7 @@
 
   function bootPage() {
     syncHeroVideo();
+    if (typeof window.bootQuiz === 'function') { try { window.bootQuiz(); } catch (e) {} }
     queueHeroVideo();
     /* ---------- 字号按钮（按钮在 main 内，每次重绑） ---------- */
     var fontBtn = $('#fontBtn');
@@ -1532,6 +1563,7 @@
 
         var freshMain = document.getElementById('main');
         if (freshMain) activateScripts(freshMain);
+        loadExtraScripts(doc);
 
         document.title = doc.title;
         document.body.className = doc.body.className;

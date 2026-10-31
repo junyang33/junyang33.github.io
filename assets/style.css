@@ -7288,3 +7288,21 @@ body {
 .qz-mark { flex: 0 0 auto; margin-left: 10px; }
 .qz-opts, .qz-card, .qz-stem { min-width: 0; max-width: 100%; }
 .qz-stem { overflow-wrap: anywhere; }
+/* 解析与回顾里的长标识符同样要能折行 */
+.qz-explain,
+.qz-explain-head,
+.qz-explain-text,
+.qz-review,
+.qz-review-stem,
+.qz-review-ans,
+.qz-review-exp {
+  min-width: 0;
+  max-width: 100%;
+}
+.qz-explain-text,
+.qz-review-stem,
+.qz-review-ans,
+.qz-review-exp {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

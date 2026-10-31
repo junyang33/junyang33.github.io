@@ -524,6 +524,18 @@
   });
 
   /* ---------- 初始化（首次加载和软导航后都会调用） ---------- */
+  /* 支持 /quiz.html?q=123 直接跳到某题，便于分享与排查 */
+  function jumpTo() {
+    var m = /[?&]q=(\d+)/.exec(location.search);
+    if (!m || !DATA) return;
+    var qid = Number(m[1]);
+    var idx = DATA.questions.findIndex(function (q) { return q.id === qid; });
+    if (idx < 0) return;
+    start('practice', { resume: false });
+    state.index = idx;
+    render();
+  }
+
   function bootQuiz() {
     if (!$root()) return;
     setLoading(!DATA);
@@ -545,6 +557,7 @@
       refreshHome();
       if (pending) { var p0 = pending; pending = null; start(p0.mode, p0.opts); }
       if (window.__quizAutoStart === 'exam') start('exam');
+      jumpTo();
     })
     .catch(function () {
       setLoading(false);

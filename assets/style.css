@@ -7273,3 +7273,18 @@ body {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+/* 选项里的长标识符（如 registerDataChangeListener）允许折行，不再撑出屏幕 */
+.qz-opt {
+  align-items: flex-start;
+  min-width: 0;
+}
+.qz-opt-key { flex: 0 0 auto; }
+.qz-opt-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.qz-mark { flex: 0 0 auto; margin-left: 10px; }
+.qz-opts, .qz-card, .qz-stem { min-width: 0; max-width: 100%; }
+.qz-stem { overflow-wrap: anywhere; }
